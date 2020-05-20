@@ -1,0 +1,286 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'com.google.ar.sceneform.plugin'
+
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "com.capstone.aryoulearning"
+        minSdkVersion 24
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    //noinspection GradleCompatible
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+    //Tests
+    implementation 'com.google.android.material:material:1.1.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    //Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.6.1'
+
+    //Gson Converter
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.1'
+    //Recyclerview
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
+
+    implementation 'com.squareup.picasso:picasso:2.71828'
+    //Sceneform
+    implementation "com.google.ar.sceneform.ux:sceneform-ux:1.15.0"
+    implementation 'com.google.ar:core:1.15.0'
+
+    implementation 'com.airbnb.android:lottie:2.7.0'
+    implementation 'com.facebook.shimmer:shimmer:0.4.0'
+    //Dagger
+    implementation 'com.google.dagger:dagger:2.22'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.22'
+    compileOnly 'org.glassfish:javax.annotation:10.0-b28'
+
+    //RxJava
+    implementation "io.reactivex.rxjava2:rxandroid:2.1.1"
+    implementation "io.reactivex.rxjava2:rxjava:2.2.10"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:2.6.0"
+
+    //Room
+    implementation "androidx.room:room-runtime:2.2.4"
+    implementation "androidx.room:room-rxjava2:2.2.4"
+    implementation "android.arch.persistence.room:rxjava2:1.1.1"
+    annotationProcessor "androidx.room:room-compiler:2.2.4"
+
+    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
+    implementation "com.google.android.material:material:1.1.0"
+    implementation "android.arch.lifecycle:reactivestreams:1.1.1"
+    
+    implementation "androidx.core:core-ktx:1.2.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+}
+
+//letters
+sceneform.asset('sampledata/alphabet/balloonb.obj',
+        'default',
+        'sampledata/alphabet/b.sfa',
+        'src/main/assets/b')
+
+
+sceneform.asset('sampledata/alphabet/balloonc.obj',
+        'default',
+        'sampledata/alphabet/c.sfa',
+        'src/main/assets/c')
+
+sceneform.asset('sampledata/alphabet/d.fbx',
+        'default',
+        'sampledata/alphabet/d.sfa',
+        'src/main/assets/d')
+
+sceneform.asset('sampledata/alphabet/balloone.obj',
+        'default',
+        'sampledata/alphabet/e.sfa',
+        'src/main/assets/e')
+
+sceneform.asset('sampledata/alphabet/balloonf.obj',
+        'default',
+        'sampledata/alphabet/f.sfa',
+        'src/main/assets/f')
+
+sceneform.asset('sampledata/alphabet/g.fbx',
+        'default',
+        'sampledata/alphabet/g.sfa',
+        'src/main/assets/g')
+
+sceneform.asset('sampledata/alphabet/balloonh.obj',
+        'default',
+        'sampledata/alphabet/h.sfa',
+        'src/main/assets/h')
+
+sceneform.asset('sampledata/alphabet/ballooni.obj',
+        'default',
+        'sampledata/alphabet/i.sfa',
+        'src/main/assets/i')
+
+sceneform.asset('sampledata/alphabet/balloonj.obj',
+        'default',
+        'sampledata/alphabet/j.sfa',
+        'src/main/assets/j')
+
+sceneform.asset('sampledata/alphabet/balloonk.obj',
+        'default',
+        'sampledata/alphabet/k.sfa',
+        'src/main/assets/k')
+
+sceneform.asset('sampledata/alphabet/balloonl.obj',
+        'default',
+        'sampledata/alphabet/l.sfa',
+        'src/main/assets/l')
+
+sceneform.asset('sampledata/alphabet/balloonm.obj',
+        'default',
+        'sampledata/alphabet/m.sfa',
+        'src/main/assets/m')
+
+sceneform.asset('sampledata/alphabet/balloonn.obj',
+        'default',
+        'sampledata/alphabet/n.sfa',
+        'src/main/assets/n')
+
+sceneform.asset('sampledata/alphabet/o.fbx',
+        'default',
+        'sampledata/alphabet/o.sfa',
+        'src/main/assets/o')
+
+sceneform.asset('sampledata/alphabet/balloonp.obj',
+        'default',
+        'sampledata/alphabet/p.sfa',
+        'src/main/assets/p')
+
+sceneform.asset('sampledata/alphabet/balloona.fbx',
+        'default',
+        'sampledata/alphabet/a.sfa',
+        'src/main/assets/a')
+
+
+sceneform.asset('sampledata/alphabet/z.obj',
+        'default',
+        'sampledata/alphabet/z.sfa',
+        'src/main/assets/z')
+
+sceneform.asset('sampledata/alphabet/q.obj',
+        'default',
+        'sampledata/alphabet/q.sfa',
+        'src/main/assets/q')
+
+sceneform.asset('sampledata/alphabet/r.obj',
+        'default',
+        'sampledata/alphabet/r.sfa',
+        'src/main/assets/r')
+
+sceneform.asset('sampledata/alphabet/s.obj',
+        'default',
+        'sampledata/alphabet/s.sfa',
+        'src/main/assets/s')
+
+sceneform.asset('sampledata/alphabet/t.obj',
+        'default',
+        'sampledata/alphabet/t.sfa',
+        'src/main/assets/t')
+
+sceneform.asset('sampledata/alphabet/u.obj',
+        'default',
+        'sampledata/alphabet/u.sfa',
+        'src/main/assets/u')
+
+sceneform.asset('sampledata/alphabet/v.obj',
+        'default',
+        'sampledata/alphabet/v.sfa',
+        'src/main/assets/v')
+
+sceneform.asset('sampledata/alphabet/w.obj',
+        'default',
+        'sampledata/alphabet/w.sfa',
+        'src/main/assets/w')
+
+sceneform.asset('sampledata/alphabet/x.obj',
+        'default',
+        'sampledata/alphabet/x.sfa',
+        'src/main/assets/x')
+
+sceneform.asset('sampledata/alphabet/y.obj',
+        'default',
+        'sampledata/alphabet/y.sfa',
+        'src/main/assets/y')
+//colors
+
+sceneform.asset('sampledata/color/blue.obj',
+        'default',
+        'sampledata/color/blue.sfa',
+        'src/main/assets/blue')
+
+sceneform.asset('sampledata/color/green.obj',
+        'default',
+        'sampledata/color/green.sfa',
+        'src/main/assets/green')
+
+sceneform.asset('sampledata/color/red.obj',
+        'default',
+        'sampledata/color/red.sfa',
+        'src/main/assets/red')
+
+sceneform.asset('sampledata/color/purple.obj',
+        'default',
+        'sampledata/color/purple.sfa',
+        'src/main/assets/purple')
+
+sceneform.asset('sampledata/color/yellow.obj',
+        'default',
+        'sampledata/color/yellow.sfa',
+        'src/main/assets/yellow')
+
+sceneform.asset('sampledata/color/orange.obj',
+        'default',
+        'sampledata/color/orange.sfa',
+        'src/main/assets/orange')
+
+
+sceneform.asset('sampledata/animal/Bat_01.obj',
+        'default',
+        'sampledata/animal/Bat_01.sfa',
+        'src/main/assets/bat')
+
+sceneform.asset('sampledata/animal/Bear_01.obj',
+        'default',
+        'sampledata/animal/Bear_01.sfa',
+        'src/main/assets/bear')
+
+sceneform.asset('sampledata/animal/Lion.obj',
+        'default',
+        'sampledata/animal/Lion.sfa',
+        'src/main/assets/lion')
+
+sceneform.asset('sampledata/animal/Mesh_Cat.obj',
+        'default',
+        'sampledata/animal/Mesh_Cat.sfa',
+        'src/main/assets/cat')
+
+sceneform.asset('sampledata/animal/Rat_01.obj',
+        'default',
+        'sampledata/animal/Rat_01.sfa',
+        'src/main/assets/rat')
+
+sceneform.asset('sampledata/animal/Mesh_Beagle.obj',
+        'default',
+        'sampledata/animal/Mesh_Beagle.sfa',
+        'src/main/assets/dog')
+
+sceneform.asset('sampledata/animal/Mesh_Cow.obj',
+        'default',
+        'sampledata/animal/Mesh_Cow.sfa',
+        'src/main/assets/cow')
+repositories {
+    mavenCentral()
+}

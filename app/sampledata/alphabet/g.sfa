@@ -1,0 +1,62 @@
+{
+  animations: [
+    {
+      path: 'sampledata/alphabet/g.fbx',
+    },
+  ],
+  materials: [
+    {
+      name: 'Ballon_orange_01',
+      parameters: [
+        {
+          baseColor: [
+            0,
+            0,
+            4,
+            0,
+          ],
+        },
+        {
+          baseColorMap: null,
+        },
+        {
+          normalMap: null,
+        },
+        {
+          interpolatedColor: null,
+        },
+        {
+       metallic: 0.3,
+              },
+              {
+                metallicMap: null,
+              },
+              {
+                roughness: 0,
+              },
+              {
+                roughnessMap: null,
+              },
+              {
+                opacity: null,
+              },
+            ],
+      source: 'build/sceneform_sdk/default_materials/fbx_material.sfm',
+    },
+  ],
+  model: {
+    attributes: [
+      'Position',
+      'TexCoord',
+      'Orientation',
+      'BoneIndices',
+      'BoneWeights',
+    ],
+    collision: {},
+    file: 'sampledata/alphabet/g.fbx',
+    name: 'g',
+    recenter: 'root',
+     scale: 0.05,
+  },
+  version: '0.54:2',
+}

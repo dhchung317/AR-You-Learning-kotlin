@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#494949</color>
+    <color name="colorBlack">#000000</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="categoryCard">#D3AC73</color>
+    <color name="colorSplashBackground">#FFECB3</color>
+    <color name="colorteal">#03A9F4</color>
+    <color name="colorPurple">#8664C4</color>
+    <color name="colorDarkPurple">#380B80</color>
+    <color name="mainBackground">#F1E2A8</color>
+    <color name="colorCream">#FCFFDA</color>
+    <color name="colorWordContainer">#43F5F5F5</color>
+    <color name="colorCreamTransparent">#94FCFFDA</color>
+    <color name="colorOkBlue">#3B90D5</color>
+    <color name="colorStartGreen">#39C206</color>
+    <color name="share_button_color">#BE4B42</color>
+    <color name="fabBack">#FF9800</color>
+</resources>

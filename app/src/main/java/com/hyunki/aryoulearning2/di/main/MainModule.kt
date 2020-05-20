@@ -1,0 +1,36 @@
+package com.hyunki.aryoulearning2.di.main
+
+import com.hyunki.aryoulearning2.R
+import com.hyunki.aryoulearning2.animation.LottieHelper
+import com.hyunki.aryoulearning2.network.main.MainApi
+import com.hyunki.aryoulearning2.ui.main.hint.rv.HintAdapter
+import com.hyunki.aryoulearning2.ui.main.list.rv.ListAdapter
+import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
+
+import dagger.Module
+import dagger.Provides
+import retrofit2.Retrofit
+
+@Module
+object MainModule {
+
+    @Provides
+    internal fun provideThemeID(): Int {
+        return R.style.AppTheme
+    }
+
+    @Provides
+    internal fun provideCategoryAdapter(): ListAdapter {
+        return ListAdapter()
+    }
+
+    @Provides
+    internal fun provideHintAdapter(pronunciationUtil: PronunciationUtil): HintAdapter {
+        return HintAdapter(pronunciationUtil)
+    }
+
+    @Provides
+    internal fun provideLottieHelper(): LottieHelper {
+        return LottieHelper()
+    }
+}

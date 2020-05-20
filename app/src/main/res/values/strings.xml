@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">AR you learning</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="rightanswers">Your Right Answers:</string>
+    <string name="rightanswer">Your Right Answer:</string>
+    <string name="wronganswers">Your Wrong Answers:</string>
+    <string name="wronganswer">Your Wrong Answer:</string>
+    <string name="correctanswers">Correct Answers:</string>
+    <string name="correctanswer">Correct Answer:</string>
+    <string name="congratsgif">https://media.tenor.com/images/24520b4497153abb91ca769fe4a7f23f/tenor.gif</string>
+    <string name="title_activity_arfragment">ARFragment</string>
+    <string name="action_settings">Settings</string>
+    <string name="switch_button_text">AR MODE </string>
+    <string name="switch_off">OFF</string>
+    <string name="switch_on">ON</string>
+    <string name="hint_frag_start_button_text">start</string>
+    <string name="play_again">Play Again?</string>
+    <string name="home">Home</string>
+    <string name="results">Results</string>
+    <string name="game_title">AR you learning?</string>
+    <string name="results_title_text">Results</string>
+    <string name="category_title_text">Choose a category</string>
+    <string name="hint_title_text">Let\'s Study!</string>
+    <string name="tutorial_frag_start_button">Start\nGame</string>
+    <string name="tutorial_frag_start_button_tablet">Start Game</string>
+    <string name="tutorial_fragment_back_button">Back</string>
+    <string name="hint_frag_go_to_tutorial_button">Tutorial</string>
+    <string name="tutorial_frag_play_button">play</string>
+    <string name="agreement_text">By proceeding you agree<br /> with our</string>
+    <string name="privacy_text_button">privacy policy</string>
+    <string name="ok_text">Ok</string>
+    <string name="parental_text">Parental or guardian supervision required for the use of this app</string>
+    <string name="stay_alert_text">Remember to be alert at all times. Stay alert of your surroundings!</string>
+    <string name="confirmation_text">Are You Sure You Want To Exit?</string>
+    <string name="yes_text">yes</string>
+    <string name="no_text">no</string>
+
+</resources>

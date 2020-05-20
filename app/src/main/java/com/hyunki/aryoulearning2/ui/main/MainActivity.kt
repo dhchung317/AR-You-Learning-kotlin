@@ -1,0 +1,168 @@
+package com.hyunki.aryoulearning2.ui.main
+
+import android.content.SharedPreferences
+import android.os.Bundle
+import android.preference.PreferenceManager
+import android.util.Log
+import android.view.View
+import android.widget.ProgressBar
+
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProviders
+
+import com.hyunki.aryoulearning2.BaseApplication
+import com.hyunki.aryoulearning2.R
+import com.hyunki.aryoulearning2.db.model.Category
+import com.hyunki.aryoulearning2.ui.main.ar.ArHostFragment
+import com.hyunki.aryoulearning2.ui.main.ar.util.CurrentWord
+import com.hyunki.aryoulearning2.ui.main.controller.NavListener
+import com.hyunki.aryoulearning2.ui.main.hint.HintFragment
+import com.hyunki.aryoulearning2.ui.main.list.ListFragment
+import com.hyunki.aryoulearning2.ui.main.replay.ReplayFragment
+import com.hyunki.aryoulearning2.ui.main.results.ResultsFragment
+import com.hyunki.aryoulearning2.ui.main.tutorial.TutorialFragment
+import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
+import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
+
+import javax.inject.Inject
+
+class MainActivity : AppCompatActivity(), NavListener {
+    private var viewModel: MainViewModel? = null
+    private var progressBar: ProgressBar? = null
+    internal var prefs: SharedPreferences
+
+    @Inject
+    internal var pronunciationUtil: PronunciationUtil? = null
+
+    @Inject
+    internal var arHostFragment: ArHostFragment? = null
+
+    @Inject
+    internal var listFragment: ListFragment? = null
+
+    @Inject
+    internal var hintFragment: HintFragment? = null
+
+    @Inject
+    internal var replayFragment: ReplayFragment? = null
+
+    @Inject
+    internal var resultsFragment: ResultsFragment? = null
+
+    @Inject
+    internal var tutorialFragment: TutorialFragment? = null
+
+    @Inject
+    internal var resId: Int = 0
+
+    @Inject
+    internal var providerFactory: ViewModelProviderFactory? = null
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        val decorView = window.decorView
+
+        if (hasFocus) {
+            decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE)
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(resId)
+        (application as BaseApplication).appComponent.inject(this)
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        viewModel = ViewModelProviders.of(this, providerFactory).get(MainViewModel::class.java)
+
+        progressBar = findViewById(R.id.progress_bar)
+        Log.d(TAG, "onCreate")
+        if (prefs.contains(NETWORK_CALL_COMPLETED)) {
+            Log.d(TAG, "onCreate: " + prefs.contains(NETWORK_CALL_COMPLETED))
+            moveToListFragment()
+        } else {
+            viewModel!!.loadModelResponses()
+            viewModel!!.modelResponsesData.observe(this, Observer<State> { this.renderModelResponses(it) })
+        }
+    }
+
+    private fun renderModelResponses(state: State) {
+        if (state === State.Loading) {
+            showProgressBar(true)
+        } else if (state === State.Error) {
+            showProgressBar(false)
+        } else if (state.javaClass == State.Success.OnModelResponsesLoaded::class.java) {
+            prefs.edit().putString(NETWORK_CALL_COMPLETED, "success").apply()
+            moveToListFragment()
+        }
+    }
+
+    private fun showProgressBar(isVisible: Boolean) {
+        if (isVisible) {
+            progressBar!!.visibility = View.VISIBLE
+        } else {
+            progressBar!!.visibility = View.GONE
+        }
+    }
+
+    override fun moveToListFragment() {
+        supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, listFragment!!)
+                .commit()
+    }
+
+    override fun moveToGameFragment() {
+        supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, arHostFragment!!)
+                .commit()
+    }
+
+    override fun moveToResultsFragment() {
+        supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, resultsFragment!!)
+                .commit()
+    }
+
+    override fun moveToHintFragment() {
+        supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, hintFragment!!)
+                .addToBackStack(null)
+                .commit()
+    }
+
+    override fun moveToReplayFragment() {
+        supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, replayFragment!!)
+                .commit()
+    }
+
+    override fun moveToTutorialFragment() {
+        supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, tutorialFragment!!)
+                .addToBackStack(null)
+                .commit()
+    }
+
+    override fun setCategoryFromListFragment(category: Category) {
+        viewModel!!.setCurrentCategory(category)
+    }
+
+    override fun setWordHistoryFromGameFragment(wordHistory: List<CurrentWord>) {
+        viewModel!!.wordHistory = wordHistory
+    }
+
+    companion object {
+        val TAG = "MainActivity"
+        val NETWORK_CALL_COMPLETED = "network_call_completed"
+    }
+}

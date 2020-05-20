@@ -1,0 +1,153 @@
+package com.hyunki.aryoulearning2.ui.main.ar
+
+import android.app.Application
+import android.net.Uri
+import android.util.Log
+
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+
+import com.hyunki.aryoulearning2.model.Model
+import com.hyunki.aryoulearning2.ui.main.MainRepository
+import com.google.ar.sceneform.rendering.ModelRenderable
+
+import java.util.ArrayList
+import java.util.HashMap
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutionException
+
+import javax.inject.Inject
+
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+
+class ArViewModel @Inject
+constructor(private val application: Application, private val mainRepository: MainRepository) : ViewModel() {
+
+    private val compositeDisposable = CompositeDisposable()
+
+    val modelLiveData = MutableLiveData<List<Model>>()
+
+    val futureModelMapList = MutableLiveData<List<HashMap<String, CompletableFuture<ModelRenderable>>>>()
+    val futureLetterMap = MutableLiveData<HashMap<String, CompletableFuture<ModelRenderable>>>()
+
+    val modelMapList = MutableLiveData<List<HashMap<String, ModelRenderable>>>()
+    val letterMap = MutableLiveData<HashMap<String, ModelRenderable>>()
+
+    init {
+        println("arviewmodel created")
+    }
+
+    private fun onModelsFetched(models: List<Model>) {
+        Log.d(TAG, "onModelsFetched: " + models.size)
+        modelLiveData.value = models
+    }
+
+    fun loadModels() {
+        val catDisposable = mainRepository.currentCategory.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { currentCategory ->
+                    val modelDisposable = mainRepository.getModelsByCat(currentCategory.currentCategory)
+                            .subscribe(Consumer<List<Model>> { this.onModelsFetched(it) }, Consumer<Throwable> { this.onError(it) })
+                    compositeDisposable.add(modelDisposable)
+                }
+        compositeDisposable.add(catDisposable)
+
+    }
+
+    fun setListMapsOfFutureModels(modelList: List<Model>) {
+
+        val returnFutureModelMapList = ArrayList<HashMap<String, CompletableFuture<ModelRenderable>>>()
+
+        for (i in modelList.indices) {
+            val futureMap = HashMap()
+            futureMap.put(modelList[i].name,
+                    ModelRenderable.builder().setSource(application, Uri.parse(modelList[i].name + ".sfb")).build())
+            returnFutureModelMapList.add(futureMap)
+        }
+
+        futureModelMapList.setValue(returnFutureModelMapList)
+    }
+
+    fun setMapOfFutureLetters(futureMapList: List<HashMap<String, CompletableFuture<ModelRenderable>>>) {
+
+        val returnMap = HashMap<String, CompletableFuture<ModelRenderable>>()
+
+        for (i in futureMapList.indices) {
+
+            val modelName = futureMapList[i].keys.toString()
+            for (j in 0 until modelName.length) {
+                returnMap[Character.toString(modelName[j])] = ModelRenderable.builder().setSource(application, Uri.parse(modelName[j] + ".sfb")).build()
+            }
+        }
+        futureLetterMap.value = returnMap
+    }
+
+    fun setLetterRenderables(futureLetterMap: HashMap<String, CompletableFuture<ModelRenderable>>) {
+        val returnMap = HashMap<String, ModelRenderable>()
+
+        for (e in futureLetterMap.entries) {
+
+            CompletableFuture.allOf(e.value)
+                    .handle<Any> { notUsed, throwable ->
+                        // When you build a Renderable, Sceneform loads its resources in the background while
+                        // returning a CompletableFuture. Call handle(), thenAccept(), or check isDone()
+                        // before calling get().
+                        if (throwable != null) {
+                            return@CompletableFuture.allOf(e.getValue())
+                                    .handle null
+                        }
+                        try {
+                            returnMap[e.key] = e.value.get()
+                        } catch (ex: InterruptedException) {
+                        } catch (ex: ExecutionException) {
+                        }
+
+                        null
+                    }
+        }
+        letterMap.setValue(returnMap)
+    }
+
+    fun setModelRenderables(futureModelMapList: List<HashMap<String, CompletableFuture<ModelRenderable>>>) {
+        val returnList = ArrayList<HashMap<String, ModelRenderable>>()
+
+        for (i in futureModelMapList.indices) {
+
+            for (e in futureModelMapList[i].entries) {
+
+                val modelMap = HashMap<String, ModelRenderable>()
+
+                CompletableFuture.allOf(e.value)
+                        .handle<Any> { notUsed, throwable ->
+                            // When you build a Renderable, Sceneform loads its resources in the background while
+                            // returning a CompletableFuture. Call handle(), thenAccept(), or check isDone()
+                            // before calling get().
+                            if (throwable != null) {
+                                return@CompletableFuture.allOf(e.getValue())
+                                        .handle null
+                            }
+                            try {
+                                modelMap[e.key] = e.value.get()
+                            } catch (ex: InterruptedException) {
+                            } catch (ex: ExecutionException) {
+                            }
+
+                            null
+                        }
+                returnList.add(modelMap)
+            }
+        }
+        modelMapList.setValue(returnList)
+    }
+
+    private fun onError(throwable: Throwable) {
+        Log.d("MainViewModel", throwable.message)
+    }
+
+    companion object {
+        val TAG = "ArViewModel"
+    }
+}

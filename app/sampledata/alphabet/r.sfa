@@ -1,0 +1,55 @@
+{
+  materials: [
+    {
+      name: 'Ballon_kupfer_01',
+      parameters: [
+        {
+          baseColor:
+          [
+                           0,
+                           4,
+                           3,
+                           3,
+                           ]
+        },
+        {
+          baseColorTint: [
+            4,
+            0,
+            0,
+            1,
+          ],
+        },
+        {
+          metallic: 0.3,
+                 },
+                 {
+                   metallicMap: null,
+                 },
+                 {
+                   roughness: 0,
+                 },
+                 {
+                   roughnessMap: null,
+                 },
+                 {
+                   opacity: null,
+                 },
+               ],
+      source: 'build/sceneform_sdk/default_materials/obj_material.sfm',
+    },
+  ],
+  model: {
+    attributes: [
+      'Position',
+      'TexCoord',
+      'Orientation',
+    ],
+    collision: {},
+    file: 'sampledata/alphabet/r.obj',
+    name: 'r',
+    recenter: 'root',
+    scale: 0.025,
+  },
+  version: '0.54:2',
+}
