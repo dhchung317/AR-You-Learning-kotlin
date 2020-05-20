@@ -12,7 +12,7 @@ import dagger.Provides
 import retrofit2.Retrofit
 
 @Module
-object MainModule {
+class MainModule {
 
     @Provides
     internal fun provideThemeID(): Int {

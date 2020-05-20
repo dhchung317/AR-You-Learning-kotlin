@@ -6,8 +6,7 @@ import com.hyunki.aryoulearning2.di.AppComponent
 import com.hyunki.aryoulearning2.di.DaggerAppComponent
 
 class BaseApplication : Application() {
-    var appComponent: AppComponent
-        internal set
+    lateinit var appComponent: AppComponent
 
     override fun onCreate() {
         super.onCreate()

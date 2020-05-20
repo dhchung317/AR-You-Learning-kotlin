@@ -29,34 +29,35 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity(), NavListener {
     private var viewModel: MainViewModel? = null
     private var progressBar: ProgressBar? = null
-    internal var prefs: SharedPreferences
+    private lateinit var prefs: SharedPreferences
 
     @Inject
-    internal var pronunciationUtil: PronunciationUtil? = null
+    lateinit var pronunciationUtil: PronunciationUtil
 
     @Inject
-    internal var arHostFragment: ArHostFragment? = null
+    lateinit var arHostFragment: ArHostFragment
 
     @Inject
-    internal var listFragment: ListFragment? = null
+    lateinit var listFragment: ListFragment
 
     @Inject
-    internal var hintFragment: HintFragment? = null
+    lateinit var hintFragment: HintFragment
 
     @Inject
-    internal var replayFragment: ReplayFragment? = null
+    lateinit var replayFragment: ReplayFragment
 
     @Inject
-    internal var resultsFragment: ResultsFragment? = null
+    lateinit var resultsFragment: ResultsFragment
 
     @Inject
-    internal var tutorialFragment: TutorialFragment? = null
+    lateinit var tutorialFragment: TutorialFragment
+
+    @JvmField
+    @Inject
+    var resId: Int = 0
 
     @Inject
-    internal var resId: Int = 0
-
-    @Inject
-    internal var providerFactory: ViewModelProviderFactory? = null
+    lateinit var providerFactory: ViewModelProviderFactory
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
@@ -81,13 +82,13 @@ class MainActivity : AppCompatActivity(), NavListener {
 
         progressBar = findViewById(R.id.progress_bar)
         Log.d(TAG, "onCreate")
-        if (prefs.contains(NETWORK_CALL_COMPLETED)) {
-            Log.d(TAG, "onCreate: " + prefs.contains(NETWORK_CALL_COMPLETED))
-            moveToListFragment()
-        } else {
-            viewModel!!.loadModelResponses()
-            viewModel!!.modelResponsesData.observe(this, Observer<State> { this.renderModelResponses(it) })
-        }
+//        if (prefs.contains(NETWORK_CALL_COMPLETED)) {
+//            Log.d(TAG, "onCreate: " + prefs.contains(NETWORK_CALL_COMPLETED))
+//            moveToListFragment()
+//        } else {
+//            viewModel!!.loadModelResponses()
+//            viewModel!!.modelResponsesData.observe(this, Observer<State> { this.renderModelResponses(it) })
+//        }
     }
 
     private fun renderModelResponses(state: State) {
