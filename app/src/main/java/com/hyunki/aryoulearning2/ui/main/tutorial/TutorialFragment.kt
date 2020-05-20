@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.MediaController
 import android.widget.VideoView
+import androidx.fragment.app.FragmentActivity
 
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R

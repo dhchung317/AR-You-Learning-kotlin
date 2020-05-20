@@ -7,7 +7,6 @@ import com.hyunki.aryoulearning2.db.model.Category
 import com.hyunki.aryoulearning2.db.model.CurrentCategory
 import com.hyunki.aryoulearning2.model.Model
 import com.hyunki.aryoulearning2.model.ModelResponse
-import com.hyunki.aryoulearning2.network.RetrofitSingleton
 import com.hyunki.aryoulearning2.network.main.MainApi
 
 import java.util.ArrayList
@@ -29,7 +28,7 @@ internal constructor(private val modelDao: ModelDao, private val categoryDao: Ca
         get() = currentCategoryDao.currentCategory
 
     val modelResponses: Observable<ArrayList<ModelResponse>>
-        get() = mainApi.models
+        get() = mainApi.getModels()
 
     fun getModelsByCat(cat: String): Single<List<Model>> {
         return modelDao.getModelsByCat(cat)

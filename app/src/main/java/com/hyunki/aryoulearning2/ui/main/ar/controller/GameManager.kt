@@ -1,6 +1,5 @@
 package com.hyunki.aryoulearning2.ui.main.ar.controller
 
-import com.hyunki.aryoulearning2.model.Model
 import com.hyunki.aryoulearning2.ui.main.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.ui.main.ar.util.ModelUtil
 import com.hyunki.aryoulearning2.ui.main.controller.NavListener
@@ -10,7 +9,7 @@ import java.util.Random
 import java.util.Stack
 
 class GameManager(modelMapKeys: List<String>, private val gameCommands: GameCommandListener, private val navListener: NavListener) {
-    private var currentWord: CurrentWord? = null
+    private var currentWord: CurrentWord
     private val roundLimit = 3
     private val keyStack = Stack<String>()
     private val wordHistoryList = ArrayList<CurrentWord>()

@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.ProgressBar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -68,8 +69,8 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
 
         mainViewModel = ViewModelProviders.of(activity!!, viewModelProviderFactory).get(MainViewModel::class.java)
 
-        mainViewModel!!.curCatLiveData.observe(viewLifecycleOwner, { state -> renderCurrentCategory(state) })
-        mainViewModel!!.modelLiveData.observe(viewLifecycleOwner, { state -> renderModelsByCategory(state) })
+        mainViewModel!!.curCatLiveData.observe(viewLifecycleOwner, Observer { state -> renderCurrentCategory(state) })
+        mainViewModel!!.modelLiveData.observe(viewLifecycleOwner, Observer { state -> renderModelsByCategory(state) })
 
         mainViewModel!!.loadCurrentCategoryName()
         //        textToSpeech = pronunciationUtil.getTTS(requireContext());
@@ -87,8 +88,8 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
         if (view != null) {
             view.isClickable = false
             if (view is ViewGroup) {
-                val vg = view as ViewGroup?
-                for (i in 0 until vg.getChildCount()) {
+                val vg = view
+                for (i in 0 until vg.childCount) {
                     disableViews(vg.getChildAt(i))
                 }
             }
@@ -99,8 +100,8 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
         if (view != null) {
             view.isClickable = true
             if (view is ViewGroup) {
-                val vg = view as ViewGroup?
-                for (i in 0 until vg.getChildCount()) {
+                val vg = view
+                for (i in 0 until vg.childCount) {
                     disableViews(vg.getChildAt(i))
                 }
             }

@@ -36,7 +36,7 @@ constructor(private val pronunciationUtil: PronunciationUtil) : RecyclerView.Ada
         return modelList.size
     }
 
-    internal inner class HintViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class HintViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun onBind(model: Model) {
             val imageView = itemView.findViewById<ImageView>(R.id.hint_fragment_image_view)

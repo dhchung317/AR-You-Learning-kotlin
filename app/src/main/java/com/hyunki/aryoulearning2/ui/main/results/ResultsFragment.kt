@@ -28,6 +28,7 @@ import android.widget.ProgressBar
 import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.FragmentActivity
 
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
@@ -54,11 +55,11 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     private var rainbowRatingBar: RatingBar? = null
     private var categoryTextView: TextView? = null
     private val modelMap = HashMap<String, Model>()
-    internal var shareFAB: FloatingActionButton
-    internal var backFAB: FloatingActionButton
+    private lateinit var shareFAB: FloatingActionButton
+    private lateinit var backFAB: FloatingActionButton
     private var resultRV: RecyclerView? = null
-    private var pronunciationUtil: PronunciationUtil? = null
-    private val textToSpeech: TextToSpeech? = null
+    private lateinit var pronunciationUtil: PronunciationUtil
+    private lateinit var textToSpeech: TextToSpeech
     private var viewModel: MainViewModel? = null
     private var progressBar: ProgressBar? = null
     private var navListener: NavListener? = null
@@ -120,7 +121,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     private fun shareFABClick() {
         shareFAB.setOnClickListener { v ->
-            v = Objects.requireNonNull<FragmentActivity>(this@ResultsFragment.activity).getWindow().getDecorView().getRootView()
             if (ContextCompat.checkSelfPermission(v.context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(v.context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this@ResultsFragment.activity!!,
                         arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CODE)
@@ -237,8 +237,8 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     override fun onDestroy() {
         super.onDestroy()
-        //        textToSpeech.shutdown();
-        pronunciationUtil = null
+                textToSpeech.shutdown();
+
     }
 
     private fun getCorrectAnswerCount(wordHistory: List<CurrentWord>): Int {
