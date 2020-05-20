@@ -51,7 +51,7 @@ constructor(private val pronunciationUtil: PronunciationUtil) : RecyclerView.Ada
             itemView.setOnClickListener { v ->
 
                 pronunciationUtil.textToSpeechAnnouncer(model.name, pronunciationUtil.textToSpeech)
-                itemView.startAnimation(Animations.Normal.getVibrator(itemView))
+                itemView.startAnimation(Animations.Normal().getVibrator(itemView))
                 textView.setTextColor(Color.LTGRAY)
                 val timer = object : CountDownTimer(1000, 1000) {
                     override fun onTick(millisUntilFinished: Long) {

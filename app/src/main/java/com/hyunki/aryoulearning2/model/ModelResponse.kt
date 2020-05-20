@@ -5,4 +5,5 @@ import java.util.ArrayList
 data class ModelResponse(
         val list: ArrayList<Model>,
         val category: String,
-        val background: String)
+        val background: String
+)

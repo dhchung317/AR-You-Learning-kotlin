@@ -16,7 +16,7 @@ class LottieHelper {
         ERROR
     }
 
-    fun getAnimationView(context: Context, type: AnimationType): LottieAnimationView {
+    fun getAnimationView(context: Context?, type: AnimationType): LottieAnimationView {
         val lav = LottieAnimationView(context)
         lav.visibility = View.VISIBLE
         lav.loop(false)
@@ -28,11 +28,10 @@ class LottieHelper {
 
     private fun getType(type: AnimationType): String {
         when (type) {
-            LottieHelper.AnimationType.SPARKLES -> return "explosionA.json"
-            LottieHelper.AnimationType.TAP -> return "tap.json"
-            LottieHelper.AnimationType.ERROR -> return "error.json"
+            AnimationType.SPARKLES -> return "explosionA.json"
+            AnimationType.TAP -> return "tap.json"
+            AnimationType.ERROR -> return "error.json"
         }
-        return "error.json"
     }
 
     //adds a lottie view to the corresposnding x and y coordinates

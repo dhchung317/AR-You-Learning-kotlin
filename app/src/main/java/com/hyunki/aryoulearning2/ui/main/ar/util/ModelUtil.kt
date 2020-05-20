@@ -49,7 +49,8 @@ object ModelUtil {
         //                    name, base, model);
         //        }
 
-        val rotate = Animations.AR.createRotationAnimator()
+        val rotate = Animations.AR().createRotationAnimator()
+
         rotate.target = mainModel
         rotate.duration = 7000
         rotate.start()
@@ -60,7 +61,7 @@ object ModelUtil {
     }
 
 
-    fun getLetter(parent: Node, renderable: ModelRenderable, arFragment: ArFragment): AnchorNode {
+    fun getLetter(parent: Node, renderable: ModelRenderable?, arFragment: ArFragment): AnchorNode {
 
         val pos = floatArrayOf(0f, //x
                 0f, //y
@@ -98,8 +99,8 @@ object ModelUtil {
         trNode.setLookDirection(Vector3(0f, 0f, getRandom(4, 0).toFloat()))
         trNode.localScale = Vector3(1.0f, getRandom(10, 0) * .1f, 1.0f)
 
-        val floating = Animations.AR.createFloatAnimator(trNode)
-        val rotate = Animations.AR.createRotationAnimator()
+        val floating = Animations.AR().createFloatAnimator(trNode)
+        val rotate = Animations.AR().createRotationAnimator()
         rotate.target = trNode
         rotate.duration = getRandom(4000, 3000).toLong()
         rotate.start()
