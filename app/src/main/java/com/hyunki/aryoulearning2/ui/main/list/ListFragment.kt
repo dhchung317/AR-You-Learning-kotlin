@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -59,7 +60,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory, priv
         mainViewModel = ViewModelProviders.of(activity!!, viewModelProviderFactory).get(MainViewModel::class.java)
         mainViewModel!!.loadCategories()
 
-        mainViewModel!!.catLiveData.observe(viewLifecycleOwner, { categories ->
+        mainViewModel!!.catLiveData.observe(viewLifecycleOwner, Observer { categories ->
             renderCategories(categories)
             Log.d(TAG, "onViewCreated: " + mainViewModel!!.catLiveData.value!!.javaClass)
 
@@ -70,7 +71,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory, priv
 
     private fun initRecyclerView() {
         recyclerView!!.layoutManager = LinearLayoutManager(requireContext(),
-                recyclerView!!.HORIZONTAL,
+                RecyclerView.HORIZONTAL,
                 false)
         recyclerView!!.adapter = listAdapter
     }

@@ -47,7 +47,7 @@ class ListAdapter : RecyclerView.Adapter<ListAdapter.CategoryViewHolder>() {
         notifyDataSetChanged()
     }
 
-    internal inner class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val categoryCard: CardView
         private val categoryName: TextView
         private val categoryImage: ImageView

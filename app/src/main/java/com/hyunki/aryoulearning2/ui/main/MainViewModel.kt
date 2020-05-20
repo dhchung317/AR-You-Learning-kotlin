@@ -19,6 +19,7 @@ import javax.inject.Inject
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 
 class MainViewModel @Inject
@@ -26,9 +27,9 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
 
     private val modelResponsesData = MutableLiveData<State>()
-    private val modelLiveData = MutableLiveData<State>()
-    private val catLiveData = MutableLiveData<State>()
-    private val curCatLiveData = MutableLiveData<State>()
+    val modelLiveData = MutableLiveData<State>()
+    val catLiveData = MutableLiveData<State>()
+    val curCatLiveData = MutableLiveData<State>()
     var wordHistory: List<CurrentWord> = ArrayList()
 
     internal fun loadModelResponses() {

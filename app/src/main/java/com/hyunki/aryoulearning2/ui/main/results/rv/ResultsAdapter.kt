@@ -34,7 +34,7 @@ class ResultsAdapter(private val wordHistory: List<CurrentWord>, private val mod
         return wordHistory.size
     }
 
-    internal inner class ResultsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ResultsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val modelTextView: TextView
         private val modelImageView: ImageView
         private val modelAnswer: TextView
