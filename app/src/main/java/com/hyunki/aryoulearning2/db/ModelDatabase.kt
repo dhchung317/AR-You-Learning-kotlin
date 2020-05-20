@@ -21,7 +21,7 @@ internal abstract class ModelDatabase : RoomDatabase() {
 
     companion object {
 
-        val DATABASE_NAME = "data.db"
+        const val DATABASE_NAME = "data.db"
     }
 
 }

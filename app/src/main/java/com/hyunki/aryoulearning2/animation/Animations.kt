@@ -22,7 +22,7 @@ import com.google.ar.sceneform.math.Vector3
 
 class Animations {
 
-    object AR {
+    class AR {
 
         fun createRotationAnimator(): ObjectAnimator {
             val orientation1 = Quaternion.axisAngle(Vector3(0.0f, 1.0f, 0.0f), 0f)
@@ -61,7 +61,7 @@ class Animations {
     }
 
 
-    object Normal {
+    class Normal {
         fun setCardFadeInAnimator(cv: CardView): ObjectAnimator {
             cv.alpha = 0f
             cv.visibility = View.VISIBLE

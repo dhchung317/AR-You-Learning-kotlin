@@ -11,4 +11,5 @@ class Model(
         val category: String,
         @field:PrimaryKey
         val name: String,
-        val image: String)
+        val image: String
+)

@@ -34,7 +34,7 @@ constructor(private val application: Application, private val mainRepository: Ma
     val futureModelMapList = MutableLiveData<List<MutableMap<String, CompletableFuture<ModelRenderable>>>>()
     val futureLetterMap = MutableLiveData<HashMap<String, CompletableFuture<ModelRenderable>>>()
 
-    val modelMapList = MutableLiveData<List<HashMap<String, ModelRenderable>>>()
+    val modelMapList = MutableLiveData<List<MutableMap<String, ModelRenderable>>>()
     val letterMap = MutableLiveData<HashMap<String, ModelRenderable>>()
 
     init {
@@ -75,7 +75,7 @@ constructor(private val application: Application, private val mainRepository: Ma
         futureModelMapList.setValue(returnFutureModelMapList)
     }
 
-    fun setMapOfFutureLetters(futureMapList: List<HashMap<String, CompletableFuture<ModelRenderable>>>) {
+    fun setMapOfFutureLetters(futureMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>) {
 
         val returnMap = HashMap<String, CompletableFuture<ModelRenderable>>()
 
@@ -112,8 +112,8 @@ constructor(private val application: Application, private val mainRepository: Ma
         letterMap.setValue(returnMap)
     }
 
-    fun setModelRenderables(futureModelMapList: List<HashMap<String, CompletableFuture<ModelRenderable>>>){
-        val returnList = ArrayList<HashMap<String, ModelRenderable>>()
+    fun setModelRenderables(futureModelMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>){
+        val returnList = ArrayList<MutableMap<String, ModelRenderable>>()
 
         for (i in futureModelMapList.indices) {
 

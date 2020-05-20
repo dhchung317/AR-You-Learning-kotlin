@@ -4,17 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "current_category")
-class CurrentCategory(currentCategory: String) {
-
-    @PrimaryKey
-    var CURRENT: String
-
-    var currentCategory: String
-        internal set
-
-    init {
-        this.CURRENT = "current"
-        this.currentCategory = currentCategory
-    }
-
-}
+data class CurrentCategory(
+        @field:PrimaryKey val currentCategory: String
+)
+//TODO: implement better design of logic to keep track of the current category
