@@ -13,7 +13,7 @@ import dagger.Module
 import dagger.Provides
 
 @Module
-object ModelDatabaseModule {
+class ModelDatabaseModule {
 
     @Provides
     internal fun provideModelDatabase(application: Application): ModelDatabase {

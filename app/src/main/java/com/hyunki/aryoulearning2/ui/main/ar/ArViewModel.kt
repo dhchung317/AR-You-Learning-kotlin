@@ -21,6 +21,7 @@ import javax.inject.Inject
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 
 class ArViewModel @Inject
@@ -30,7 +31,7 @@ constructor(private val application: Application, private val mainRepository: Ma
 
     val modelLiveData = MutableLiveData<List<Model>>()
 
-    val futureModelMapList = MutableLiveData<List<HashMap<String, CompletableFuture<ModelRenderable>>>>()
+    val futureModelMapList = MutableLiveData<List<MutableMap<String, CompletableFuture<ModelRenderable>>>>()
     val futureLetterMap = MutableLiveData<HashMap<String, CompletableFuture<ModelRenderable>>>()
 
     val modelMapList = MutableLiveData<List<HashMap<String, ModelRenderable>>>()
@@ -59,13 +60,16 @@ constructor(private val application: Application, private val mainRepository: Ma
 
     fun setListMapsOfFutureModels(modelList: List<Model>) {
 
-        val returnFutureModelMapList = ArrayList<HashMap<String, CompletableFuture<ModelRenderable>>>()
+        val returnFutureModelMapList = ArrayList<MutableMap<String, CompletableFuture<ModelRenderable>>>()
 
         for (i in modelList.indices) {
-            val futureMap = HashMap()
-            futureMap.put(modelList[i].name,
-                    ModelRenderable.builder().setSource(application, Uri.parse(modelList[i].name + ".sfb")).build())
-            returnFutureModelMapList.add(futureMap)
+            val futureMap = mutableMapOf<String,CompletableFuture<ModelRenderable>>()
+            futureMap[modelList[i].name] =
+                    ModelRenderable.builder().setSource(
+                            application, Uri.parse(modelList[i].name + ".sfb")).build()
+
+            returnFutureModelMapList.add(
+                    futureMap)
         }
 
         futureModelMapList.setValue(returnFutureModelMapList)
@@ -91,27 +95,24 @@ constructor(private val application: Application, private val mainRepository: Ma
         for (e in futureLetterMap.entries) {
 
             CompletableFuture.allOf(e.value)
-                    .handle<Any> { notUsed, throwable ->
+                    .handle<Unit> { notUsed, throwable ->
                         // When you build a Renderable, Sceneform loads its resources in the background while
                         // returning a CompletableFuture. Call handle(), thenAccept(), or check isDone()
                         // before calling get().
                         if (throwable != null) {
-                            return@CompletableFuture.allOf(e.getValue())
-                                    .handle null
+                            Log.e("completable future throwable",throwable.toString())
                         }
                         try {
                             returnMap[e.key] = e.value.get()
                         } catch (ex: InterruptedException) {
                         } catch (ex: ExecutionException) {
                         }
-
-                        null
                     }
         }
         letterMap.setValue(returnMap)
     }
 
-    fun setModelRenderables(futureModelMapList: List<HashMap<String, CompletableFuture<ModelRenderable>>>) {
+    fun setModelRenderables(futureModelMapList: List<HashMap<String, CompletableFuture<ModelRenderable>>>){
         val returnList = ArrayList<HashMap<String, ModelRenderable>>()
 
         for (i in futureModelMapList.indices) {
@@ -120,22 +121,23 @@ constructor(private val application: Application, private val mainRepository: Ma
 
                 val modelMap = HashMap<String, ModelRenderable>()
 
+
+
                 CompletableFuture.allOf(e.value)
-                        .handle<Any> { notUsed, throwable ->
+                        .handle<Unit> { _, throwable ->
                             // When you build a Renderable, Sceneform loads its resources in the background while
                             // returning a CompletableFuture. Call handle(), thenAccept(), or check isDone()
                             // before calling get().
+
                             if (throwable != null) {
-                                return@CompletableFuture.allOf(e.getValue())
-                                        .handle null
+                                Log.e("completable future throwable",throwable.toString())
                             }
+
                             try {
                                 modelMap[e.key] = e.value.get()
                             } catch (ex: InterruptedException) {
                             } catch (ex: ExecutionException) {
                             }
-
-                            null
                         }
                 returnList.add(modelMap)
             }
