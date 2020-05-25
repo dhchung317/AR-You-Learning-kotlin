@@ -10,8 +10,8 @@ import com.hyunki.aryoulearning2.db.model.Category
 import com.hyunki.aryoulearning2.db.model.CurrentCategory
 import com.hyunki.aryoulearning2.model.Model
 
-@Database(entities = [Model::class, Category::class, CurrentCategory::class], version = 3, exportSchema = false)
-internal abstract class ModelDatabase : RoomDatabase() {
+@Database(entities = [Model::class, Category::class, CurrentCategory::class], version = 4, exportSchema = false)
+abstract class ModelDatabase : RoomDatabase() {
 
     abstract fun modelDao(): ModelDao
 

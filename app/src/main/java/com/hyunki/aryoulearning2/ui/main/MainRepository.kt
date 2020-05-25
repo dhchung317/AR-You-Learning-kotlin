@@ -19,9 +19,9 @@ import io.reactivex.Single
 
 @Singleton
 class MainRepository @Inject
-internal constructor(private val modelDao: ModelDao, private val categoryDao: CategoryDao, private val currentCategoryDao: CurrentCategoryDao, private val mainApi: MainApi) {
+constructor(private val modelDao: ModelDao, private val categoryDao: CategoryDao, private val currentCategoryDao: CurrentCategoryDao, private val mainApi: MainApi) {
 
-    internal val allCats: Single<List<Category>>
+    val allCats: Single<List<Category>>
         get() = categoryDao.allCategories
 
     val currentCategory: Single<CurrentCategory>
@@ -34,19 +34,19 @@ internal constructor(private val modelDao: ModelDao, private val categoryDao: Ca
         return modelDao.getModelsByCat(cat)
     }
 
-    internal fun insertModel(model: Model) {
+    fun insertModel(model: Model) {
         modelDao.insert(model)
     }
 
-    internal fun insertCat(category: Category) {
+    fun insertCat(category: Category) {
         categoryDao.insert(category)
     }
 
-    internal fun setCurrentCategory(category: CurrentCategory) {
+    fun setCurrentCategory(category: CurrentCategory) {
         currentCategoryDao.insert(category)
     }
 
-    internal fun clearEntireDatabase() {
+    fun clearEntireDatabase() {
         modelDao.deleteAll()
         categoryDao.deleteAll()
         currentCategoryDao.deleteAll()

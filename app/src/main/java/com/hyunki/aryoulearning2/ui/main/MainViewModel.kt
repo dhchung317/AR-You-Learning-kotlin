@@ -32,7 +32,7 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
     val curCatLiveData = MutableLiveData<State>()
     var wordHistory: List<CurrentWord> = ArrayList()
 
-    internal fun loadModelResponses() {
+    fun loadModelResponses() {
         modelResponsesData.value = State.Loading
         compositeDisposable.add(
                 mainRepository.modelResponses
@@ -71,25 +71,25 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
         val modelDisposable = mainRepository.getModelsByCat(cat)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(Consumer<List<Model>> { this.onModelsFetched(it) }, Consumer<Throwable> { this.onError(it) })
+                .subscribe({ this.onModelsFetched(it) }, { this.onError(it) })
         compositeDisposable.add(modelDisposable)
     }
 
     fun loadCategories() {
-        catLiveData.setValue(State.Loading)
+        catLiveData.value = State.Loading
         val catDisposable = mainRepository.allCats
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(Consumer<List<Category>> { this.onCatsFetched(it) }, Consumer<Throwable> { this.onError(it) })
+                .subscribe({ this.onCatsFetched(it) }, { this.onError(it) })
         compositeDisposable.add(catDisposable)
     }
 
     fun loadCurrentCategoryName() {
-        curCatLiveData.setValue(State.Loading)
+        curCatLiveData.value = State.Loading
         val curCatDisposable = mainRepository.currentCategory
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(Consumer<CurrentCategory> { this.onCurCatsFetched(it) }, Consumer<Throwable> { this.onError(it) })
+                .subscribe({ this.onCurCatsFetched(it) }, { this.onError(it) })
         compositeDisposable.add(curCatDisposable)
     }
 
@@ -109,7 +109,7 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
         return modelResponsesData
     }
 
-    internal fun setCurrentCategory(category: Category) {
+    fun setCurrentCategory(category: Category) {
         mainRepository.setCurrentCategory(CurrentCategory(category.name))
     }
 

@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 import java.util.ArrayList
 
 @Entity(tableName = "models")
-class Model(
+data class Model(
         val category: String,
         @field:PrimaryKey
         val name: String,
