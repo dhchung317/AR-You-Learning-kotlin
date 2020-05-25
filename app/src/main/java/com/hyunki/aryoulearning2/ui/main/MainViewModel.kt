@@ -26,7 +26,7 @@ class MainViewModel @Inject
 internal constructor(private val mainRepository: MainRepository) : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
 
-    private val modelResponsesData = MutableLiveData<State>()
+    val modelResponsesData = MutableLiveData<State>()
     val modelLiveData = MutableLiveData<State>()
     val catLiveData = MutableLiveData<State>()
     val curCatLiveData = MutableLiveData<State>()

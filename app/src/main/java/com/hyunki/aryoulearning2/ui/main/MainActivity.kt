@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.ProgressBar
 
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 
 import com.hyunki.aryoulearning2.BaseApplication
@@ -82,13 +83,13 @@ class MainActivity : AppCompatActivity(), NavListener {
 
         progressBar = findViewById(R.id.progress_bar)
         Log.d(TAG, "onCreate")
-//        if (prefs.contains(NETWORK_CALL_COMPLETED)) {
-//            Log.d(TAG, "onCreate: " + prefs.contains(NETWORK_CALL_COMPLETED))
-//            moveToListFragment()
-//        } else {
-//            viewModel!!.loadModelResponses()
-//            viewModel!!.modelResponsesData.observe(this, Observer<State> { this.renderModelResponses(it) })
-//        }
+        if (prefs.contains(NETWORK_CALL_COMPLETED)) {
+            Log.d(TAG, "onCreate: " + prefs.contains(NETWORK_CALL_COMPLETED))
+            moveToListFragment()
+        } else {
+            viewModel!!.loadModelResponses()
+            viewModel!!.modelResponsesData.observe(this, Observer<State> { this.renderModelResponses(it) })
+        }
     }
 
     private fun renderModelResponses(state: State) {
