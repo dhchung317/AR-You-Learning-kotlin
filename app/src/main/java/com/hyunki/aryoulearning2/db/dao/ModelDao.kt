@@ -12,10 +12,7 @@ import io.reactivex.Single
 @Dao
 interface ModelDao {
 
-    @get:Query("SELECT name, image FROM models")
-    val allModels: Single<List<Model>>
-
-    @Query("SELECT name, image FROM models WHERE category = :category")
+    @Query("SELECT name, image, category FROM models WHERE category = :category")
     fun getModelsByCat(category: String): Single<List<Model>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
