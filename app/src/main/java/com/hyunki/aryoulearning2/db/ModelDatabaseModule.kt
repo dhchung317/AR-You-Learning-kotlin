@@ -16,7 +16,7 @@ import dagger.Provides
 class ModelDatabaseModule {
 
     @Provides
-    internal fun provideModelDatabase(application: Application): ModelDatabase {
+    fun provideModelDatabase(application: Application): ModelDatabase {
         return Room.databaseBuilder(
                 application.applicationContext,
                 ModelDatabase::class.java, ModelDatabase.DATABASE_NAME)
@@ -26,17 +26,17 @@ class ModelDatabaseModule {
     }
 
     @Provides
-    internal fun provideModelDao(modelDatabase: ModelDatabase): ModelDao {
+    fun provideModelDao(modelDatabase: ModelDatabase): ModelDao {
         return modelDatabase.modelDao()
     }
 
     @Provides
-    internal fun provideCatDao(modelDatabase: ModelDatabase): CategoryDao {
+    fun provideCatDao(modelDatabase: ModelDatabase): CategoryDao {
         return modelDatabase.catDao()
     }
 
     @Provides
-    internal fun provideCurCatDao(modelDatabase: ModelDatabase): CurrentCategoryDao {
+    fun provideCurCatDao(modelDatabase: ModelDatabase): CurrentCategoryDao {
         return modelDatabase.curCatDao()
     }
 }

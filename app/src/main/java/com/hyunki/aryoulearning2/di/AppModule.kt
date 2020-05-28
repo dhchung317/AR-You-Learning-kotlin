@@ -18,7 +18,7 @@ class AppModule {
 
     @Provides
     @Singleton
-    internal fun provideRetrofit(): Retrofit {
+    fun provideRetrofit(): Retrofit {
         return Retrofit.Builder().baseUrl(Constants.BASE_URL)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create()).build()
@@ -26,7 +26,7 @@ class AppModule {
 
     @Provides
     @Singleton
-    internal fun provideMainApi(retrofit: Retrofit): MainApi {
+    fun provideMainApi(retrofit: Retrofit): MainApi {
         return retrofit.create(MainApi::class.java)
     }
 
@@ -38,7 +38,7 @@ class AppModule {
 
     @Provides
     @Singleton
-    internal fun providePronunciationUtil(application: Application): PronunciationUtil {
+    fun providePronunciationUtil(application: Application): PronunciationUtil {
         return PronunciationUtil(application.baseContext)
     }
 

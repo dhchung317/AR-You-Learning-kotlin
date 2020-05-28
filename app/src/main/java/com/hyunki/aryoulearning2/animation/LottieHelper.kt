@@ -27,10 +27,10 @@ class LottieHelper {
     }
 
     private fun getType(type: AnimationType): String {
-        when (type) {
-            AnimationType.SPARKLES -> return "explosionA.json"
-            AnimationType.TAP -> return "tap.json"
-            AnimationType.ERROR -> return "error.json"
+        return when (type) {
+            AnimationType.SPARKLES -> "explosionA.json"
+            AnimationType.TAP -> "tap.json"
+            AnimationType.ERROR -> "error.json"
         }
     }
 
