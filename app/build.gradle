@@ -55,7 +55,7 @@ dependencies {
     implementation "com.google.ar.sceneform.ux:sceneform-ux:1.15.0"
     implementation 'com.google.ar:core:1.15.0'
     implementation 'com.google.ar.sceneform:core:1.15.0'
-    implementation 'com.google.ar.sceneform:assets:1.5.0'
+//    implementation 'com.google.ar.sceneform:assets:1.5.0'
 
     implementation 'com.airbnb.android:lottie:2.7.0'
     implementation 'com.facebook.shimmer:shimmer:0.4.0'

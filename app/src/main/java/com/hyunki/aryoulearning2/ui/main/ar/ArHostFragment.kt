@@ -85,9 +85,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private var hasFinishedLoadingModels = false
     private var hasFinishedLoadingLetters = false
     private var hasPlacedGame = false
-    private var placedAnimation: Boolean = false
+    private var placedAnimation = false
 
-    private var frameLayout: ConstraintLayout? = null
+    private var frameLayout: FrameLayout? = null
 
     private var wordContainer: LinearLayout? = null
     private var wordValidatorLayout: View? = null
@@ -161,7 +161,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
         gestureDetector = getGestureDetector()
 
-        setUpARScene(arFragment!!)
+        setUpARScene(arFragment)
 
         requestCameraPermission(activity, RC_PERMISSIONS)
         arViewModel = ViewModelProviders.of(this, viewModelProviderFactory).get(ArViewModel::class.java)
@@ -222,38 +222,43 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun setUpARScene(arFragment: ArFragment) {
-        val scene = arFragment.arSceneView
-                .scene
-        val frame = arFragment.arSceneView.arFrame
 
-        setOnTouchListener(scene)
-        setAddOnUpdateListener(scene, frame)
+        setOnTouchListener(arFragment)
+
+        setAddOnUpdateListener(arFragment)
     }
 
-    private fun setOnTouchListener(scene: Scene) {
+    private fun setOnTouchListener(arFragment: ArFragment) {
+        val scene = arFragment.arSceneView.scene
         scene.setOnTouchListener { hitTestResult: HitTestResult, event: MotionEvent ->
-//            if (!hasPlacedGame) {
-//                return@scene.setOnTouchListener gestureDetector !!. onTouchEvent event
-//            }
+            if (!hasPlacedGame) {
+                return@setOnTouchListener gestureDetector?.onTouchEvent(event)!!
+            }
             false
         }
     }
 
-    private fun setAddOnUpdateListener(scene: Scene, frame: Frame?) {
+    private fun setAddOnUpdateListener(arFragment: ArFragment) {
+
+        val scene = arFragment.arSceneView.scene
+
         scene.addOnUpdateListener { frameTime ->
+            val frame = arFragment.arSceneView.arFrame
 
             if (frame == null) {
                 return@addOnUpdateListener
             }
-            if (frame!!.camera.trackingState != TrackingState.TRACKING) {
+
+            if (frame.camera.trackingState != TrackingState.TRACKING) {
                 return@addOnUpdateListener
             }
+
             if (!hasPlacedGame) {
                 for (plane in frame.getUpdatedTrackables(Plane::class.java)) {
                     if (!placedAnimation && plane.trackingState == TrackingState.TRACKING) {
                         placedAnimation = true
-                        tapAnimation = lottieHelper!!.getAnimationView(context, LottieHelper.AnimationType.TAP)
-                        lottieHelper!!.addTapAnimationToScreen(tapAnimation!!, activity!!, frameLayout!!)
+                        tapAnimation = lottieHelper.getAnimationView(context, LottieHelper.AnimationType.TAP)
+                        lottieHelper.addTapAnimationToScreen(tapAnimation!!, activity!!, frameLayout!!)
                     }
                 }
             }
@@ -507,6 +512,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     override fun onDestroyView() {
         super.onDestroyView()
         hasPlacedGame = false
+        placedAnimation = false
     }
 
     companion object {

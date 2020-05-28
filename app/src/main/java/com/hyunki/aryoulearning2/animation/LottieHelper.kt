@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
-import androidx.constraintlayout.widget.ConstraintLayout
 
 import com.airbnb.lottie.LottieAnimationView
 
@@ -28,15 +27,15 @@ class LottieHelper {
     }
 
     private fun getType(type: AnimationType): String {
-        when (type) {
-            AnimationType.SPARKLES -> return "explosionA.json"
-            AnimationType.TAP -> return "tap.json"
-            AnimationType.ERROR -> return "error.json"
+        return when (type) {
+            AnimationType.SPARKLES -> "explosionA.json"
+            AnimationType.TAP -> "tap.json"
+            AnimationType.ERROR -> "error.json"
         }
     }
 
     //adds a lottie view to the corresposnding x and y coordinates
-    fun addAnimationViewOnTopOfLetter(lav: LottieAnimationView, x: Int, y: Int, f: ConstraintLayout) {
+    fun addAnimationViewOnTopOfLetter(lav: LottieAnimationView, x: Int, y: Int, f: FrameLayout) {
         lav.x = x.toFloat()
         lav.y = y.toFloat()
         f.addView(lav, 300, 300)
@@ -54,7 +53,7 @@ class LottieHelper {
         })
     }
 
-    fun addTapAnimationToScreen(lavTap: LottieAnimationView, activity: Activity, f: ConstraintLayout) {
+    fun addTapAnimationToScreen(lavTap: LottieAnimationView, activity: Activity, f: FrameLayout) {
         val width = activity.window.decorView.width
         val height = activity.window.decorView.height
         lavTap.x = (width / 2 - 50).toFloat()

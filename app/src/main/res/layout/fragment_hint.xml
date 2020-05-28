@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/mainBackground"
     android:orientation="vertical"
-    tools:context=".view.fragment.HintFragmentX">
+    tools:context=".ui.main.hint.HintFragment">
 
     <Button
         android:id="@+id/hint_fragment_button"
