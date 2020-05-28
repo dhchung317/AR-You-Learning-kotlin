@@ -24,6 +24,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -76,7 +77,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private var arViewModel: ArViewModel? = null
 
-    private var arFragment: ArFragment? = null
+    private lateinit var arFragment: ArGameFragment
 
     private var gestureDetector: GestureDetector? = null
     private val playBalloonPop: MediaPlayer? = null
@@ -86,7 +87,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private var hasPlacedGame = false
     private var placedAnimation: Boolean = false
 
-    private var frameLayout: FrameLayout? = null
+    private var frameLayout: ConstraintLayout? = null
 
     private var wordContainer: LinearLayout? = null
     private var wordValidatorLayout: View? = null
@@ -127,6 +128,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
     }
 
     override fun onAttach(context: Context) {
@@ -141,7 +143,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.activity_arfragment_host, container, false)
-        arFragment = childFragmentManager.findFragmentById(R.id.ux_fragment) as ArFragment?
+        arFragment = childFragmentManager.findFragmentById(R.id.ux_fragment).let { it as ArGameFragment }
         return rootView
     }
 
