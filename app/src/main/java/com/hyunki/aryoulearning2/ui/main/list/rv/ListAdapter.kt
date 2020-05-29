@@ -20,7 +20,7 @@ import java.util.ArrayList
 
 class ListAdapter : RecyclerView.Adapter<ListAdapter.CategoryViewHolder>() {
     private var categories: List<Category> = ArrayList()
-    private var listener: NavListener? = null
+    private lateinit var listener: NavListener
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): CategoryViewHolder {
         val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.category_item, viewGroup, false)
@@ -48,15 +48,9 @@ class ListAdapter : RecyclerView.Adapter<ListAdapter.CategoryViewHolder>() {
     }
 
     inner class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val categoryCard: CardView
-        private val categoryName: TextView
-        private val categoryImage: ImageView
-
-        init {
-            categoryCard = itemView.findViewById(R.id.category_card)
-            categoryName = itemView.findViewById(R.id.category_name)
-            categoryImage = itemView.findViewById(R.id.category_image)
-        }
+        private val categoryCard: CardView = itemView.findViewById(R.id.category_card)
+        private val categoryName: TextView = itemView.findViewById(R.id.category_name)
+        private val categoryImage: ImageView = itemView.findViewById(R.id.category_image)
 
         fun onBind(category: Category, listener: NavListener?) {
             categoryName.text = category.name
@@ -70,8 +64,8 @@ class ListAdapter : RecyclerView.Adapter<ListAdapter.CategoryViewHolder>() {
                 Log.d("list adapter", "onBind: " + category.name)
                 if (!category.name.isEmpty()) {
                     Log.d("listadapter", "onBind: onclicklistener " + category.name)
-                    listener!!.setCategoryFromListFragment(category)
-                    listener.moveToHintFragment()
+                    listener?.setCategoryFromListFragment(category)
+                    listener?.moveToHintFragment()
                 }
                 makeVibration()
             }
