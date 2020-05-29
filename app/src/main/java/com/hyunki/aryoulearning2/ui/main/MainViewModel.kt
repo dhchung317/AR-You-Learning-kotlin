@@ -66,7 +66,7 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
     }
 
     fun loadModelsByCat(cat: String) {
-        modelLiveData.setValue(State.Loading)
+        modelLiveData.value = State.Loading
         Log.d(TAG, "loadModelsByCat: loading models by cat")
         val modelDisposable = mainRepository.getModelsByCat(cat)
                 .subscribeOn(Schedulers.io())
@@ -144,6 +144,6 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
     }
 
     companion object {
-        val TAG = "MainViewModel"
+        const val TAG = "MainViewModel"
     }
 }

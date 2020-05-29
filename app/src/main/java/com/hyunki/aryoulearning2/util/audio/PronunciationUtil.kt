@@ -11,11 +11,7 @@ import javax.inject.Inject
 
 class PronunciationUtil @Inject
 constructor(context: Context) : TextToSpeech.OnInitListener {
-    val textToSpeech: TextToSpeech
-
-    init {
-        this.textToSpeech = TextToSpeech(context, this)
-    }
+    val textToSpeech: TextToSpeech = TextToSpeech(context, this)
 
     fun textToSpeechAnnouncer(textView: TextView, textToSpeech: TextToSpeech) {
         val letter = textView.text.toString().toLowerCase()
