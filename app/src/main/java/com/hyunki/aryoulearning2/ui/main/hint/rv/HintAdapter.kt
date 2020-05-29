@@ -64,7 +64,6 @@ constructor(private val pronunciationUtil: PronunciationUtil) : RecyclerView.Ada
                     }
                 }
                 timer.start()
-
             }
         }
     }

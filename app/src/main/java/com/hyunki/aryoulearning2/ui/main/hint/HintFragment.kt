@@ -33,15 +33,15 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
 
             private val hintAdapter: HintAdapter) : Fragment() {
 
-    private var hintRecyclerView: RecyclerView? = null
-    private var constraintLayout: ConstraintLayout? = null
-    private var listener: NavListener? = null
-    private var startGameButton: Button? = null
-    private var tutorialButton: Button? = null
-    private var backFAB: FloatingActionButton? = null
-    private var progressBar: ProgressBar? = null
+    private lateinit var hintRecyclerView: RecyclerView
+    private lateinit var constraintLayout: ConstraintLayout
+    private lateinit var listener: NavListener
+    private lateinit var startGameButton: Button
+    private lateinit var tutorialButton: Button
+    private lateinit var backFAB: FloatingActionButton
+    private lateinit var progressBar: ProgressBar
 
-    private var mainViewModel: MainViewModel? = null
+    private lateinit var mainViewModel: MainViewModel
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -69,17 +69,17 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
 
         mainViewModel = ViewModelProviders.of(activity!!, viewModelProviderFactory).get(MainViewModel::class.java)
 
-        mainViewModel!!.curCatLiveData.observe(viewLifecycleOwner, Observer { state -> renderCurrentCategory(state) })
-        mainViewModel!!.modelLiveData.observe(viewLifecycleOwner, Observer { state -> renderModelsByCategory(state) })
+        mainViewModel.curCatLiveData.observe(viewLifecycleOwner, Observer { state -> renderCurrentCategory(state) })
+        mainViewModel.modelLiveData.observe(viewLifecycleOwner, Observer { state -> renderModelsByCategory(state) })
 
-        mainViewModel!!.loadCurrentCategoryName()
+        mainViewModel.loadCurrentCategoryName()
         //        textToSpeech = pronunciationUtil.getTTS(requireContext());
         initializeViews(view)
-        hintRecyclerView!!.layoutManager = LinearLayoutManager(requireContext(),
+        hintRecyclerView.layoutManager = LinearLayoutManager(requireContext(),
                 LinearLayoutManager.HORIZONTAL,
                 false)
 
-        hintRecyclerView!!.adapter = hintAdapter
+        hintRecyclerView.adapter = hintAdapter
         viewClickListeners()
     }
 
@@ -109,8 +109,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
     }
 
     fun viewClickListeners() {
-
-        startGameButton!!.setOnClickListener { v ->
+        startGameButton.setOnClickListener { v ->
             disableViews(constraintLayout)
             //            constraintLayout.addView(parentalSupervision);
             //            okButton1.setOnClickListener(v1 -> {
@@ -118,13 +117,13 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
             //                constraintLayout.addView(stayAlert);
             //                okButton2.setOnClickListener(v11 -> {
             //                    constraintLayout.removeView(stayAlert);
-            listener!!.moveToGameFragment()
+            listener.moveToGameFragment()
             //                });
             //            });
         }
 
-        tutorialButton!!.setOnClickListener { v -> listener!!.moveToTutorialFragment() }
-        backFAB!!.setOnClickListener { v -> activity!!.onBackPressed() }
+        tutorialButton.setOnClickListener { v -> listener.moveToTutorialFragment() }
+        backFAB.setOnClickListener { v -> activity?.onBackPressed() }
     }
 
     private fun initializeViews(view: View) {
@@ -146,23 +145,21 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
     private fun renderCurrentCategory(state: State) {
         Log.d("rendercurcat", "renderCurrentCategory: " + state.javaClass)
 
-        if (state === State.Loading) {
-            showProgressBar(true)
-
-        } else if (state === State.Error) {
-            showProgressBar(false)
-
-        } else if (state.javaClass == State.Success.OnCurrentCategoryStringLoaded::class.java) {
-            showProgressBar(false)
-            val (currentCategoryString) = state as State.Success.OnCurrentCategoryStringLoaded
-            mainViewModel!!.loadModelsByCat(currentCategoryString)
-            Log.d("hint", "renderCurrentCategory: $currentCategoryString")
+        when {
+            state === State.Loading -> showProgressBar(true)
+            state === State.Error -> showProgressBar(false)
+            state.javaClass == State.Success.OnCurrentCategoryStringLoaded::class.java -> {
+                showProgressBar(false)
+                val (currentCategoryString) = state as State.Success.OnCurrentCategoryStringLoaded
+                mainViewModel.loadModelsByCat(currentCategoryString)
+                Log.d("hint", "renderCurrentCategory: $currentCategoryString")
+            }
         }
     }
 
     private fun renderModelsByCategory(state: State) {
         if (state === State.Loading) {
-            progressBar!!.bringToFront()
+            progressBar.bringToFront()
             showProgressBar(true)
 
         } else if (state === State.Error) {
@@ -177,9 +174,9 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
 
     internal fun showProgressBar(isVisible: Boolean) {
         if (isVisible) {
-            progressBar!!.visibility = View.VISIBLE
+            progressBar.visibility = View.VISIBLE
         } else {
-            progressBar!!.visibility = View.GONE
+            progressBar.visibility = View.GONE
         }
     }
 }
