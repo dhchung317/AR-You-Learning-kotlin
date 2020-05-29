@@ -1,6 +1,7 @@
 package com.hyunki.aryoulearning2.animation
 
 import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.app.Activity
 import android.content.Context
 import android.view.View
@@ -41,16 +42,10 @@ class LottieHelper {
         lav.y = y.toFloat()
         f.addView(lav, 300, 300)
         lav.playAnimation()
-        lav.addAnimatorListener(object : Animator.AnimatorListener {
-            override fun onAnimationStart(animation: Animator) {}
-
+        lav.addAnimatorListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
                 f.removeView(lav)
             }
-
-            override fun onAnimationCancel(animation: Animator) {}
-
-            override fun onAnimationRepeat(animation: Animator) {}
         })
     }
 

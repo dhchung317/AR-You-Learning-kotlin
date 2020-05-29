@@ -51,7 +51,7 @@ constructor(private val application: Application, private val mainRepository: Ma
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { currentCategory ->
                     val modelDisposable = mainRepository.getModelsByCat(currentCategory.currentCategory)
-                            .subscribe(Consumer<List<Model>> { this.onModelsFetched(it) }, Consumer<Throwable> { this.onError(it) })
+                            .subscribe({ this.onModelsFetched(it) }, this::onError)
                     compositeDisposable.add(modelDisposable)
                 }
         compositeDisposable.add(catDisposable)
@@ -72,7 +72,7 @@ constructor(private val application: Application, private val mainRepository: Ma
                     futureMap)
         }
 
-        futureModelMapList.setValue(returnFutureModelMapList)
+        futureModelMapList.value = returnFutureModelMapList
     }
 
     fun setMapOfFutureLetters(futureMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>) {
@@ -82,8 +82,10 @@ constructor(private val application: Application, private val mainRepository: Ma
         for (i in futureMapList.indices) {
 
             val modelName = futureMapList[i].keys.toString()
-            for (j in 0 until modelName.length) {
-                returnMap[Character.toString(modelName[j])] = ModelRenderable.builder().setSource(application, Uri.parse(modelName[j] + ".sfb")).build()
+            for (j in modelName.indices) {
+                returnMap[modelName[j].toString()] =
+                        ModelRenderable.builder().setSource(
+                                application, Uri.parse(modelName[j] + ".sfb")).build()
             }
         }
         futureLetterMap.value = returnMap
@@ -109,7 +111,7 @@ constructor(private val application: Application, private val mainRepository: Ma
                         }
                     }
         }
-        letterMap.setValue(returnMap)
+        letterMap.value = returnMap
     }
 
     fun setModelRenderables(futureModelMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>){
@@ -142,7 +144,7 @@ constructor(private val application: Application, private val mainRepository: Ma
                 returnList.add(modelMap)
             }
         }
-        modelMapList.setValue(returnList)
+        modelMapList.value = returnList
     }
 
     private fun onError(throwable: Throwable) {
@@ -150,6 +152,6 @@ constructor(private val application: Application, private val mainRepository: Ma
     }
 
     companion object {
-        val TAG = "ArViewModel"
+        const val TAG = "ArViewModel"
     }
 }

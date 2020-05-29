@@ -100,11 +100,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 //        this.textToSpeech = pronunciationUtil.textToSpeech
 //    }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-    }
-
     override fun onAttach(context: Context) {
         (activity!!.application as BaseApplication).appComponent.inject(this)
         super.onAttach(context)
@@ -164,13 +159,11 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private fun getKeysFromModelMapList(mapList: List<MutableMap<String, ModelRenderable>>): List<String> {
         val keys = ArrayList<String>()
-
         for (i in mapList.indices) {
             for ((key) in mapList[i]) {
                 keys.add(key)
             }
         }
-
         return keys
     }
 
@@ -264,7 +257,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         exitYes.setOnClickListener { v -> listener.moveToListFragment() }
         exitNo.setOnClickListener { v -> frameLayout.removeView(exitMenu) }
         undo.setOnClickListener { v -> undoLastLetter() }
-        //        undo.setOnClickListener(v -> recreateErasedLetter(eraseLastLetter(letters)));
     }
 
     //TODO - refactor animations to separate class
@@ -274,7 +266,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
         fadeIn.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationStart(animation: Animator) {
-                frameLayout!!.addView(wordValidatorLayout)
+                frameLayout.addView(wordValidatorLayout)
             }
 
             override fun onAnimationEnd(animation: Animator) {
@@ -287,10 +279,11 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         })
 
         fadeOut = Animations.Normal().setCardFadeOutAnimator(wordValidatorCv)
-        fadeOut!!.addListener(object : AnimatorListenerAdapter() {
+        fadeOut.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
                 super.onAnimationEnd(animation)
                 frameLayout.removeView(wordValidatorLayout)
+
                 //                if (roundCounter < roundLimit && roundCounter < modelMapList.size()) {
                 //                    createNextGame(modelMapList.get(roundCounter));
                 //                } else {
@@ -387,7 +380,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private fun placeLetters(word: String) {
         for (i in 0 until word.length) {
             placeSingleLetter(
-                    Character.toString(word[i]))
+                    word[i].toString())
         }
     }
 

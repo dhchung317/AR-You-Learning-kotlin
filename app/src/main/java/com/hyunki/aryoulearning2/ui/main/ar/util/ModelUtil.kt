@@ -1,11 +1,8 @@
 package com.hyunki.aryoulearning2.ui.main.ar.util
 
-import android.animation.ObjectAnimator
-
 import com.hyunki.aryoulearning2.animation.Animations
 import com.google.ar.core.Anchor
 import com.google.ar.core.Pose
-import com.google.ar.core.Session
 import com.google.ar.core.exceptions.CameraNotAvailableException
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.Node
@@ -22,12 +19,9 @@ object ModelUtil {
     private val r = Random()
     private val collisionSet = HashSet<Vector3>()
 
-    private//x
-    //y
-    //z
-    val randomCoordinates: Vector3
+    private val randomCoordinates: Vector3
         get() = Vector3(getRandom(5, -5).toFloat(),
-                getRandom(1, -2).toFloat(),
+                getRandom(4, -4).toFloat(),
                 getRandom(-2, -10).toFloat())
 
     fun getGameAnchor(model: ModelRenderable): Node {
@@ -122,7 +116,6 @@ object ModelUtil {
             collisionSet.add(newV3)
             return false
         }
-
 
         if (newV3.x < parentModel.x + 2 && newV3.x > parentModel.x - 2
                 && newV3.y < parentModel.y + 2 && newV3.y > parentModel.y - 2
