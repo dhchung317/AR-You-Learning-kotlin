@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
+import androidx.fragment.app.FragmentActivity
 
 import com.airbnb.lottie.LottieAnimationView
 
@@ -53,7 +54,7 @@ class LottieHelper {
         })
     }
 
-    fun addTapAnimationToScreen(lavTap: LottieAnimationView, activity: Activity, f: FrameLayout) {
+    fun addTapAnimationToScreen(lavTap: LottieAnimationView, activity: FragmentActivity, f: FrameLayout) {
         val width = activity.window.decorView.width
         val height = activity.window.decorView.height
         lavTap.x = (width / 2 - 50).toFloat()
