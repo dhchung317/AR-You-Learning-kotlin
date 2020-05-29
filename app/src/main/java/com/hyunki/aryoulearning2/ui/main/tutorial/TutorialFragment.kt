@@ -23,14 +23,14 @@ import javax.inject.Inject
 
 class TutorialFragment @Inject
 constructor() : Fragment() {
-    private var backButton: Button? = null
-    private var playVideoButton: Button? = null
-    private var startGameButton: Button? = null
-    private var listener: NavListener? = null
-    private var tutorialVideoView: VideoView? = null
+    private lateinit var backButton: Button
+    private lateinit var playVideoButton: Button
+    private lateinit var startGameButton: Button
+    private lateinit var listener: NavListener
+    private lateinit var tutorialVideoView: VideoView
 
     private val isVideoViewPlaying: Boolean
-        get() = tutorialVideoView!!.isPlaying
+        get() = tutorialVideoView.isPlaying
 
     override fun onAttach(context: Context) {
         (activity!!.application as BaseApplication).appComponent.inject(this)
@@ -61,35 +61,35 @@ constructor() : Fragment() {
     }
 
     fun viewClickListeners() {
-        startGameButton!!.setOnClickListener { v ->
+        startGameButton.setOnClickListener { v ->
             if (isVideoViewPlaying) {
-                tutorialVideoView!!.pause()
+                tutorialVideoView.pause()
             }
-            listener!!.moveToGameFragment()
+            listener.moveToGameFragment()
         }
-        backButton!!.setOnClickListener { v ->
+        backButton.setOnClickListener { v ->
             if (isVideoViewPlaying) {
-                tutorialVideoView!!.pause()
+                tutorialVideoView.pause()
             }
             activity!!.onBackPressed()
         }
-        playVideoButton!!.setOnClickListener { v ->
+        playVideoButton.setOnClickListener { v ->
             if (isVideoViewPlaying) {
-                tutorialVideoView!!.pause()
-                playVideoButton!!.setBackgroundResource(R.drawable.play_button_paused)
+                tutorialVideoView.pause()
+                playVideoButton.setBackgroundResource(R.drawable.play_button_paused)
             } else {
-                tutorialVideoView!!.start()
-                playVideoButton!!.setBackgroundResource(R.drawable.play_button_playing)
+                tutorialVideoView.start()
+                playVideoButton.setBackgroundResource(R.drawable.play_button_playing)
             }
         }
     }
 
     private fun playTutorial() {
         val mediaController = MediaController(requireContext())
-        tutorialVideoView!!.setMediaController(mediaController)
+        tutorialVideoView.setMediaController(mediaController)
         val pathToTutorial = "android.resource://" + Objects.requireNonNull<FragmentActivity>(activity).getPackageName() + "/" + R.raw.ar_tutorial
         val tutorialUri = Uri.parse(pathToTutorial)
-        tutorialVideoView!!.setVideoURI(tutorialUri)
+        tutorialVideoView.setVideoURI(tutorialUri)
     }
 
     private fun initializeViews(view: View) {

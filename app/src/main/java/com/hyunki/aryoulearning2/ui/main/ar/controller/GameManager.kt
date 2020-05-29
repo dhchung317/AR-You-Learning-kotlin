@@ -17,7 +17,7 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
         private set
 
     val currentWordAnswer: String
-        get() = currentWord!!.answer
+        get() = currentWord.answer
 
     init {
         while (keyStack.size < roundLimit) {
@@ -39,7 +39,7 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
         if (attempt.length == currentWordAnswer.length) {
             if (attempt.toLowerCase() != currentWordAnswer.toLowerCase()) {
                 recordWrongAnswer(attempt)
-                startNextGame(currentWord!!.answer)
+                startNextGame(currentWord.answer)
             } else {
                 if (keyStack.size > 0) {
                     wordHistoryList.add(currentWord)
@@ -54,7 +54,7 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
     }
 
     fun recordWrongAnswer(wrongAnswer: String) {
-        currentWord!!.addWrongAnswerToSet(wrongAnswer)
+        currentWord.addWrongAnswerToSet(wrongAnswer)
     }
 
     fun startNextGame(key: String) {
@@ -76,7 +76,7 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
     }
 
     fun refreshManager(key: String) {
-        if (currentWord!!.answer != key) {
+        if (currentWord.answer != key) {
             setCurrentWord(CurrentWord(key))
         }
         ModelUtil.refreshCollisionSet()

@@ -20,8 +20,6 @@ abstract class ModelDatabase : RoomDatabase() {
     abstract fun curCatDao(): CurrentCategoryDao
 
     companion object {
-
         const val DATABASE_NAME = "data.db"
     }
-
 }

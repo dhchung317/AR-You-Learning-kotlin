@@ -12,4 +12,5 @@ class CurrentWord(val answer: String) {
     fun addWrongAnswerToSet(incorrectAttempt: String) {
         attempts.add(incorrectAttempt)
     }
+
 }

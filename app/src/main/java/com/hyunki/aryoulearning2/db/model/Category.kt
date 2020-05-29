@@ -6,5 +6,4 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "category")
 data class Category(
         @field:PrimaryKey val name: String,
-        val image: String) {
-}
+        val image: String)

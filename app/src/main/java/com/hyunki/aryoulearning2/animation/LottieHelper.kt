@@ -1,10 +1,12 @@
 package com.hyunki.aryoulearning2.animation
 
 import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
+import androidx.fragment.app.FragmentActivity
 
 import com.airbnb.lottie.LottieAnimationView
 
@@ -40,20 +42,14 @@ class LottieHelper {
         lav.y = y.toFloat()
         f.addView(lav, 300, 300)
         lav.playAnimation()
-        lav.addAnimatorListener(object : Animator.AnimatorListener {
-            override fun onAnimationStart(animation: Animator) {}
-
+        lav.addAnimatorListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
                 f.removeView(lav)
             }
-
-            override fun onAnimationCancel(animation: Animator) {}
-
-            override fun onAnimationRepeat(animation: Animator) {}
         })
     }
 
-    fun addTapAnimationToScreen(lavTap: LottieAnimationView, activity: Activity, f: FrameLayout) {
+    fun addTapAnimationToScreen(lavTap: LottieAnimationView, activity: FragmentActivity, f: FrameLayout) {
         val width = activity.window.decorView.width
         val height = activity.window.decorView.height
         lavTap.x = (width / 2 - 50).toFloat()

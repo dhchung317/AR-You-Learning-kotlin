@@ -22,16 +22,16 @@ import javax.inject.Inject
 
 class ReplayFragment @Inject
 constructor() : Fragment() {
-    private var listener: NavListener? = null
+    private lateinit var listener: NavListener
 
-    private var resultsButtonCard: CardView? = null
-    private var homeButtonCard: CardView? = null
-    private var playAgainButtonCard: CardView? = null
+    private lateinit var resultsButtonCard: CardView
+    private lateinit var homeButtonCard: CardView
+    private lateinit var playAgainButtonCard: CardView
 
     private val modelList = ArrayList<Model>()
 
-    private val textToSpeech: TextToSpeech? = null
-    private val pronunciationUtil: PronunciationUtil? = null
+    private lateinit var textToSpeech: TextToSpeech
+    private lateinit var pronunciationUtil: PronunciationUtil
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -62,19 +62,19 @@ constructor() : Fragment() {
     }
 
     fun viewClickListeners() {
-        resultsButtonCard!!.setOnClickListener { v ->
+        resultsButtonCard.setOnClickListener { v ->
             //            pronunciationUtil.textToSpeechAnnouncer("Showing progress", textToSpeech);
-            listener!!.moveToResultsFragment()
+            listener.moveToResultsFragment()
         }
 
-        homeButtonCard!!.setOnClickListener { v ->
+        homeButtonCard.setOnClickListener { v ->
             //            pronunciationUtil.textToSpeechAnnouncer("Lets go home", textToSpeech);
-            listener!!.moveToListFragment()
+            listener.moveToListFragment()
         }
 
-        playAgainButtonCard!!.setOnClickListener { v ->
+        playAgainButtonCard.setOnClickListener { v ->
             //            pronunciationUtil.textToSpeechAnnouncer("Lets play again!", textToSpeech);
-            listener!!.moveToGameFragment()
+            listener.moveToGameFragment()
         }
     }
 
@@ -87,8 +87,8 @@ constructor() : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (fragmentManager!!.findFragmentByTag("result_fragment") != null) {
-            fragmentManager!!.beginTransaction().remove(fragmentManager!!.findFragmentByTag("result_fragment")!!).commit()
+        if (fragmentManager?.findFragmentByTag("result_fragment") != null) {
+            fragmentManager?.beginTransaction()?.remove(fragmentManager!!.findFragmentByTag("result_fragment")!!)?.commit()
         }
         //        getActivity().getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
     }

@@ -1,24 +1,17 @@
 package com.hyunki.aryoulearning2.animation
 
-import android.animation.Animator
-import android.animation.FloatEvaluator
 import android.animation.ObjectAnimator
-import android.animation.ValueAnimator
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.view.animation.BounceInterpolator
 import android.view.animation.LinearInterpolator
-
 import androidx.cardview.widget.CardView
-
 import com.google.ar.sceneform.Node
-import com.google.ar.sceneform.Scene
-import com.google.ar.sceneform.math.Vector3Evaluator
-import com.hyunki.aryoulearning2.R
 import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.QuaternionEvaluator
 import com.google.ar.sceneform.math.Vector3
+import com.google.ar.sceneform.math.Vector3Evaluator
+import com.hyunki.aryoulearning2.R
 
 class Animations {
 
@@ -80,7 +73,5 @@ class Animations {
         fun getVibrator(itemView: View): Animation {
             return AnimationUtils.loadAnimation(itemView.context, R.anim.vibrate)
         }
-
     }
-
 }

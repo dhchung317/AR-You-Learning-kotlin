@@ -30,18 +30,10 @@ class AppModule {
         return retrofit.create(MainApi::class.java)
     }
 
-    //    @Provides
-    //    @Singleton
-    //    static Application provideApplicationContext(Application application) {
-    //        return application;
-    //    }
-
     @Provides
     @Singleton
     fun providePronunciationUtil(application: Application): PronunciationUtil {
         return PronunciationUtil(application.baseContext)
     }
-
-
 }
 

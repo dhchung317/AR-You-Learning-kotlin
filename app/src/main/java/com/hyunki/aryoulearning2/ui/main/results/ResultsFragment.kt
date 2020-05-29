@@ -52,17 +52,17 @@ import javax.inject.Inject
 //TODO- refactor resultsfragment
 class ResultsFragment @Inject
 constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fragment() {
-    private var rainbowRatingBar: RatingBar? = null
-    private var categoryTextView: TextView? = null
+    private lateinit var rainbowRatingBar: RatingBar
+    private lateinit var categoryTextView: TextView
     private val modelMap = HashMap<String, Model>()
     private lateinit var shareFAB: FloatingActionButton
     private lateinit var backFAB: FloatingActionButton
-    private var resultRV: RecyclerView? = null
+    private lateinit var resultRV: RecyclerView
     private lateinit var pronunciationUtil: PronunciationUtil
     private lateinit var textToSpeech: TextToSpeech
-    private var viewModel: MainViewModel? = null
-    private var progressBar: ProgressBar? = null
-    private var navListener: NavListener? = null
+    private lateinit var viewModel: MainViewModel
+    private lateinit var progressBar: ProgressBar
+    private lateinit var navListener: NavListener
 
     override fun onAttach(context: Context) {
         (activity!!.application as BaseApplication).appComponent.inject(this)
@@ -71,10 +71,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         if (context is NavListener) {
             navListener = context
         }
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -114,8 +110,8 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     }
 
     private fun setResultRV() {
-        resultRV!!.adapter = ResultsAdapter(viewModel!!.wordHistory, modelMap, pronunciationUtil, textToSpeech)
-        resultRV!!.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        resultRV.adapter = ResultsAdapter(viewModel.wordHistory, modelMap, pronunciationUtil, textToSpeech)
+        resultRV.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
     }
 
@@ -132,7 +128,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     }
 
     private fun backFABClick() {
-        backFAB.setOnClickListener { v -> navListener!!.moveToListFragment() }
+        backFAB.setOnClickListener { v -> navListener.moveToListFragment() }
 
     }
 
@@ -145,7 +141,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == REQUEST_CODE) {
-            if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 return
             }
         }
@@ -201,37 +197,40 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     private fun displayRatingBarAttempts() {
 
-        rainbowRatingBar!!.numStars = viewModel!!.wordHistory.size
-        rainbowRatingBar!!.stepSize = 1f
-        rainbowRatingBar!!.rating = getCorrectAnswerCount(viewModel!!.wordHistory).toFloat()
-        rainbowRatingBar!!.setIsIndicator(true)
+        rainbowRatingBar.numStars = viewModel.wordHistory.size
+        rainbowRatingBar.stepSize = 1f
+        rainbowRatingBar.rating = getCorrectAnswerCount(viewModel.wordHistory).toFloat()
+        rainbowRatingBar.setIsIndicator(true)
     }
 
     private fun renderModelList(state: State) {
         Log.d("results", "renderModelList: " + state.javaClass)
-        if (state === State.Loading) {
-            progressBar!!.bringToFront()
-            showProgressBar(true)
+        when {
 
-        } else if (state === State.Error) {
-            showProgressBar(false)
-
-        } else if (state.javaClass == State.Success.OnModelsLoaded::class.java) {
-            showProgressBar(false)
-            val (models) = state as State.Success.OnModelsLoaded
-            for (i in 0 until models.size) {
-                modelMap[models[i].name] = models[i]
+            state === State.Loading -> {
+                progressBar.bringToFront()
+                showProgressBar(true)
             }
-            Log.d("resultsAdapter", "renderModelList: " + models.size)
-            setResultRV()
+
+            state === State.Error -> showProgressBar(false)
+
+            state.javaClass == State.Success.OnModelsLoaded::class.java -> {
+                showProgressBar(false)
+                val (models) = state as State.Success.OnModelsLoaded
+                for (i in models.indices) {
+                    modelMap[models[i].name] = models[i]
+                }
+                Log.d("resultsAdapter", "renderModelList: " + models.size)
+                setResultRV()
+            }
         }
     }
 
     private fun showProgressBar(isVisible: Boolean) {
         if (isVisible) {
-            progressBar!!.visibility = View.VISIBLE
+            progressBar.visibility = View.VISIBLE
         } else {
-            progressBar!!.visibility = View.GONE
+            progressBar.visibility = View.GONE
         }
     }
 
@@ -253,6 +252,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     }
 
     companion object {
-        private val REQUEST_CODE = 1
+        private const val REQUEST_CODE = 1
     }
 }

@@ -26,15 +26,15 @@ import javax.inject.Inject
 class ListFragment @Inject
 constructor(private val viewModelProviderFactory: ViewModelProviderFactory, private val listAdapter: ListAdapter) : Fragment() {
 
-    private var mainViewModel: MainViewModel? = null
+    private lateinit var mainViewModel: MainViewModel
 
-    private var recyclerView: RecyclerView? = null
+    private lateinit var recyclerView: RecyclerView
 
-    private var progressBar: ProgressBar? = null
+    private lateinit var progressBar: ProgressBar
 
 
     override fun onAttach(context: Context) {
-        (activity!!.application as BaseApplication).appComponent.inject(this)
+        (activity?.application as BaseApplication).appComponent.inject(this)
         super.onAttach(context)
         Log.d(TAG, "onAttach: on attach ran")
     }
@@ -58,11 +58,11 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory, priv
 
         recyclerView = view.findViewById(R.id.category_rv)
         mainViewModel = ViewModelProviders.of(activity!!, viewModelProviderFactory).get(MainViewModel::class.java)
-        mainViewModel!!.loadCategories()
+        mainViewModel.loadCategories()
 
-        mainViewModel!!.catLiveData.observe(viewLifecycleOwner, Observer { categories ->
+        mainViewModel.catLiveData.observe(viewLifecycleOwner, Observer { categories ->
             renderCategories(categories)
-            Log.d(TAG, "onViewCreated: " + mainViewModel!!.catLiveData.value!!.javaClass)
+            Log.d(TAG, "onViewCreated: " + mainViewModel.catLiveData.value!!.javaClass)
 
         })
         initRecyclerView()
@@ -70,15 +70,15 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory, priv
 
 
     private fun initRecyclerView() {
-        recyclerView!!.layoutManager = LinearLayoutManager(requireContext(),
+        recyclerView.layoutManager = LinearLayoutManager(requireContext(),
                 RecyclerView.HORIZONTAL,
                 false)
-        recyclerView!!.adapter = listAdapter
+        recyclerView.adapter = listAdapter
     }
 
     private fun renderCategories(state: State) {
         if (state === State.Loading) {
-            progressBar!!.bringToFront()
+            progressBar.bringToFront()
             showProgressBar(true)
 
         } else if (state === State.Error) {
@@ -95,9 +95,9 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory, priv
 
     private fun showProgressBar(isVisible: Boolean) {
         if (isVisible) {
-            progressBar!!.visibility = View.VISIBLE
+            progressBar.visibility = View.VISIBLE
         } else {
-            progressBar!!.visibility = View.GONE
+            progressBar.visibility = View.GONE
         }
     }
 

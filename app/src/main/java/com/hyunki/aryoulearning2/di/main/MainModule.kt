@@ -15,22 +15,22 @@ import retrofit2.Retrofit
 class MainModule {
 
     @Provides
-    internal fun provideThemeID(): Int {
+    fun provideThemeID(): Int {
         return R.style.AppTheme
     }
 
     @Provides
-    internal fun provideCategoryAdapter(): ListAdapter {
+    fun provideCategoryAdapter(): ListAdapter {
         return ListAdapter()
     }
 
     @Provides
-    internal fun provideHintAdapter(pronunciationUtil: PronunciationUtil): HintAdapter {
+    fun provideHintAdapter(pronunciationUtil: PronunciationUtil): HintAdapter {
         return HintAdapter(pronunciationUtil)
     }
 
     @Provides
-    internal fun provideLottieHelper(): LottieHelper {
+    fun provideLottieHelper(): LottieHelper {
         return LottieHelper()
     }
 }
