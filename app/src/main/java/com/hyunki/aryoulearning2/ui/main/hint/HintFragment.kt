@@ -50,7 +50,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
     }
 
     override fun onAttach(context: Context) {
-        (activity!!.application as BaseApplication).appComponent.inject(this)
+        (activity?.application as BaseApplication).appComponent.inject(this)
         super.onAttach(context)
         if (context is NavListener) {
             listener = context
@@ -69,8 +69,10 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
 
         mainViewModel = ViewModelProviders.of(activity!!, viewModelProviderFactory).get(MainViewModel::class.java)
 
-        mainViewModel.curCatLiveData.observe(viewLifecycleOwner, Observer { state -> renderCurrentCategory(state) })
-        mainViewModel.modelLiveData.observe(viewLifecycleOwner, Observer { state -> renderModelsByCategory(state) })
+        mainViewModel.curCatLiveData.observe(viewLifecycleOwner,
+                Observer { state -> renderCurrentCategory(state) })
+        mainViewModel.modelLiveData.observe(viewLifecycleOwner,
+                Observer { state -> renderModelsByCategory(state) })
 
         mainViewModel.loadCurrentCategoryName()
         //        textToSpeech = pronunciationUtil.getTTS(requireContext());
@@ -78,7 +80,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
         hintRecyclerView.layoutManager = LinearLayoutManager(requireContext(),
                 LinearLayoutManager.HORIZONTAL,
                 false)
-
         hintRecyclerView.adapter = hintAdapter
         viewClickListeners()
     }
@@ -108,8 +109,8 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
         }
     }
 
-    fun viewClickListeners() {
-        startGameButton.setOnClickListener { v ->
+    private fun viewClickListeners() {
+        startGameButton.setOnClickListener {
             disableViews(constraintLayout)
             //            constraintLayout.addView(parentalSupervision);
             //            okButton1.setOnClickListener(v1 -> {
@@ -122,8 +123,8 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
             //            });
         }
 
-        tutorialButton.setOnClickListener { v -> listener.moveToTutorialFragment() }
-        backFAB.setOnClickListener { v -> activity?.onBackPressed() }
+        tutorialButton.setOnClickListener { listener.moveToTutorialFragment() }
+        backFAB.setOnClickListener { activity?.onBackPressed() }
     }
 
     private fun initializeViews(view: View) {
@@ -145,34 +146,32 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
     private fun renderCurrentCategory(state: State) {
         Log.d("rendercurcat", "renderCurrentCategory: " + state.javaClass)
 
-        when {
-            state === State.Loading -> showProgressBar(true)
-            state === State.Error -> showProgressBar(false)
-            state.javaClass == State.Success.OnCurrentCategoryStringLoaded::class.java -> {
+        when (state){
+            is State.Loading -> showProgressBar(true)
+            is State.Error -> showProgressBar(false)
+            is State.Success.OnCurrentCategoryStringLoaded -> {
                 showProgressBar(false)
-                val (currentCategoryString) = state as State.Success.OnCurrentCategoryStringLoaded
-                mainViewModel.loadModelsByCat(currentCategoryString)
-                Log.d("hint", "renderCurrentCategory: $currentCategoryString")
+                mainViewModel.loadModelsByCat(state.currentCategoryString)
+                Log.d("hint", "renderCurrentCategory: ${state.currentCategoryString}")
             }
         }
     }
 
     private fun renderModelsByCategory(state: State) {
-        if (state === State.Loading) {
-            progressBar.bringToFront()
-            showProgressBar(true)
-
-        } else if (state === State.Error) {
-            showProgressBar(false)
-
-        } else if (state.javaClass == State.Success.OnModelsLoaded::class.java) {
-            showProgressBar(false)
-            val (models) = state as State.Success.OnModelsLoaded
-            hintAdapter.setList(models)
+        when (state) {
+            is State.Loading -> {
+                progressBar.bringToFront()
+                showProgressBar(true)
+            }
+            is State.Error -> showProgressBar(false)
+            is State.Success.OnModelsLoaded -> {
+                showProgressBar(false)
+                hintAdapter.setList(state.models)
+            }
         }
     }
 
-    internal fun showProgressBar(isVisible: Boolean) {
+    private fun showProgressBar(isVisible: Boolean) {
         if (isVisible) {
             progressBar.visibility = View.VISIBLE
         } else {

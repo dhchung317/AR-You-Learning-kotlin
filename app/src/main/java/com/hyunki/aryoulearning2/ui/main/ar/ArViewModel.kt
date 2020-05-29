@@ -7,7 +7,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-import com.hyunki.aryoulearning2.model.Model
+import com.hyunki.aryoulearning2.db.model.Model
 import com.hyunki.aryoulearning2.ui.main.MainRepository
 import com.google.ar.sceneform.rendering.ModelRenderable
 
@@ -20,8 +20,6 @@ import javax.inject.Inject
 
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 
 class ArViewModel @Inject

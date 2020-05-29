@@ -8,8 +8,8 @@ import androidx.lifecycle.ViewModel
 
 import com.hyunki.aryoulearning2.db.model.Category
 import com.hyunki.aryoulearning2.db.model.CurrentCategory
-import com.hyunki.aryoulearning2.model.Model
-import com.hyunki.aryoulearning2.model.ModelResponse
+import com.hyunki.aryoulearning2.db.model.Model
+import com.hyunki.aryoulearning2.db.model.ModelResponse
 import com.hyunki.aryoulearning2.ui.main.ar.util.CurrentWord
 
 import java.util.ArrayList
@@ -18,8 +18,6 @@ import javax.inject.Inject
 
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 
 class MainViewModel @Inject

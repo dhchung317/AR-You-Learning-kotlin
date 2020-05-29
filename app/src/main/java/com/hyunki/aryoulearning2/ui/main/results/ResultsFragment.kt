@@ -28,7 +28,6 @@ import android.widget.ProgressBar
 import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.FragmentActivity
 
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
@@ -38,14 +37,13 @@ import com.hyunki.aryoulearning2.ui.main.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.ui.main.controller.NavListener
 import com.hyunki.aryoulearning2.ui.main.results.rv.ResultsAdapter
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
-import com.hyunki.aryoulearning2.model.Model
+import com.hyunki.aryoulearning2.db.model.Model
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Date
 import java.util.HashMap
-import java.util.Objects
 
 import javax.inject.Inject
 

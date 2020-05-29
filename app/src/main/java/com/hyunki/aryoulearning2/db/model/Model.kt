@@ -1,4 +1,4 @@
-package com.hyunki.aryoulearning2.model
+package com.hyunki.aryoulearning2.db.model
 
 import androidx.room.Entity
 import androidx.room.Ignore

@@ -13,7 +13,7 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 
 import com.hyunki.aryoulearning2.R
-import com.hyunki.aryoulearning2.model.Model
+import com.hyunki.aryoulearning2.db.model.Model
 import com.hyunki.aryoulearning2.ui.main.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.squareup.picasso.Picasso

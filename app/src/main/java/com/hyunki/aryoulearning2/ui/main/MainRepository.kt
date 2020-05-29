@@ -5,8 +5,8 @@ import com.hyunki.aryoulearning2.db.dao.CurrentCategoryDao
 import com.hyunki.aryoulearning2.db.dao.ModelDao
 import com.hyunki.aryoulearning2.db.model.Category
 import com.hyunki.aryoulearning2.db.model.CurrentCategory
-import com.hyunki.aryoulearning2.model.Model
-import com.hyunki.aryoulearning2.model.ModelResponse
+import com.hyunki.aryoulearning2.db.model.Model
+import com.hyunki.aryoulearning2.db.model.ModelResponse
 import com.hyunki.aryoulearning2.network.main.MainApi
 
 import java.util.ArrayList

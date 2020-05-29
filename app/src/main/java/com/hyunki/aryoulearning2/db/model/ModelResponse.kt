@@ -1,4 +1,4 @@
-package com.hyunki.aryoulearning2.model
+package com.hyunki.aryoulearning2.db.model
 
 import java.util.ArrayList
 
