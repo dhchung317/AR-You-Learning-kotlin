@@ -28,8 +28,8 @@ import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), NavListener {
-    private var viewModel: MainViewModel? = null
-    private var progressBar: ProgressBar? = null
+    private lateinit var viewModel: MainViewModel
+    private lateinit var progressBar: ProgressBar
     private lateinit var prefs: SharedPreferences
 
     @Inject
@@ -87,8 +87,8 @@ class MainActivity : AppCompatActivity(), NavListener {
 //            Log.d(TAG, "onCreate: " + prefs.contains(NETWORK_CALL_COMPLETED))
 //            moveToListFragment()
 //        } else {
-            viewModel!!.loadModelResponses()
-            viewModel!!.modelResponsesData.observe(this, Observer<State> { this.renderModelResponses(it) })
+            viewModel.loadModelResponses()
+            viewModel.modelResponsesData.observe(this, Observer<State> { this.renderModelResponses(it) })
 //        }
     }
 
@@ -105,37 +105,37 @@ class MainActivity : AppCompatActivity(), NavListener {
 
     private fun showProgressBar(isVisible: Boolean) {
         if (isVisible) {
-            progressBar!!.visibility = View.VISIBLE
+            progressBar.visibility = View.VISIBLE
         } else {
-            progressBar!!.visibility = View.GONE
+            progressBar.visibility = View.GONE
         }
     }
 
     override fun moveToListFragment() {
         supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.fragment_container, listFragment!!)
+                .replace(R.id.fragment_container, listFragment)
                 .commit()
     }
 
     override fun moveToGameFragment() {
         supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.fragment_container, arHostFragment!!)
+                .replace(R.id.fragment_container, arHostFragment)
                 .commit()
     }
 
     override fun moveToResultsFragment() {
         supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.fragment_container, resultsFragment!!)
+                .replace(R.id.fragment_container, resultsFragment)
                 .commit()
     }
 
     override fun moveToHintFragment() {
         supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.fragment_container, hintFragment!!)
+                .replace(R.id.fragment_container, hintFragment)
                 .addToBackStack(null)
                 .commit()
     }
@@ -143,28 +143,28 @@ class MainActivity : AppCompatActivity(), NavListener {
     override fun moveToReplayFragment() {
         supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.fragment_container, replayFragment!!)
+                .replace(R.id.fragment_container, replayFragment)
                 .commit()
     }
 
     override fun moveToTutorialFragment() {
         supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.fragment_container, tutorialFragment!!)
+                .replace(R.id.fragment_container, tutorialFragment)
                 .addToBackStack(null)
                 .commit()
     }
 
     override fun setCategoryFromListFragment(category: Category) {
-        viewModel!!.setCurrentCategory(category)
+        viewModel.setCurrentCategory(category)
     }
 
     override fun setWordHistoryFromGameFragment(wordHistory: List<CurrentWord>) {
-        viewModel!!.wordHistory = wordHistory
+        viewModel.wordHistory = wordHistory
     }
 
     companion object {
-        val TAG = "MainActivity"
-        val NETWORK_CALL_COMPLETED = "network_call_completed"
+        const val TAG = "MainActivity"
+        const val NETWORK_CALL_COMPLETED = "network_call_completed"
     }
 }

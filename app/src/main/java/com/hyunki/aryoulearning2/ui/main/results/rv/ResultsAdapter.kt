@@ -35,19 +35,11 @@ class ResultsAdapter(private val wordHistory: List<CurrentWord>, private val mod
     }
 
     inner class ResultsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val modelTextView: TextView
-        private val modelImageView: ImageView
-        private val modelAnswer: TextView
-        private val resultImage: ImageView
-        private val promptText: TextView
-
-        init {
-            modelTextView = itemView.findViewById(R.id.correctmodel_name)
-            promptText = itemView.findViewById(R.id.result_prompt_textView)
-            modelImageView = itemView.findViewById(R.id.correctmodel_image)
-            modelAnswer = itemView.findViewById(R.id.correctmodel_answer)
-            resultImage = itemView.findViewById(R.id.result_imageView)
-        }
+        private val modelTextView: TextView = itemView.findViewById(R.id.correctmodel_name)
+        private val modelImageView: ImageView = itemView.findViewById(R.id.correctmodel_image)
+        private val modelAnswer: TextView = itemView.findViewById(R.id.correctmodel_answer)
+        private val resultImage: ImageView = itemView.findViewById(R.id.result_imageView)
+        private val promptText: TextView = itemView.findViewById(R.id.result_prompt_textView)
 
         @SuppressLint("ResourceAsColor")
         fun onBind(currentWord: CurrentWord, model: Model, pronunUtil: PronunciationUtil, TTS: TextToSpeech) {
