@@ -152,15 +152,17 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 Observer { models -> processModelData(models) })
 
         arViewModel.getFutureModelMapListLiveData().observe(viewLifecycleOwner,
-                Observer { hashMaps ->
+                Observer { hashMapList ->
 
-                    arViewModel.setModelRenderables(hashMaps)
-                    arViewModel.setMapOfFutureLetters(hashMaps)
+                    processFutureModelMapList(hashMapList)
+
+                    arViewModel.loadModelRenderables(hashMaps)
+                    arViewModel.loadMapOfFutureLetters(hashMaps)
                 })
 
-        arViewModel.futureLetterMap.observe(viewLifecycleOwner,
+        arViewModel.futureLetterMapLiveData.observe(viewLifecycleOwner,
                 Observer { map ->
-                    arViewModel.setLetterRenderables(map) })
+                    arViewModel.loadLetterRenderables(map) })
 
         arViewModel.modelMapList.observe(viewLifecycleOwner,
                 Observer { hashMaps ->
@@ -173,7 +175,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             hasFinishedLoadingLetters = true
         })
 
-        arViewModel.loadModels()
+        arViewModel.fetchModelsFromRepository()
     }
 
     private fun processModelData(state: ArState){
@@ -182,18 +184,19 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             is ArState.Error -> showProgressBar(false)
             is ArState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
-                arViewModel.setListMapsOfFutureModels(state.responses)
+                arViewModel.loadListMapsOfFutureModels(state.responses)
             }
         }
     }
 
-    private fun processFutureModelMap(state: ArState){
+    private fun processFutureModelMapList(state: ArState){
         when (state) {
             is ArState.Loading -> showProgressBar(true)
             is ArState.Error -> showProgressBar(false)
-            is ArState.Success.OnModelsLoaded -> {
+            is ArState.Success.OnFutureModelMapListLoaded -> {
                 showProgressBar(false)
-
+                arViewModel.loadMapOfFutureLetters(state.futureModelMapList)
+                arViewModel.loadModelRenderables(state.futureModelMapList)
             }
         }
     }

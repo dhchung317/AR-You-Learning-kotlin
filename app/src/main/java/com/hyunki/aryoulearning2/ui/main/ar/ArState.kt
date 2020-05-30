@@ -20,9 +20,12 @@ sealed class ArState {
         ) : Success()
 
         data class OnFutureModelMapListLoaded(
-                val mapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>
+                val futureModelMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>
         ) : Success()
 
+        data class OnFutureLetterMapLoaded(
+                val futureLetterMap: MutableMap<String, CompletableFuture<ModelRenderable>>
+        ) : Success()
     }
 
 }
