@@ -69,9 +69,9 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
 
         mainViewModel = ViewModelProviders.of(activity!!, viewModelProviderFactory).get(MainViewModel::class.java)
 
-        mainViewModel.curCatLiveData.observe(viewLifecycleOwner,
+        mainViewModel.getCurCatLiveData().observe(viewLifecycleOwner,
                 Observer { state -> renderCurrentCategory(state) })
-        mainViewModel.modelLiveData.observe(viewLifecycleOwner,
+        mainViewModel.getModelLiveData().observe(viewLifecycleOwner,
                 Observer { state -> renderModelsByCategory(state) })
 
         mainViewModel.loadCurrentCategoryName()

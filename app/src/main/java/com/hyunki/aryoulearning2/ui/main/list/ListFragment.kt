@@ -59,9 +59,9 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory, priv
         mainViewModel = ViewModelProviders.of(activity!!, viewModelProviderFactory).get(MainViewModel::class.java)
         mainViewModel.loadCategories()
 
-        mainViewModel.catLiveData.observe(viewLifecycleOwner, Observer { categories ->
+        mainViewModel.getCatLiveData().observe(viewLifecycleOwner, Observer { categories ->
             renderCategories(categories)
-            Log.d(TAG, "onViewCreated: " + mainViewModel.catLiveData.value!!.javaClass)
+            Log.d(TAG, "onViewCreated: " + mainViewModel.getCatLiveData().value!!.javaClass)
 
         })
         initRecyclerView()

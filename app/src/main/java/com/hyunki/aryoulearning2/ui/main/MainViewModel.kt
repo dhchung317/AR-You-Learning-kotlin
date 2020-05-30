@@ -1,34 +1,29 @@
 package com.hyunki.aryoulearning2.ui.main
 
 import android.util.Log
-
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-
 import com.hyunki.aryoulearning2.db.model.Category
 import com.hyunki.aryoulearning2.db.model.CurrentCategory
 import com.hyunki.aryoulearning2.db.model.Model
 import com.hyunki.aryoulearning2.db.model.ModelResponse
 import com.hyunki.aryoulearning2.ui.main.ar.util.CurrentWord
-
-import java.util.ArrayList
-
-import javax.inject.Inject
-
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
+import java.util.*
+import javax.inject.Inject
 
 class MainViewModel @Inject
 internal constructor(private val mainRepository: MainRepository) : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
 
-    val modelResponsesData = MutableLiveData<MainState>()
-    val modelLiveData = MutableLiveData<MainState>()
-    val catLiveData = MutableLiveData<MainState>()
-    val curCatLiveData = MutableLiveData<MainState>()
+    private val modelResponsesData = MutableLiveData<MainState>()
+    private val modelLiveData = MutableLiveData<MainState>()
+    private val catLiveData = MutableLiveData<MainState>()
+    private val curCatLiveData = MutableLiveData<MainState>()
     var wordHistory: List<CurrentWord> = ArrayList()
 
     fun loadModelResponses() {
@@ -37,17 +32,18 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
                 mainRepository.modelResponses
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({ modelResponses ->
-                            if (modelResponses.size > 0) {
-                                saveModelResponseData(modelResponses)
-                                modelResponsesData.value = MainState.Success.OnModelResponsesLoaded(modelResponses)
-                            }
-
-                        }, { throwable -> modelResponsesData.setValue(MainState.Error) })
+                        .subscribeBy(
+                                onNext = {onModelResponsesLoaded(it)},
+                                onError = {error ->
+                                    modelResponsesData.value = MainState.Error
+                                    Log.e(TAG, error.message)
+                                }
+                        )
         )
     }
 
-    fun saveModelResponseData(modelResponses: ArrayList<ModelResponse>) {
+
+    private fun saveModelResponseData(modelResponses: ArrayList<ModelResponse>) {
         for (i in modelResponses.indices) {
             mainRepository.insertCat(Category(
                     modelResponses[i].category,
@@ -71,12 +67,10 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
-                        onSuccess = {
-                            onModelsFetched(it)
-                        },
+                        onSuccess = { onModelsFetched(it) },
                         onError = { error ->
                             modelLiveData.value = MainState.Error
-                            Log.e(TAG,error.message)
+                            Log.e(TAG, error.message)
                         }
                 )
         compositeDisposable.add(modelDisposable)
@@ -89,9 +83,9 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                         onSuccess = { this.onCatsFetched(it) },
-                        onError = {error ->
-                    catLiveData.value = MainState.Error
-                            Log.e(TAG,error.message)
+                        onError = { error ->
+                            catLiveData.value = MainState.Error
+                            Log.e(TAG, error.message)
                         }
                 )
         compositeDisposable.add(catDisposable)
@@ -102,9 +96,12 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
         val curCatDisposable = mainRepository.currentCategory
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ this.onCurCatsFetched(it) }) {
-                    curCatLiveData.value = MainState.Error
-                    this.onError(it) }
+                .subscribeBy(
+                        onSuccess = { this.onCurCatsFetched(it) },
+                        onError = { error ->
+                            curCatLiveData.value = MainState.Error
+                            Log.e(TAG, error.message)
+                        })
         compositeDisposable.add(curCatDisposable)
     }
 
@@ -146,6 +143,11 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
         Log.d(TAG, "onCurCatsFetched: " + category.currentCategory)
         curCatLiveData.value = MainState.Success.OnCurrentCategoryStringLoaded(category.currentCategory)
         Log.d(TAG, "onCurCatsFetched: " + MainState.Success.OnCurrentCategoryStringLoaded(category.currentCategory).javaClass)
+    }
+
+    private fun onModelResponsesLoaded(modelResponses: ArrayList<ModelResponse>){
+        saveModelResponseData(modelResponses)
+        modelResponsesData.value = MainState.Success.OnModelResponsesLoaded(modelResponses)
     }
 
     fun clearEntireDatabase() {
