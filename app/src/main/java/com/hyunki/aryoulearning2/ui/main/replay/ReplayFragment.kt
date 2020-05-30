@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
-import com.hyunki.aryoulearning2.model.Model
+import com.hyunki.aryoulearning2.db.model.Model
 import com.hyunki.aryoulearning2.ui.main.controller.NavListener
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 

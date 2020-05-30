@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.animation.Animations
-import com.hyunki.aryoulearning2.model.Model
+import com.hyunki.aryoulearning2.db.model.Model
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.squareup.picasso.Picasso
 
@@ -48,12 +48,13 @@ constructor(private val pronunciationUtil: PronunciationUtil) : RecyclerView.Ada
 
             textView.text = model.name
 
-            itemView.setOnClickListener { v ->
+            itemView.setOnClickListener {
 
                 pronunciationUtil.textToSpeechAnnouncer(model.name, pronunciationUtil.textToSpeech)
                 itemView.startAnimation(Animations.Normal().getVibrator(itemView))
                 textView.setTextColor(Color.LTGRAY)
                 val timer = object : CountDownTimer(1000, 1000) {
+
                     override fun onTick(millisUntilFinished: Long) {
 
                     }

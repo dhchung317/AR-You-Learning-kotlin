@@ -88,18 +88,18 @@ class MainActivity : AppCompatActivity(), NavListener {
 //            moveToListFragment()
 //        } else {
             viewModel.loadModelResponses()
-            viewModel.modelResponsesData.observe(this, Observer<State> { this.renderModelResponses(it) })
+            viewModel.getModelResponsesData().observe(this, Observer<MainState> { this.renderModelResponses(it) })
 //        }
     }
 
-    private fun renderModelResponses(state: State) {
-        if (state === State.Loading) {
-            showProgressBar(true)
-        } else if (state === State.Error) {
-            showProgressBar(false)
-        } else if (state.javaClass == State.Success.OnModelResponsesLoaded::class.java) {
-            prefs.edit().putString(NETWORK_CALL_COMPLETED, "success").apply()
-            moveToListFragment()
+    private fun renderModelResponses(state: MainState) {
+        when (state) {
+            is MainState.Loading -> showProgressBar(true)
+            is MainState.Error -> showProgressBar(false)
+            is MainState.Success.OnModelResponsesLoaded -> {
+                prefs.edit().putString(NETWORK_CALL_COMPLETED, "success").apply()
+                moveToListFragment()
+            }
         }
     }
 
@@ -160,7 +160,7 @@ class MainActivity : AppCompatActivity(), NavListener {
     }
 
     override fun setWordHistoryFromGameFragment(wordHistory: List<CurrentWord>) {
-        viewModel.wordHistory = wordHistory
+        viewModel.setWordHistory(wordHistory)
     }
 
     companion object {

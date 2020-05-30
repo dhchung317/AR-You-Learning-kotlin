@@ -1,10 +1,9 @@
 package com.hyunki.aryoulearning2.network.main
 
-import com.hyunki.aryoulearning2.model.ModelResponse
+import com.hyunki.aryoulearning2.db.model.ModelResponse
 
 import java.util.ArrayList
 
-import io.reactivex.Flowable
 import io.reactivex.Observable
 import retrofit2.http.GET
 

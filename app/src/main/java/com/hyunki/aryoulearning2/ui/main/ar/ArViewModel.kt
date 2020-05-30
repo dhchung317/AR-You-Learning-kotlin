@@ -6,36 +6,38 @@ import android.util.Log
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.a.b.a.a.a.e
 
-import com.hyunki.aryoulearning2.model.Model
+import com.hyunki.aryoulearning2.db.model.Model
 import com.hyunki.aryoulearning2.ui.main.MainRepository
 import com.google.ar.sceneform.rendering.ModelRenderable
+import io.reactivex.Flowable
+import io.reactivex.Observable
+import io.reactivex.Single
 
-import java.util.ArrayList
-import java.util.HashMap
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ExecutionException
 
 import javax.inject.Inject
 
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.functions.Consumer
+import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxkotlin.toMap
 import io.reactivex.schedulers.Schedulers
+import java.util.*
 
 class ArViewModel @Inject
 constructor(private val application: Application, private val mainRepository: MainRepository) : ViewModel() {
 
     private val compositeDisposable = CompositeDisposable()
 
-    val modelLiveData = MutableLiveData<List<Model>>()
+    private val modelLiveData = MutableLiveData<ArState>()
 
-    val futureModelMapList = MutableLiveData<List<MutableMap<String, CompletableFuture<ModelRenderable>>>>()
-    val futureLetterMap = MutableLiveData<HashMap<String, CompletableFuture<ModelRenderable>>>()
+    private val futureModelMapListLiveData = MutableLiveData<ArState>()
+    private val futureLetterMapLiveData = MutableLiveData<ArState>()
 
-    val modelMapList = MutableLiveData<List<MutableMap<String, ModelRenderable>>>()
-    val letterMap = MutableLiveData<HashMap<String, ModelRenderable>>()
+    private val modelMapListLiveData = MutableLiveData<ArState>()
+    private val letterMapLiveData = MutableLiveData<ArState>()
 
     init {
         println("arviewmodel created")
@@ -43,108 +45,183 @@ constructor(private val application: Application, private val mainRepository: Ma
 
     private fun onModelsFetched(models: List<Model>) {
         Log.d(TAG, "onModelsFetched: " + models.size)
-        modelLiveData.value = models
+        modelLiveData.value = ArState.Success.OnModelsLoaded(models)
     }
 
-    fun loadModels() {
+    private fun onFutureModelMapListsLoaded(futureModelMapList: List<MutableMap<String,CompletableFuture<ModelRenderable>>>) {
+        futureModelMapListLiveData.value = ArState.Success.OnFutureModelMapListLoaded(futureModelMapList)
+    }
+
+    private fun onFutureLetterMapLoaded(futureLetterMap: MutableMap<String, CompletableFuture<ModelRenderable>>) {
+        futureLetterMapLiveData.value = ArState.Success.OnFutureLetterMapLoaded(futureLetterMap)
+    }
+
+    private fun onLetterRenderableMapLoaded(letterMap: MutableMap<String,ModelRenderable>){
+        letterMapLiveData.value = ArState.Success.OnLetterMapLoaded(letterMap)
+    }
+
+    private fun onModelRenderableMapListLoaded(modelMapList: List<MutableMap<String,ModelRenderable>>){
+        modelMapListLiveData.value = ArState.Success.OnModelMapListLoaded(modelMapList)
+    }
+
+    fun fetchModelsFromRepository() {
+        modelLiveData.value = ArState.Loading
         val catDisposable = mainRepository.currentCategory.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { currentCategory ->
                     val modelDisposable = mainRepository.getModelsByCat(currentCategory.currentCategory)
-                            .subscribe({ this.onModelsFetched(it) }, this::onError)
+                            .subscribeBy(
+                                    onSuccess = { this.onModelsFetched(it) },
+                                    onError = { error ->
+                                        modelLiveData.value = ArState.Error
+                                        onError(error)
+                                    }
+                            )
                     compositeDisposable.add(modelDisposable)
                 }
         compositeDisposable.add(catDisposable)
-
     }
 
-    fun setListMapsOfFutureModels(modelList: List<Model>) {
+    fun loadListMapsOfFutureModels(modelList: List<Model>) {
+        futureModelMapListLiveData.value = ArState.Loading
 
-        val returnFutureModelMapList = ArrayList<MutableMap<String, CompletableFuture<ModelRenderable>>>()
-
-        for (i in modelList.indices) {
-            val futureMap = mutableMapOf<String,CompletableFuture<ModelRenderable>>()
-            futureMap[modelList[i].name] =
-                    ModelRenderable.builder().setSource(
-                            application, Uri.parse(modelList[i].name + ".sfb")).build()
-
-            returnFutureModelMapList.add(
-                    futureMap)
-        }
-
-        futureModelMapList.value = returnFutureModelMapList
-    }
-
-    fun setMapOfFutureLetters(futureMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>) {
-
-        val returnMap = HashMap<String, CompletableFuture<ModelRenderable>>()
-
-        for (i in futureMapList.indices) {
-
-            val modelName = futureMapList[i].keys.toString()
-            for (j in modelName.indices) {
-                returnMap[modelName[j].toString()] =
-                        ModelRenderable.builder().setSource(
-                                application, Uri.parse(modelName[j] + ".sfb")).build()
-            }
-        }
-        futureLetterMap.value = returnMap
-    }
-
-    fun setLetterRenderables(futureLetterMap: HashMap<String, CompletableFuture<ModelRenderable>>) {
-        val returnMap = HashMap<String, ModelRenderable>()
-
-        for (e in futureLetterMap.entries) {
-
-            CompletableFuture.allOf(e.value)
-                    .handle<Unit> { notUsed, throwable ->
-                        // When you build a Renderable, Sceneform loads its resources in the background while
-                        // returning a CompletableFuture. Call handle(), thenAccept(), or check isDone()
-                        // before calling get().
-                        if (throwable != null) {
-                            Log.e("completable future throwable",throwable.toString())
+        val listDisposable = Single.just(modelList)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .flattenAsObservable { it }
+                .flatMap {
+                    val futureMap = mutableMapOf<String, CompletableFuture<ModelRenderable>>()
+                    futureMap[it.name] =
+                            ModelRenderable.builder().setSource(
+                                    application, Uri.parse(it.name + ".sfb")).build()
+                    Observable.just(futureMap)
+                }.toList()
+                .subscribeBy(
+                        onSuccess = { this.onFutureModelMapListsLoaded(it) },
+                        onError = {error ->
+                            futureModelMapListLiveData.value = ArState.Error
+                            onError(error)
                         }
-                        try {
-                            returnMap[e.key] = e.value.get()
-                        } catch (ex: InterruptedException) {
-                        } catch (ex: ExecutionException) {
-                        }
+                )
+        compositeDisposable.add(listDisposable)
+    }
+
+    fun loadMapOfFutureLetters(futureMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>) {
+
+        futureModelMapListLiveData.value = ArState.Loading
+
+        val futureModelMapDisposable = Single.just(futureMapList)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .flattenAsObservable { it -> it }
+                .flatMap{ Observable.just(it.keys) }
+                .flatMapIterable { it -> it}
+                .flatMap{
+                    val wordArray = mutableListOf<Char>()
+                    for(s in it){
+                        wordArray.add(s)
                     }
-        }
-        letterMap.value = returnMap
+                    Observable.just(wordArray)
+                }
+                .toList()
+                .flattenAsFlowable{ it }
+                .flatMapIterable {it}
+                .flatMap {
+                    val pair = Pair(it.toString(),ModelRenderable.builder().setSource(
+                            application, Uri.parse("$it.sfb")).build())
+
+                    Flowable.just(pair)
+                }
+                .toMap()
+                .subscribeBy(
+                        onSuccess = { this.onFutureLetterMapLoaded(it) },
+                        onError = {error ->
+                            futureModelMapListLiveData.value = ArState.Error
+                            onError(error)
+                        }
+                )
+        compositeDisposable.add(futureModelMapDisposable)
     }
 
-    fun setModelRenderables(futureModelMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>){
-        val returnList = ArrayList<MutableMap<String, ModelRenderable>>()
+    fun loadLetterRenderables(futureLetterMap: MutableMap<String, CompletableFuture<ModelRenderable>>) {
 
-        for (i in futureModelMapList.indices) {
+        letterMapLiveData.value = ArState.Loading
 
-            for (e in futureModelMapList[i].entries) {
-
-                val modelMap = HashMap<String, ModelRenderable>()
-
-
-
-                CompletableFuture.allOf(e.value)
-                        .handle<Unit> { _, throwable ->
-                            // When you build a Renderable, Sceneform loads its resources in the background while
-                            // returning a CompletableFuture. Call handle(), thenAccept(), or check isDone()
-                            // before calling get().
-
-                            if (throwable != null) {
-                                Log.e("completable future throwable",throwable.toString())
-                            }
-
-                            try {
-                                modelMap[e.key] = e.value.get()
-                            } catch (ex: InterruptedException) {
-                            } catch (ex: ExecutionException) {
-                            }
+        val futureLetterMapDisposable
+                = Observable.just(futureLetterMap)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .flatMap { Observable.just(it.entries) }
+                .flatMapIterable { it -> it }
+                .flatMap { Observable.just(it)}
+                .flatMap {
+                    val pair = Pair(it.key, getModelRenderable(it.value))
+                    Observable.just(pair)
+                }.toMap()
+                .subscribeBy(
+                        onSuccess = {this.onLetterRenderableMapLoaded(it)},
+                        onError = {error ->
+                            letterMapLiveData.value = ArState.Error
+                            onError(error)
                         }
-                returnList.add(modelMap)
-            }
-        }
-        modelMapList.value = returnList
+                )
+        compositeDisposable.add(futureLetterMapDisposable)
+    }
+
+    fun loadModelRenderables(futureModelMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>) {
+
+        modelMapListLiveData.value = ArState.Loading
+
+        val modelMapListDisposable = Single.just(futureModelMapList)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .flattenAsObservable { it -> it }
+                .flatMap{ Observable.just(it.entries) }
+                .flatMapIterable { it -> it}
+                .flatMap{
+                    val m = mutableMapOf<String,ModelRenderable>()
+                    m[it.key] = getModelRenderable(it.value)
+                    Observable.just(m)
+                }
+                .toList()
+                .subscribeBy(
+                        onSuccess = { this.onModelRenderableMapListLoaded(it) },
+                        onError = {error ->
+                            futureModelMapListLiveData.value = ArState.Error
+                            onError(error)
+                        }
+                )
+        compositeDisposable.add(modelMapListDisposable)
+    }
+
+    fun getModelRenderable(completable: CompletableFuture<ModelRenderable>): ModelRenderable {
+        lateinit var renderable:ModelRenderable
+
+        CompletableFuture.allOf(completable)
+                .handle<Unit> { _, _ ->
+                    renderable = completable.get()
+                }
+        return renderable
+    }
+
+    fun getModelLiveData(): MutableLiveData<ArState> {
+        return modelLiveData
+    }
+
+    fun getFutureModelMapListLiveData(): MutableLiveData<ArState> {
+        return futureModelMapListLiveData
+    }
+
+    fun getFutureLetterMapLiveData(): MutableLiveData<ArState> {
+        return futureLetterMapLiveData
+    }
+
+    fun getModelMapListLiveData(): MutableLiveData<ArState> {
+        return modelMapListLiveData
+    }
+
+    fun getLetterMapLiveData(): MutableLiveData<ArState> {
+        return letterMapLiveData
     }
 
     private fun onError(throwable: Throwable) {

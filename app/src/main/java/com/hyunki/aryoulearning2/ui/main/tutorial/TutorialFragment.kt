@@ -15,7 +15,6 @@ import androidx.fragment.app.FragmentActivity
 
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
-import com.hyunki.aryoulearning2.model.Model
 import com.hyunki.aryoulearning2.ui.main.controller.NavListener
 import java.util.Objects
 

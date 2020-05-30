@@ -28,24 +28,22 @@ import android.widget.ProgressBar
 import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.FragmentActivity
 
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
-import com.hyunki.aryoulearning2.ui.main.State
+import com.hyunki.aryoulearning2.ui.main.MainState
 import com.hyunki.aryoulearning2.ui.main.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.ui.main.controller.NavListener
 import com.hyunki.aryoulearning2.ui.main.results.rv.ResultsAdapter
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
-import com.hyunki.aryoulearning2.model.Model
+import com.hyunki.aryoulearning2.db.model.Model
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Date
 import java.util.HashMap
-import java.util.Objects
 
 import javax.inject.Inject
 
@@ -98,7 +96,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         progressBar = activity!!.findViewById(R.id.progress_bar)
         initializeViews(view)
         setViews()
-        renderModelList(viewModel!!.modelLiveData.value!!)
+        renderModelList(viewModel.getModelLiveData().value!!)
     }
 
     private fun setViews() {
@@ -110,7 +108,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     }
 
     private fun setResultRV() {
-        resultRV.adapter = ResultsAdapter(viewModel.wordHistory, modelMap, pronunciationUtil, textToSpeech)
+        resultRV.adapter = ResultsAdapter(viewModel.getWordHistory(), modelMap, pronunciationUtil, textToSpeech)
         resultRV.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
     }
@@ -197,26 +195,26 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     private fun displayRatingBarAttempts() {
 
-        rainbowRatingBar.numStars = viewModel.wordHistory.size
+        rainbowRatingBar.numStars = viewModel.getWordHistory().size
         rainbowRatingBar.stepSize = 1f
-        rainbowRatingBar.rating = getCorrectAnswerCount(viewModel.wordHistory).toFloat()
+        rainbowRatingBar.rating = getCorrectAnswerCount(viewModel.getWordHistory()).toFloat()
         rainbowRatingBar.setIsIndicator(true)
     }
 
-    private fun renderModelList(state: State) {
+    private fun renderModelList(state: MainState) {
         Log.d("results", "renderModelList: " + state.javaClass)
-        when {
+        when (state){
 
-            state === State.Loading -> {
+            is MainState.Loading -> {
                 progressBar.bringToFront()
                 showProgressBar(true)
             }
 
-            state === State.Error -> showProgressBar(false)
+            is MainState.Error -> showProgressBar(false)
 
-            state.javaClass == State.Success.OnModelsLoaded::class.java -> {
+            is MainState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
-                val (models) = state as State.Success.OnModelsLoaded
+                val (models) = state
                 for (i in models.indices) {
                     modelMap[models[i].name] = models[i]
                 }

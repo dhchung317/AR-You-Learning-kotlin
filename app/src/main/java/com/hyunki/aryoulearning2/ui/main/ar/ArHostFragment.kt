@@ -48,6 +48,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     @Inject
     lateinit var lottieHelper: LottieHelper
 
+    private lateinit var progressBar: ProgressBar
+
     private lateinit var arViewModel: ArViewModel
     private lateinit var arFragment: ArGameFragment
     private lateinit var gameManager: GameManager
@@ -100,6 +102,11 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 //        this.textToSpeech = pronunciationUtil.textToSpeech
 //    }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        progressBar = activity!!.findViewById(R.id.progress_bar)
+    }
+
     override fun onAttach(context: Context) {
         (activity!!.application as BaseApplication).appComponent.inject(this)
         super.onAttach(context)
@@ -133,28 +140,96 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         setUpARScene(arFragment)
 
         requestCameraPermission(activity, RC_PERMISSIONS)
+
         arViewModel = ViewModelProviders.of(this, viewModelProviderFactory).get(ArViewModel::class.java)
 
-        arViewModel.modelLiveData.observe(viewLifecycleOwner, Observer { models -> arViewModel!!.setListMapsOfFutureModels(models) })
+        runViewModel(arViewModel)
+    }
 
-        arViewModel.futureModelMapList.observe(viewLifecycleOwner, Observer { hashMaps ->
-            arViewModel.setModelRenderables(hashMaps)
-            arViewModel.setMapOfFutureLetters(hashMaps)
-        })
+    private fun runViewModel(arViewModel: ArViewModel){
 
-        arViewModel.futureLetterMap.observe(viewLifecycleOwner, Observer { map -> arViewModel!!.setLetterRenderables(map) })
+        arViewModel.getModelLiveData().observe(viewLifecycleOwner,
+                Observer { models -> processModelData(models) })
 
-        arViewModel.modelMapList.observe(viewLifecycleOwner, Observer { hashMaps ->
-            modelMapList = hashMaps
-            hasFinishedLoadingModels = true
-        })
+        arViewModel.getFutureModelMapListLiveData().observe(viewLifecycleOwner,
+                Observer { mapList -> processFutureModelMapList(mapList) })
 
-        arViewModel.letterMap.observe(viewLifecycleOwner, Observer { returnMap ->
-            letterMap = returnMap
-            hasFinishedLoadingLetters = true
-        })
+        arViewModel.getFutureLetterMapLiveData().observe(viewLifecycleOwner,
+                Observer { map -> processFutureLetterMap(map) })
 
-        arViewModel.loadModels()
+        arViewModel.getModelMapListLiveData().observe(viewLifecycleOwner,
+                Observer { mapList -> processModelMapList(mapList) })
+
+        arViewModel.getLetterMapLiveData().observe(viewLifecycleOwner,
+                Observer { map -> processLetterMap(map) })
+
+        arViewModel.fetchModelsFromRepository()
+    }
+
+    private fun processModelData(state: ArState){
+        when (state) {
+            is ArState.Loading -> showProgressBar(true)
+            is ArState.Error -> showProgressBar(false)
+            is ArState.Success.OnModelsLoaded -> {
+                showProgressBar(false)
+                arViewModel.loadListMapsOfFutureModels(state.responses)
+            }
+        }
+    }
+
+    private fun processFutureModelMapList(state: ArState){
+        when (state) {
+            is ArState.Loading -> showProgressBar(true)
+            is ArState.Error -> showProgressBar(false)
+            is ArState.Success.OnFutureModelMapListLoaded -> {
+                showProgressBar(false)
+                arViewModel.loadMapOfFutureLetters(state.futureModelMapList)
+                arViewModel.loadModelRenderables(state.futureModelMapList)
+            }
+        }
+    }
+
+    private fun processFutureLetterMap(state: ArState) {
+        when (state) {
+            is ArState.Loading -> showProgressBar(true)
+            is ArState.Error -> showProgressBar(false)
+            is ArState.Success.OnFutureLetterMapLoaded -> {
+                showProgressBar(false)
+                arViewModel.loadLetterRenderables(state.futureLetterMap)
+            }
+        }
+    }
+
+    private fun processModelMapList(state: ArState) {
+        when (state) {
+            is ArState.Loading -> showProgressBar(true)
+            is ArState.Error -> showProgressBar(false)
+            is ArState.Success.OnModelMapListLoaded -> {
+                showProgressBar(false)
+                modelMapList = state.modelMap
+                hasFinishedLoadingModels = true
+            }
+        }
+    }
+
+    private fun processLetterMap(state: ArState) {
+        when (state) {
+            is ArState.Loading -> showProgressBar(true)
+            is ArState.Error -> showProgressBar(false)
+            is ArState.Success.OnLetterMapLoaded -> {
+                showProgressBar(false)
+                letterMap = state.letterMap
+                hasFinishedLoadingLetters = true
+            }
+        }
+    }
+
+    private fun showProgressBar(isVisible: Boolean) {
+        if (isVisible) {
+            progressBar.visibility = View.VISIBLE
+        } else {
+            progressBar.visibility = View.GONE
+        }
     }
 
     private fun getKeysFromModelMapList(mapList: List<MutableMap<String, ModelRenderable>>): List<String> {
@@ -189,27 +264,23 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun setUpARScene(arFragment: ArFragment) {
-
         setOnTouchListener(arFragment)
-
         setAddOnUpdateListener(arFragment)
     }
 
     private fun setOnTouchListener(arFragment: ArFragment) {
         val scene = arFragment.arSceneView.scene
-        scene.setOnTouchListener { hitTestResult: HitTestResult, event: MotionEvent ->
+        scene.setOnTouchListener { _: HitTestResult, event: MotionEvent ->
             if (!hasPlacedGame) {
-                return@setOnTouchListener gestureDetector.onTouchEvent(event)
+                gestureDetector.onTouchEvent(event)
             }
             false
         }
     }
 
     private fun setAddOnUpdateListener(arFragment: ArFragment) {
-
         val scene = arFragment.arSceneView.scene
-
-        scene.addOnUpdateListener { frameTime ->
+        scene.addOnUpdateListener { _ ->
             val frame = arFragment.arSceneView.arFrame
 
             if (frame == null) {
@@ -253,10 +324,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun setListeners() {
-        exit.setOnClickListener { v -> frameLayout.addView(exitMenu) }
-        exitYes.setOnClickListener { v -> listener.moveToListFragment() }
-        exitNo.setOnClickListener { v -> frameLayout.removeView(exitMenu) }
-        undo.setOnClickListener { v -> undoLastLetter() }
+        exit.setOnClickListener { frameLayout.addView(exitMenu) }
+        exitYes.setOnClickListener { listener.moveToListFragment() }
+        exitNo.setOnClickListener { frameLayout.removeView(exitMenu) }
+        undo.setOnClickListener { undoLastLetter() }
     }
 
     //TODO - refactor animations to separate class
@@ -284,8 +355,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 super.onAnimationEnd(animation)
                 frameLayout.removeView(wordValidatorLayout)
 
-                //                if (roundCounter < roundLimit && roundCounter < modelMapList.size()) {
-                //                    createNextGame(modelMapList.get(roundCounter));
+                //                if (roundCounter < roundLimit && roundCounter < modelMapListLiveData.size()) {
+                //                    createNextGame(modelMapListLiveData.get(roundCounter));
                 //                } else {
                 //                    moveToReplayFragment();
                 //                }
@@ -322,9 +393,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
                 mainAnchorNode = AnchorNode(mainAnchor)
                 mainAnchorNode!!.setParent(arFragment.arSceneView.scene)
-                //                    Node gameSystem = createGame(modelMapList.get(0));
-                gameManager = GameManager(getKeysFromModelMapList(arViewModel.modelMapList.value!!), this, listener)
-                Log.d("arhostfrag", "tryPlaceGame: " + arViewModel.modelMapList.value!!.size)
+                //                    Node gameSystem = createGame(modelMapListLiveData.get(0));
+                gameManager = GameManager(getKeysFromModelMapList(modelMapList), this, listener)
+                Log.d("arhostfrag", "tryPlaceGame: " + modelMapList.size)
                 val modelKey = gameManager.currentWordAnswer
 
                 wordCardView.visibility = View.VISIBLE
@@ -378,9 +449,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun placeLetters(word: String) {
-        for (i in 0 until word.length) {
+        for (letter in word) {
             placeSingleLetter(
-                    word[i].toString())
+                    letter.toString())
         }
     }
 
@@ -424,22 +495,20 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun checkIfTappedLetterIsCorrect(tappedLetter: String): Boolean {
-        val correctLetter = Character.toString(
-                gameManager.currentWordAnswer[gameManager.attempt.length - 1])
+        val correctLetter =
+                gameManager.currentWordAnswer[gameManager.attempt.length - 1].toString()
 
         return tappedLetter.toLowerCase() == correctLetter.toLowerCase()
     }
 
     private fun getLetterTapAnimation(isCorrect: Boolean): LottieAnimationView {
-        val lav: LottieAnimationView
-        if (isCorrect) {
-            lav = lottieHelper.getAnimationView(
+        return if (isCorrect) {
+            lottieHelper.getAnimationView(
                     activity, LottieHelper.AnimationType.SPARKLES)
         } else {
-            lav = lottieHelper.getAnimationView(
+            lottieHelper.getAnimationView(
                     activity, LottieHelper.AnimationType.ERROR)
         }
-        return lav
     }
 
     override fun startNextGame(modelKey: String) {
@@ -479,12 +548,12 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     companion object {
-        private val RC_PERMISSIONS = 0x123
-        val MODEL_LIST = "MODEL_LIST"
-
+        private const val RC_PERMISSIONS = 0x123
         fun requestCameraPermission(activity: Activity?, requestCode: Int) {
-            ActivityCompat.requestPermissions(
-                    activity!!, arrayOf(Manifest.permission.CAMERA), requestCode)
+            activity?.let {
+                ActivityCompat.requestPermissions(
+                        it, arrayOf(Manifest.permission.CAMERA), requestCode)
+            }
         }
     }
 }

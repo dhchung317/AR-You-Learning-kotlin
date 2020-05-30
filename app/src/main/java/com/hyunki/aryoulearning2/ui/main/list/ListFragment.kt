@@ -15,9 +15,8 @@ import androidx.recyclerview.widget.RecyclerView
 
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
-import com.hyunki.aryoulearning2.db.model.Category
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
-import com.hyunki.aryoulearning2.ui.main.State
+import com.hyunki.aryoulearning2.ui.main.MainState
 import com.hyunki.aryoulearning2.ui.main.list.rv.ListAdapter
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 
@@ -60,9 +59,9 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory, priv
         mainViewModel = ViewModelProviders.of(activity!!, viewModelProviderFactory).get(MainViewModel::class.java)
         mainViewModel.loadCategories()
 
-        mainViewModel.catLiveData.observe(viewLifecycleOwner, Observer { categories ->
+        mainViewModel.getCatLiveData().observe(viewLifecycleOwner, Observer { categories ->
             renderCategories(categories)
-            Log.d(TAG, "onViewCreated: " + mainViewModel.catLiveData.value!!.javaClass)
+            Log.d(TAG, "onViewCreated: " + mainViewModel.getCatLiveData().value!!.javaClass)
 
         })
         initRecyclerView()
@@ -76,20 +75,18 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory, priv
         recyclerView.adapter = listAdapter
     }
 
-    private fun renderCategories(state: State) {
-        if (state === State.Loading) {
-            progressBar.bringToFront()
-            showProgressBar(true)
-
-        } else if (state === State.Error) {
-            showProgressBar(false)
-
-        } else if (state.javaClass == State.Success.OnCategoriesLoaded::class.java) {
-            showProgressBar(false)
-            val (categories) = state as State.Success.OnCategoriesLoaded
-            listAdapter.setLists(categories)
-
-            Log.d(TAG, "renderCategories: " + categories.size)
+    private fun renderCategories(state: MainState) {
+        when (state) {
+            is MainState.Loading -> {
+//                progressBar.bringToFront()
+                showProgressBar(true)
+            }
+            is MainState.Error -> showProgressBar(false)
+            is MainState.Success.OnCategoriesLoaded -> {
+                showProgressBar(false)
+                listAdapter.setLists(state.categories)
+                Log.d(TAG, "renderCategories: " + state.categories.size)
+            }
         }
     }
 
@@ -102,7 +99,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory, priv
     }
 
     companion object {
-        val TAG = "ListFragmentX"
+        const val TAG = "ListFragmentX"
     }
 
     //    @Override
