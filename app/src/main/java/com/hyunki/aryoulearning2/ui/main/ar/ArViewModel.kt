@@ -27,7 +27,7 @@ constructor(private val application: Application, private val mainRepository: Ma
 
     private val compositeDisposable = CompositeDisposable()
 
-    val modelLiveData = MutableLiveData<List<Model>>()
+    val modelLiveData = MutableLiveData<ArState>()
 
     val futureModelMapList = MutableLiveData<List<MutableMap<String, CompletableFuture<ModelRenderable>>>>()
     val futureLetterMap = MutableLiveData<HashMap<String, CompletableFuture<ModelRenderable>>>()
@@ -41,10 +41,11 @@ constructor(private val application: Application, private val mainRepository: Ma
 
     private fun onModelsFetched(models: List<Model>) {
         Log.d(TAG, "onModelsFetched: " + models.size)
-        modelLiveData.value = models
+        modelLiveData.value = ArState.Success.OnModelsLoaded(models)
     }
 
     fun loadModels() {
+        modelLiveData.value = ArState.Loading
         val catDisposable = mainRepository.currentCategory.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { currentCategory ->

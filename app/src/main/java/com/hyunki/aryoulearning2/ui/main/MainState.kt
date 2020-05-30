@@ -4,13 +4,13 @@ import com.hyunki.aryoulearning2.db.model.Category
 import com.hyunki.aryoulearning2.db.model.Model
 import com.hyunki.aryoulearning2.db.model.ModelResponse
 
-sealed class State {
+sealed class MainState {
 
-    object Loading : State()
+    object Loading : MainState()
 
-    object Error : State()
+    object Error : MainState()
 
-    sealed class Success : State() {
+    sealed class Success : MainState() {
 
         data class OnModelResponsesLoaded(
                 val responses: List<ModelResponse>
@@ -27,6 +27,5 @@ sealed class State {
         data class OnCurrentCategoryStringLoaded(
                 val currentCategoryString: String
         ) : Success()
-
     }
 }

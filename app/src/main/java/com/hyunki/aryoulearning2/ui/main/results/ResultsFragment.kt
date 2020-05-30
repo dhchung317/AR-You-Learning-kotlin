@@ -32,7 +32,7 @@ import android.widget.Toast
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
-import com.hyunki.aryoulearning2.ui.main.State
+import com.hyunki.aryoulearning2.ui.main.MainState
 import com.hyunki.aryoulearning2.ui.main.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.ui.main.controller.NavListener
 import com.hyunki.aryoulearning2.ui.main.results.rv.ResultsAdapter
@@ -201,20 +201,20 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         rainbowRatingBar.setIsIndicator(true)
     }
 
-    private fun renderModelList(state: State) {
+    private fun renderModelList(state: MainState) {
         Log.d("results", "renderModelList: " + state.javaClass)
-        when {
+        when (state){
 
-            state === State.Loading -> {
+            is MainState.Loading -> {
                 progressBar.bringToFront()
                 showProgressBar(true)
             }
 
-            state === State.Error -> showProgressBar(false)
+            is MainState.Error -> showProgressBar(false)
 
-            state.javaClass == State.Success.OnModelsLoaded::class.java -> {
+            is MainState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
-                val (models) = state as State.Success.OnModelsLoaded
+                val (models) = state
                 for (i in models.indices) {
                     modelMap[models[i].name] = models[i]
                 }

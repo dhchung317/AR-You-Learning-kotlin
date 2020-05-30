@@ -88,16 +88,16 @@ class MainActivity : AppCompatActivity(), NavListener {
 //            moveToListFragment()
 //        } else {
             viewModel.loadModelResponses()
-            viewModel.modelResponsesData.observe(this, Observer<State> { this.renderModelResponses(it) })
+            viewModel.modelResponsesData.observe(this, Observer<MainState> { this.renderModelResponses(it) })
 //        }
     }
 
-    private fun renderModelResponses(state: State) {
-        if (state === State.Loading) {
+    private fun renderModelResponses(state: MainState) {
+        if (state === MainState.Loading) {
             showProgressBar(true)
-        } else if (state === State.Error) {
+        } else if (state === MainState.Error) {
             showProgressBar(false)
-        } else if (state.javaClass == State.Success.OnModelResponsesLoaded::class.java) {
+        } else if (state.javaClass == MainState.Success.OnModelResponsesLoaded::class.java) {
             prefs.edit().putString(NETWORK_CALL_COMPLETED, "success").apply()
             moveToListFragment()
         }

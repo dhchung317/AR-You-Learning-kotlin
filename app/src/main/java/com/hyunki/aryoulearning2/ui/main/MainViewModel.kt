@@ -18,20 +18,21 @@ import javax.inject.Inject
 
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 
 class MainViewModel @Inject
 internal constructor(private val mainRepository: MainRepository) : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
 
-    val modelResponsesData = MutableLiveData<State>()
-    val modelLiveData = MutableLiveData<State>()
-    val catLiveData = MutableLiveData<State>()
-    val curCatLiveData = MutableLiveData<State>()
+    val modelResponsesData = MutableLiveData<MainState>()
+    val modelLiveData = MutableLiveData<MainState>()
+    val catLiveData = MutableLiveData<MainState>()
+    val curCatLiveData = MutableLiveData<MainState>()
     var wordHistory: List<CurrentWord> = ArrayList()
 
     fun loadModelResponses() {
-        modelResponsesData.value = State.Loading
+        modelResponsesData.value = MainState.Loading
         compositeDisposable.add(
                 mainRepository.modelResponses
                         .subscribeOn(Schedulers.io())
@@ -39,10 +40,10 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
                         .subscribe({ modelResponses ->
                             if (modelResponses.size > 0) {
                                 saveModelResponseData(modelResponses)
-                                modelResponsesData.value = State.Success.OnModelResponsesLoaded(modelResponses)
+                                modelResponsesData.value = MainState.Success.OnModelResponsesLoaded(modelResponses)
                             }
 
-                        }, { throwable -> modelResponsesData.setValue(State.Error) })
+                        }, { throwable -> modelResponsesData.setValue(MainState.Error) })
         )
     }
 
@@ -64,46 +65,62 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
     }
 
     fun loadModelsByCat(cat: String) {
-        modelLiveData.value = State.Loading
+        modelLiveData.value = MainState.Loading
         Log.d(TAG, "loadModelsByCat: loading models by cat")
         val modelDisposable = mainRepository.getModelsByCat(cat)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ this.onModelsFetched(it) }, { this.onError(it) })
+                .subscribeBy(
+                        onSuccess = {
+                            onModelsFetched(it)
+                        },
+                        onError = { error ->
+                            modelLiveData.value = MainState.Error
+                            Log.e(TAG,error.message)
+                        }
+                )
         compositeDisposable.add(modelDisposable)
     }
 
     fun loadCategories() {
-        catLiveData.value = State.Loading
+        catLiveData.value = MainState.Loading
         val catDisposable = mainRepository.allCats
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ this.onCatsFetched(it) }, { this.onError(it) })
+                .subscribeBy(
+                        onSuccess = { this.onCatsFetched(it) },
+                        onError = {error ->
+                    catLiveData.value = MainState.Error
+                            Log.e(TAG,error.message)
+                        }
+                )
         compositeDisposable.add(catDisposable)
     }
 
     fun loadCurrentCategoryName() {
-        curCatLiveData.value = State.Loading
+        curCatLiveData.value = MainState.Loading
         val curCatDisposable = mainRepository.currentCategory
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ this.onCurCatsFetched(it) }, { this.onError(it) })
+                .subscribe({ this.onCurCatsFetched(it) }) {
+                    curCatLiveData.value = MainState.Error
+                    this.onError(it) }
         compositeDisposable.add(curCatDisposable)
     }
 
-    fun getModelLiveData(): LiveData<State> {
+    fun getModelLiveData(): LiveData<MainState> {
         return modelLiveData
     }
 
-    fun getCatLiveData(): LiveData<State> {
+    fun getCatLiveData(): LiveData<MainState> {
         return catLiveData
     }
 
-    fun getCurCatLiveData(): LiveData<State> {
+    fun getCurCatLiveData(): LiveData<MainState> {
         return curCatLiveData
     }
 
-    internal fun getModelResponsesData(): LiveData<State> {
+    internal fun getModelResponsesData(): LiveData<MainState> {
         return modelResponsesData
     }
 
@@ -117,18 +134,18 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
 
     private fun onModelsFetched(models: List<Model>) {
         Log.d(TAG, "onModelsFetched: " + models.size)
-        modelLiveData.value = State.Success.OnModelsLoaded(models)
+        modelLiveData.value = MainState.Success.OnModelsLoaded(models)
     }
 
     private fun onCatsFetched(categories: List<Category>) {
         Log.d(TAG, "onCatsFetched: " + categories.size)
-        catLiveData.value = State.Success.OnCategoriesLoaded(categories)
+        catLiveData.value = MainState.Success.OnCategoriesLoaded(categories)
     }
 
     private fun onCurCatsFetched(category: CurrentCategory) {
         Log.d(TAG, "onCurCatsFetched: " + category.currentCategory)
-        curCatLiveData.value = State.Success.OnCurrentCategoryStringLoaded(category.currentCategory)
-        Log.d(TAG, "onCurCatsFetched: " + State.Success.OnCurrentCategoryStringLoaded(category.currentCategory).javaClass)
+        curCatLiveData.value = MainState.Success.OnCurrentCategoryStringLoaded(category.currentCategory)
+        Log.d(TAG, "onCurCatsFetched: " + MainState.Success.OnCurrentCategoryStringLoaded(category.currentCategory).javaClass)
     }
 
     fun clearEntireDatabase() {

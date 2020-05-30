@@ -19,7 +19,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
-import com.hyunki.aryoulearning2.ui.main.State
+import com.hyunki.aryoulearning2.ui.main.MainState
 import com.hyunki.aryoulearning2.ui.main.controller.NavListener
 import com.hyunki.aryoulearning2.ui.main.hint.rv.HintAdapter
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
@@ -143,13 +143,13 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
 
     }
 
-    private fun renderCurrentCategory(state: State) {
+    private fun renderCurrentCategory(state: MainState) {
         Log.d("rendercurcat", "renderCurrentCategory: " + state.javaClass)
 
         when (state){
-            is State.Loading -> showProgressBar(true)
-            is State.Error -> showProgressBar(false)
-            is State.Success.OnCurrentCategoryStringLoaded -> {
+            is MainState.Loading -> showProgressBar(true)
+            is MainState.Error -> showProgressBar(false)
+            is MainState.Success.OnCurrentCategoryStringLoaded -> {
                 showProgressBar(false)
                 mainViewModel.loadModelsByCat(state.currentCategoryString)
                 Log.d("hint", "renderCurrentCategory: ${state.currentCategoryString}")
@@ -157,14 +157,14 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
         }
     }
 
-    private fun renderModelsByCategory(state: State) {
+    private fun renderModelsByCategory(state: MainState) {
         when (state) {
-            is State.Loading -> {
+            is MainState.Loading -> {
                 progressBar.bringToFront()
                 showProgressBar(true)
             }
-            is State.Error -> showProgressBar(false)
-            is State.Success.OnModelsLoaded -> {
+            is MainState.Error -> showProgressBar(false)
+            is MainState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
                 hintAdapter.setList(state.models)
             }
