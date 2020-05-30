@@ -108,7 +108,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     }
 
     private fun setResultRV() {
-        resultRV.adapter = ResultsAdapter(viewModel.wordHistory, modelMap, pronunciationUtil, textToSpeech)
+        resultRV.adapter = ResultsAdapter(viewModel.getWordHistory(), modelMap, pronunciationUtil, textToSpeech)
         resultRV.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
     }
@@ -195,9 +195,9 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     private fun displayRatingBarAttempts() {
 
-        rainbowRatingBar.numStars = viewModel.wordHistory.size
+        rainbowRatingBar.numStars = viewModel.getWordHistory().size
         rainbowRatingBar.stepSize = 1f
-        rainbowRatingBar.rating = getCorrectAnswerCount(viewModel.wordHistory).toFloat()
+        rainbowRatingBar.rating = getCorrectAnswerCount(viewModel.getWordHistory()).toFloat()
         rainbowRatingBar.setIsIndicator(true)
     }
 

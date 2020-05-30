@@ -24,24 +24,23 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
     private val modelLiveData = MutableLiveData<MainState>()
     private val catLiveData = MutableLiveData<MainState>()
     private val curCatLiveData = MutableLiveData<MainState>()
-    var wordHistory: List<CurrentWord> = ArrayList()
+    private var wordHistory: List<CurrentWord> = ArrayList()
 
     fun loadModelResponses() {
         modelResponsesData.value = MainState.Loading
-        compositeDisposable.add(
-                mainRepository.modelResponses
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeBy(
-                                onNext = {onModelResponsesLoaded(it)},
-                                onError = {error ->
-                                    modelResponsesData.value = MainState.Error
-                                    Log.e(TAG, error.message)
-                                }
-                        )
-        )
-    }
+        val modelResDisposable = mainRepository.modelResponses
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeBy(
+                        onNext = { onModelResponsesLoaded(it) },
+                        onError = { error ->
+                            modelResponsesData.value = MainState.Error
+                            onError(error)
+                        }
+                )
+        compositeDisposable.add(modelResDisposable)
 
+    }
 
     private fun saveModelResponseData(modelResponses: ArrayList<ModelResponse>) {
         for (i in modelResponses.indices) {
@@ -70,7 +69,7 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
                         onSuccess = { onModelsFetched(it) },
                         onError = { error ->
                             modelLiveData.value = MainState.Error
-                            Log.e(TAG, error.message)
+                            onError(error)
                         }
                 )
         compositeDisposable.add(modelDisposable)
@@ -85,7 +84,7 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
                         onSuccess = { this.onCatsFetched(it) },
                         onError = { error ->
                             catLiveData.value = MainState.Error
-                            Log.e(TAG, error.message)
+                            onError(error)
                         }
                 )
         compositeDisposable.add(catDisposable)
@@ -100,7 +99,7 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
                         onSuccess = { this.onCurCatsFetched(it) },
                         onError = { error ->
                             curCatLiveData.value = MainState.Error
-                            Log.e(TAG, error.message)
+                            onError(error)
                         })
         compositeDisposable.add(curCatDisposable)
     }
@@ -117,12 +116,20 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
         return curCatLiveData
     }
 
-    internal fun getModelResponsesData(): LiveData<MainState> {
+    fun getModelResponsesData(): LiveData<MainState> {
         return modelResponsesData
     }
 
     fun setCurrentCategory(category: Category) {
         mainRepository.setCurrentCategory(CurrentCategory(category.name))
+    }
+
+    fun getWordHistory(): List<CurrentWord> {
+        return wordHistory
+    }
+
+    fun setWordHistory(wordHistory: List<CurrentWord>) {
+        this.wordHistory = wordHistory
     }
 
     private fun onError(throwable: Throwable) {
@@ -145,7 +152,7 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
         Log.d(TAG, "onCurCatsFetched: " + MainState.Success.OnCurrentCategoryStringLoaded(category.currentCategory).javaClass)
     }
 
-    private fun onModelResponsesLoaded(modelResponses: ArrayList<ModelResponse>){
+    private fun onModelResponsesLoaded(modelResponses: ArrayList<ModelResponse>) {
         saveModelResponseData(modelResponses)
         modelResponsesData.value = MainState.Success.OnModelResponsesLoaded(modelResponses)
     }
