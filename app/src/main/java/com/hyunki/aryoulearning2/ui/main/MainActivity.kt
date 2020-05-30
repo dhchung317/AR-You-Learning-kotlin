@@ -93,13 +93,13 @@ class MainActivity : AppCompatActivity(), NavListener {
     }
 
     private fun renderModelResponses(state: MainState) {
-        if (state === MainState.Loading) {
-            showProgressBar(true)
-        } else if (state === MainState.Error) {
-            showProgressBar(false)
-        } else if (state.javaClass == MainState.Success.OnModelResponsesLoaded::class.java) {
-            prefs.edit().putString(NETWORK_CALL_COMPLETED, "success").apply()
-            moveToListFragment()
+        when (state) {
+            is MainState.Loading -> showProgressBar(true)
+            is MainState.Error -> showProgressBar(false)
+            is MainState.Success.OnModelResponsesLoaded -> {
+                prefs.edit().putString(NETWORK_CALL_COMPLETED, "success").apply()
+                moveToListFragment()
+            }
         }
     }
 

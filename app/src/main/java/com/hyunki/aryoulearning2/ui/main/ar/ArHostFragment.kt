@@ -48,6 +48,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     @Inject
     lateinit var lottieHelper: LottieHelper
 
+    private lateinit var progressBar: ProgressBar
+
     private lateinit var arViewModel: ArViewModel
     private lateinit var arFragment: ArGameFragment
     private lateinit var gameManager: GameManager
@@ -100,6 +102,11 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 //        this.textToSpeech = pronunciationUtil.textToSpeech
 //    }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        progressBar = activity!!.findViewById(R.id.progress_bar)
+    }
+
     override fun onAttach(context: Context) {
         (activity!!.application as BaseApplication).appComponent.inject(this)
         super.onAttach(context)
@@ -141,11 +148,12 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private fun runViewModel(arViewModel: ArViewModel){
 
-        arViewModel.modelLiveData.observe(viewLifecycleOwner,
-                Observer { models -> arViewModel.setListMapsOfFutureModels(models) })
+        arViewModel.getModelLiveData().observe(viewLifecycleOwner,
+                Observer { models -> processModelData(models) })
 
-        arViewModel.futureModelMapList.observe(viewLifecycleOwner,
+        arViewModel.getFutureModelMapListLiveData().observe(viewLifecycleOwner,
                 Observer { hashMaps ->
+
                     arViewModel.setModelRenderables(hashMaps)
                     arViewModel.setMapOfFutureLetters(hashMaps)
                 })
@@ -166,6 +174,36 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         })
 
         arViewModel.loadModels()
+    }
+
+    private fun processModelData(state: ArState){
+        when (state) {
+            is ArState.Loading -> showProgressBar(true)
+            is ArState.Error -> showProgressBar(false)
+            is ArState.Success.OnModelsLoaded -> {
+                showProgressBar(false)
+                arViewModel.setListMapsOfFutureModels(state.responses)
+            }
+        }
+    }
+
+    private fun processFutureModelMap(state: ArState){
+        when (state) {
+            is ArState.Loading -> showProgressBar(true)
+            is ArState.Error -> showProgressBar(false)
+            is ArState.Success.OnModelsLoaded -> {
+                showProgressBar(false)
+
+            }
+        }
+    }
+
+    private fun showProgressBar(isVisible: Boolean) {
+        if (isVisible) {
+            progressBar.visibility = View.VISIBLE
+        } else {
+            progressBar.visibility = View.GONE
+        }
     }
 
     private fun getKeysFromModelMapList(mapList: List<MutableMap<String, ModelRenderable>>): List<String> {
@@ -385,9 +423,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun placeLetters(word: String) {
-        for (i in 0 until word.length) {
+        for (letter in word) {
             placeSingleLetter(
-                    word[i].toString())
+                    letter.toString())
         }
     }
 
