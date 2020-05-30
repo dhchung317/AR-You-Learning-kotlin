@@ -137,13 +137,13 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
         gestureDetector = getGestureDetector()
 
-        setUpARScene(arFragment)
-
         requestCameraPermission(activity, RC_PERMISSIONS)
 
         arViewModel = ViewModelProviders.of(this, viewModelProviderFactory).get(ArViewModel::class.java)
 
         runViewModel(arViewModel)
+
+        setUpARScene(arFragment)
     }
 
     private fun runViewModel(arViewModel: ArViewModel){
