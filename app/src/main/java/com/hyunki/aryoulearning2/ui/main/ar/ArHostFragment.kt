@@ -152,28 +152,16 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 Observer { models -> processModelData(models) })
 
         arViewModel.getFutureModelMapListLiveData().observe(viewLifecycleOwner,
-                Observer { hashMapList ->
+                Observer { mapList -> processFutureModelMapList(mapList) })
 
-                    processFutureModelMapList(hashMapList)
+        arViewModel.getFutureLetterMapLiveData().observe(viewLifecycleOwner,
+                Observer { map -> processFutureLetterMap(map) })
 
-                    arViewModel.loadModelRenderables(hashMaps)
-                    arViewModel.loadMapOfFutureLetters(hashMaps)
-                })
+        arViewModel.getModelMapListLiveData().observe(viewLifecycleOwner,
+                Observer { mapList -> processModelMapList(mapList) })
 
-        arViewModel.futureLetterMapLiveData.observe(viewLifecycleOwner,
-                Observer { map ->
-                    arViewModel.loadLetterRenderables(map) })
-
-        arViewModel.modelMapList.observe(viewLifecycleOwner,
-                Observer { hashMaps ->
-                    modelMapList = hashMaps
-                    hasFinishedLoadingModels = true
-                })
-
-        arViewModel.letterMap.observe(viewLifecycleOwner, Observer { returnMap ->
-            letterMap = returnMap
-            hasFinishedLoadingLetters = true
-        })
+        arViewModel.getLetterMapLiveData().observe(viewLifecycleOwner,
+                Observer { map -> processLetterMap(map) })
 
         arViewModel.fetchModelsFromRepository()
     }
@@ -197,6 +185,41 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 showProgressBar(false)
                 arViewModel.loadMapOfFutureLetters(state.futureModelMapList)
                 arViewModel.loadModelRenderables(state.futureModelMapList)
+            }
+        }
+    }
+
+    private fun processFutureLetterMap(state: ArState) {
+        when (state) {
+            is ArState.Loading -> showProgressBar(true)
+            is ArState.Error -> showProgressBar(false)
+            is ArState.Success.OnFutureLetterMapLoaded -> {
+                showProgressBar(false)
+                arViewModel.loadLetterRenderables(state.futureLetterMap)
+            }
+        }
+    }
+
+    private fun processModelMapList(state: ArState) {
+        when (state) {
+            is ArState.Loading -> showProgressBar(true)
+            is ArState.Error -> showProgressBar(false)
+            is ArState.Success.OnModelMapListLoaded -> {
+                showProgressBar(false)
+                modelMapList = state.modelMap
+                hasFinishedLoadingModels = true
+            }
+        }
+    }
+
+    private fun processLetterMap(state: ArState) {
+        when (state) {
+            is ArState.Loading -> showProgressBar(true)
+            is ArState.Error -> showProgressBar(false)
+            is ArState.Success.OnLetterMapLoaded -> {
+                showProgressBar(false)
+                letterMap = state.letterMap
+                hasFinishedLoadingLetters = true
             }
         }
     }
@@ -332,8 +355,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 super.onAnimationEnd(animation)
                 frameLayout.removeView(wordValidatorLayout)
 
-                //                if (roundCounter < roundLimit && roundCounter < modelMapList.size()) {
-                //                    createNextGame(modelMapList.get(roundCounter));
+                //                if (roundCounter < roundLimit && roundCounter < modelMapListLiveData.size()) {
+                //                    createNextGame(modelMapListLiveData.get(roundCounter));
                 //                } else {
                 //                    moveToReplayFragment();
                 //                }
@@ -370,9 +393,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
                 mainAnchorNode = AnchorNode(mainAnchor)
                 mainAnchorNode!!.setParent(arFragment.arSceneView.scene)
-                //                    Node gameSystem = createGame(modelMapList.get(0));
-                gameManager = GameManager(getKeysFromModelMapList(arViewModel.modelMapList.value!!), this, listener)
-                Log.d("arhostfrag", "tryPlaceGame: " + arViewModel.modelMapList.value!!.size)
+                //                    Node gameSystem = createGame(modelMapListLiveData.get(0));
+                gameManager = GameManager(getKeysFromModelMapList(modelMapList), this, listener)
+                Log.d("arhostfrag", "tryPlaceGame: " + modelMapList.size)
                 val modelKey = gameManager.currentWordAnswer
 
                 wordCardView.visibility = View.VISIBLE
