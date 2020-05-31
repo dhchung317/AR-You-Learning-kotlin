@@ -88,8 +88,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private lateinit var mainHit: HitResult
 
 
-    private var hasFinishedLoadingModels = false
-    private var hasFinishedLoadingLetters = false
+//    private var hasFinishedLoadingModels = false
+//    private var hasFinishedLoadingLetters = false
     private var hasPlacedGame = false
     private var placedAnimation = false
 
@@ -136,6 +136,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         setUpViews(view)
 
         gestureDetector = getGestureDetector()
+        Log.d("arhost viewcreated", "reached")
 
         requestCameraPermission(activity, RC_PERMISSIONS)
 
@@ -207,7 +208,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             is ArState.Success.OnModelMapListLoaded -> {
                 showProgressBar(false)
                 modelMapList = state.modelMap
-                hasFinishedLoadingModels = true
+//                hasFinishedLoadingModels = true
             }
         }
     }
@@ -219,7 +220,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             is ArState.Success.OnLetterMapLoaded -> {
                 showProgressBar(false)
                 letterMap = state.letterMap
-                hasFinishedLoadingLetters = true
+//                hasFinishedLoadingLetters = true
             }
         }
     }
@@ -252,12 +253,16 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         return GestureDetector(
                 activity,
                 object : GestureDetector.SimpleOnGestureListener() {
+
                     override fun onSingleTapUp(e: MotionEvent): Boolean {
                         onSingleTap(e)
+                        Log.d("arhost gesturedectect", "reached")
                         return true
                     }
 
                     override fun onDown(e: MotionEvent): Boolean {
+                        onSingleTap(e)
+                        Log.d("arhost gesturedectect", "reached")
                         return true
                     }
                 })
@@ -365,12 +370,15 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun onSingleTap(tap: MotionEvent) {
-        if (!hasFinishedLoadingModels || !hasFinishedLoadingLetters) {
+
+        if (!arViewModel.isLettersLoaded() || !arViewModel.isModelsLoaded()) {
             // We can't do anything yet.
+            Log.d("arhost singletap", "not loaded")
             return
         }
 
         val frame = arFragment.arSceneView.arFrame
+        Log.d("arhost frame", frame.toString())
         if (frame != null) {
             if (!hasPlacedGame && tryPlaceGame(tap, frame)) {
                 hasPlacedGame = true
