@@ -65,6 +65,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        constraintLayout = view.findViewById(R.id.hint_layout)
         enableViews(constraintLayout)
 
         mainViewModel = ViewModelProviders.of(activity!!, viewModelProviderFactory).get(MainViewModel::class.java)
