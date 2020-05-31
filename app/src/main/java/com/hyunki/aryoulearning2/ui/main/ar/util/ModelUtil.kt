@@ -21,7 +21,7 @@ object ModelUtil {
 
     private val randomCoordinates: Vector3
         get() = Vector3(getRandom(5, -5).toFloat(),
-                getRandom(4, -4).toFloat(),
+                getRandom(2, -6).toFloat(),
                 getRandom(-2, -10).toFloat())
 
     fun getGameAnchor(model: ModelRenderable): Node {
@@ -119,15 +119,15 @@ object ModelUtil {
 
         if (newV3.x < parentModel.x + 2 && newV3.x > parentModel.x - 2
                 && newV3.y < parentModel.y + 2 && newV3.y > parentModel.y - 2
-                && newV3.z < parentModel.z + 2 && newV3.z > parentModel.z - 10) {
+                && newV3.z < parentModel.z + 3 && newV3.z > parentModel.z - 3) {
             return true
         }
 
         for (v in collisionSet) {
             //if the coordinates are within a range of any existing coordinates
-            if (newV3.x < v.x + 3 && newV3.x > v.x - 3
-                    && newV3.y < v.y + 4 && newV3.y > v.y - 4
-                    && newV3.z < v.z + 5 && newV3.z > v.z - 5) {
+            if (newV3.x < v.x + 2 && newV3.x > v.x - 2
+                    && newV3.y < v.y + 2 && newV3.y > v.y - 2
+                    && newV3.z < v.z + 3 && newV3.z > v.z - 3) {
                 return true
             } else {
                 collisionSet.add(newV3)
