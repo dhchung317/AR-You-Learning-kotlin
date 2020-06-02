@@ -32,7 +32,7 @@ constructor() : Fragment() {
         get() = tutorialVideoView.isPlaying
 
     override fun onAttach(context: Context) {
-        (activity!!.application as BaseApplication).appComponent.inject(this)
+        (requireActivity().application as BaseApplication).appComponent.inject(this)
         super.onAttach(context)
         if (context is NavListener) {
             listener = context
@@ -45,7 +45,6 @@ constructor() : Fragment() {
             //            modelList = getArguments().getParcelableArrayList(MODEL_LIST);
         }
     }
-
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {

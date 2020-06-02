@@ -155,11 +155,6 @@ class MainActivity : AppCompatActivity(), NavListener {
                 .addToBackStack(null)
                 .commit()
     }
-
-    override fun setCategoryFromListFragment(category: Category) {
-//        viewModel.setCurrentCategory(category)
-    }
-
     override fun setWordHistoryFromGameFragment(wordHistory: List<CurrentWord>) {
         viewModel.setWordHistory(wordHistory)
     }

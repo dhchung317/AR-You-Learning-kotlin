@@ -16,11 +16,6 @@ class MainModule {
         return R.style.AppTheme
     }
 
-//    @Provides
-//    fun provideCategoryAdapter(): ListAdapter {
-//        return ListAdapter()
-//    }
-
     @Provides
     fun provideHintAdapter(pronunciationUtil: PronunciationUtil): HintAdapter {
         return HintAdapter(pronunciationUtil)

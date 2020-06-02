@@ -17,6 +17,4 @@ interface NavListener {
     fun setWordHistoryFromGameFragment(wordHistory: List<CurrentWord>)
 
     fun moveToTutorialFragment()
-
-    fun setCategoryFromListFragment(category: Category)
 }

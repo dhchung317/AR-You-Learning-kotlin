@@ -5,7 +5,6 @@ import android.app.Application
 import androidx.room.Room
 
 import com.hyunki.aryoulearning2.data.db.dao.CategoryDao
-import com.hyunki.aryoulearning2.data.db.dao.CurrentCategoryDao
 import com.hyunki.aryoulearning2.data.db.dao.ModelDao
 
 import dagger.Module
@@ -32,10 +31,5 @@ class ModelDatabaseModule {
     @Provides
     fun provideCatDao(modelDatabase: ModelDatabase): CategoryDao {
         return modelDatabase.catDao()
-    }
-
-    @Provides
-    fun provideCurCatDao(modelDatabase: ModelDatabase): CurrentCategoryDao {
-        return modelDatabase.curCatDao()
     }
 }

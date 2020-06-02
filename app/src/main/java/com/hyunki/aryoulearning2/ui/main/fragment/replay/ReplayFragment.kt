@@ -39,7 +39,7 @@ constructor() : Fragment() {
     }
 
     override fun onAttach(context: Context) {
-        (activity!!.application as BaseApplication).appComponent.inject(this)
+        (requireActivity().application as BaseApplication).appComponent.inject(this)
         super.onAttach(context)
         if (context is NavListener) {
             listener = context
@@ -88,7 +88,7 @@ constructor() : Fragment() {
     override fun onResume() {
         super.onResume()
         if (fragmentManager?.findFragmentByTag("result_fragment") != null) {
-            fragmentManager?.beginTransaction()?.remove(fragmentManager!!.findFragmentByTag("result_fragment")!!)?.commit()
+            fragmentManager?.beginTransaction()?.remove(requireFragmentManager().findFragmentByTag("result_fragment")!!)?.commit()
         }
         //        getActivity().getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
     }
