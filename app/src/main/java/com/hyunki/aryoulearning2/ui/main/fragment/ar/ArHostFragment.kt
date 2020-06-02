@@ -170,6 +170,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         arViewModel.getLetterMapLiveData().observe(viewLifecycleOwner,
                 Observer { map -> processLetterMap(map) })
 
+
     }
 
     private fun processModelData(state: ArState){
@@ -586,7 +587,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                         it, arrayOf(Manifest.permission.CAMERA), requestCode)
             }
         }
-
         const val REQUEST_KEY = "get-current-category"
 
         const val KEY_ID = "current-category"
