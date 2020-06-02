@@ -4,11 +4,13 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.hyunki.aryoulearning2.db.model.Category
-import com.hyunki.aryoulearning2.db.model.CurrentCategory
-import com.hyunki.aryoulearning2.db.model.Model
-import com.hyunki.aryoulearning2.db.model.ModelResponse
-import com.hyunki.aryoulearning2.ui.main.ar.util.CurrentWord
+import com.hyunki.aryoulearning2.data.MainRepository
+import com.hyunki.aryoulearning2.data.MainState
+import com.hyunki.aryoulearning2.data.db.model.Category
+import com.hyunki.aryoulearning2.data.db.model.CurrentCategory
+import com.hyunki.aryoulearning2.data.db.model.Model
+import com.hyunki.aryoulearning2.data.db.model.ModelResponse
+import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
@@ -23,7 +25,7 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
     private val modelResponsesData = MutableLiveData<MainState>()
     private val modelLiveData = MutableLiveData<MainState>()
     private val catLiveData = MutableLiveData<MainState>()
-    private val curCatLiveData = MutableLiveData<MainState>()
+//    private val curCatLiveData = MutableLiveData<MainState>()
     private var wordHistory: List<CurrentWord> = ArrayList()
 
     fun loadModelResponses() {
@@ -90,19 +92,19 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
         compositeDisposable.add(catDisposable)
     }
 
-    fun loadCurrentCategoryName() {
-        curCatLiveData.value = MainState.Loading
-        val curCatDisposable = mainRepository.currentCategory
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                        onSuccess = { this.onCurCatsFetched(it) },
-                        onError = { error ->
-                            curCatLiveData.value = MainState.Error
-                            onError(error)
-                        })
-        compositeDisposable.add(curCatDisposable)
-    }
+//    fun loadCurrentCategoryName() {
+//        curCatLiveData.value = MainState.Loading
+//        val curCatDisposable = mainRepository.currentCategory
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribeBy(
+//                        onSuccess = { this.onCurCatsFetched(it) },
+//                        onError = { error ->
+//                            curCatLiveData.value = MainState.Error
+//                            onError(error)
+//                        })
+//        compositeDisposable.add(curCatDisposable)
+//    }
 
     fun getModelLiveData(): LiveData<MainState> {
         return modelLiveData
@@ -112,17 +114,17 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
         return catLiveData
     }
 
-    fun getCurCatLiveData(): LiveData<MainState> {
-        return curCatLiveData
-    }
+//    fun getCurCatLiveData(): LiveData<MainState> {
+//        return curCatLiveData
+//    }
 
     fun getModelResponsesData(): LiveData<MainState> {
         return modelResponsesData
     }
 
-    fun setCurrentCategory(category: Category) {
-        mainRepository.setCurrentCategory(CurrentCategory(category.name))
-    }
+//    fun setCurrentCategory(category: Category) {
+//        mainRepository.setCurrentCategory(CurrentCategory(category.name))
+//    }
 
     fun getWordHistory(): List<CurrentWord> {
         return wordHistory
@@ -146,11 +148,11 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
         catLiveData.value = MainState.Success.OnCategoriesLoaded(categories)
     }
 
-    private fun onCurCatsFetched(category: CurrentCategory) {
-        Log.d(TAG, "onCurCatsFetched: " + category.currentCategory)
-        curCatLiveData.value = MainState.Success.OnCurrentCategoryStringLoaded(category.currentCategory)
-        Log.d(TAG, "onCurCatsFetched: " + MainState.Success.OnCurrentCategoryStringLoaded(category.currentCategory).javaClass)
-    }
+//    private fun onCurCatsFetched(category: CurrentCategory) {
+//        Log.d(TAG, "onCurCatsFetched: " + category.currentCategory)
+//        curCatLiveData.value = MainState.Success.OnCurrentCategoryStringLoaded(category.currentCategory)
+//        Log.d(TAG, "onCurCatsFetched: " + MainState.Success.OnCurrentCategoryStringLoaded(category.currentCategory).javaClass)
+//    }
 
     private fun onModelResponsesLoaded(modelResponses: ArrayList<ModelResponse>) {
         saveModelResponseData(modelResponses)
@@ -168,6 +170,6 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
     }
 
     companion object {
-        const val TAG = "MainViewModel"
+        const val TAG = "mainviewmodel"
     }
 }

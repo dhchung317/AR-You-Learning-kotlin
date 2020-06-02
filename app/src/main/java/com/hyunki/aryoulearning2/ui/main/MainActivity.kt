@@ -13,15 +13,16 @@ import androidx.lifecycle.ViewModelProviders
 
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
-import com.hyunki.aryoulearning2.db.model.Category
-import com.hyunki.aryoulearning2.ui.main.ar.ArHostFragment
-import com.hyunki.aryoulearning2.ui.main.ar.util.CurrentWord
-import com.hyunki.aryoulearning2.ui.main.controller.NavListener
-import com.hyunki.aryoulearning2.ui.main.hint.HintFragment
-import com.hyunki.aryoulearning2.ui.main.list.ListFragment
-import com.hyunki.aryoulearning2.ui.main.replay.ReplayFragment
-import com.hyunki.aryoulearning2.ui.main.results.ResultsFragment
-import com.hyunki.aryoulearning2.ui.main.tutorial.TutorialFragment
+import com.hyunki.aryoulearning2.data.MainState
+import com.hyunki.aryoulearning2.data.db.model.Category
+import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArHostFragment
+import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
+import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
+import com.hyunki.aryoulearning2.ui.main.fragment.hint.HintFragment
+import com.hyunki.aryoulearning2.ui.main.fragment.list.ListFragment
+import com.hyunki.aryoulearning2.ui.main.fragment.replay.ReplayFragment
+import com.hyunki.aryoulearning2.ui.main.fragment.results.ResultsFragment
+import com.hyunki.aryoulearning2.ui.main.fragment.tutorial.TutorialFragment
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 
@@ -156,7 +157,7 @@ class MainActivity : AppCompatActivity(), NavListener {
     }
 
     override fun setCategoryFromListFragment(category: Category) {
-        viewModel.setCurrentCategory(category)
+//        viewModel.setCurrentCategory(category)
     }
 
     override fun setWordHistoryFromGameFragment(wordHistory: List<CurrentWord>) {
