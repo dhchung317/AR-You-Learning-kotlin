@@ -9,7 +9,7 @@ import com.hyunki.aryoulearning2.di.main.MainViewModelsModule
 import com.hyunki.aryoulearning2.ui.main.MainActivity
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArHostFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.hint.HintFragment
-import com.hyunki.aryoulearning2.ui.main.fragment.list.ListFragment
+import com.hyunki.aryoulearning2.ui.main.fragment.category.CategoryFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.replay.ReplayFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.results.ResultsFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.tutorial.TutorialFragment
@@ -44,7 +44,7 @@ interface AppComponent {
 
     fun inject(mainActivity: MainActivity)
 
-    fun inject(listFragment: ListFragment)
+    fun inject(categoryFragment: CategoryFragment)
     fun inject(arHostFragment: ArHostFragment)
     fun inject(replayFragment: ReplayFragment)
     fun inject(resultsFragment: ResultsFragment)

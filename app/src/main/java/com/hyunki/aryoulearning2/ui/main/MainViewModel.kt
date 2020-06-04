@@ -48,7 +48,6 @@ internal constructor(private val mainRepositoryImpl: MainRepositoryImpl) : ViewM
                     modelResponses[i].background
             ))
             for (j in 0 until modelResponses[i].list.size) {
-                Log.d(TAG, "observeModelResponses: " + modelResponses[i].list[j].name)
                 mainRepositoryImpl.insertModel(Model(
                         modelResponses[i].category,
                         modelResponses[i].list[j].name,
@@ -60,7 +59,6 @@ internal constructor(private val mainRepositoryImpl: MainRepositoryImpl) : ViewM
 
     fun loadModelsByCat(cat: String) {
         modelLiveData.value = MainState.Loading
-        Log.d(TAG, "loadModelsByCat: loading models by cat")
         val modelDisposable = mainRepositoryImpl.getModelsByCat(cat)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -114,12 +112,10 @@ internal constructor(private val mainRepositoryImpl: MainRepositoryImpl) : ViewM
     }
 
     private fun onModelsFetched(models: List<Model>) {
-        Log.d(TAG, "onModelsFetched: " + models.size)
         modelLiveData.value = MainState.Success.OnModelsLoaded(models)
     }
 
     private fun onCatsFetched(categories: List<Category>) {
-        Log.d(TAG, "onCatsFetched: " + categories.size)
         catLiveData.value = MainState.Success.OnCategoriesLoaded(categories)
     }
 

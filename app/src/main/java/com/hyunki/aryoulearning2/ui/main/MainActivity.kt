@@ -9,17 +9,17 @@ import android.widget.ProgressBar
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.data.MainState
-import com.hyunki.aryoulearning2.data.db.model.Category
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArHostFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.hyunki.aryoulearning2.ui.main.fragment.hint.HintFragment
-import com.hyunki.aryoulearning2.ui.main.fragment.list.ListFragment
+import com.hyunki.aryoulearning2.ui.main.fragment.category.CategoryFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.replay.ReplayFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.results.ResultsFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.tutorial.TutorialFragment
@@ -35,29 +35,21 @@ class MainActivity : AppCompatActivity(), NavListener {
 
     @Inject
     lateinit var pronunciationUtil: PronunciationUtil
-
     @Inject
     lateinit var arHostFragment: ArHostFragment
-
     @Inject
-    lateinit var listFragment: ListFragment
-
+    lateinit var categoryFragment: CategoryFragment
     @Inject
     lateinit var hintFragment: HintFragment
-
     @Inject
     lateinit var replayFragment: ReplayFragment
-
     @Inject
     lateinit var resultsFragment: ResultsFragment
-
     @Inject
     lateinit var tutorialFragment: TutorialFragment
-
     @JvmField
     @Inject
     var resId: Int = 0
-
     @Inject
     lateinit var providerFactory: ViewModelProviderFactory
 
@@ -80,7 +72,7 @@ class MainActivity : AppCompatActivity(), NavListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        viewModel = ViewModelProviders.of(this, providerFactory).get(MainViewModel::class.java)
+        viewModel = ViewModelProvider(this, providerFactory).get(MainViewModel::class.java)
 
         progressBar = findViewById(R.id.progress_bar)
         Log.d(TAG, "onCreate")
@@ -115,7 +107,7 @@ class MainActivity : AppCompatActivity(), NavListener {
     override fun moveToListFragment() {
         supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.fragment_container, listFragment)
+                .replace(R.id.fragment_container, categoryFragment)
                 .commit()
     }
 

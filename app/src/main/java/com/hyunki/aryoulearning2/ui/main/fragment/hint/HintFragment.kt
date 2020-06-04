@@ -14,6 +14,7 @@ import androidx.core.util.Preconditions
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -61,28 +62,22 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_hint, container, false)
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         constraintLayout = view.findViewById(R.id.hint_layout)
         enableViews(constraintLayout)
 
-        mainViewModel = ViewModelProviders.of(requireActivity(), viewModelProviderFactory).get(MainViewModel::class.java)
+        mainViewModel = ViewModelProvider(requireActivity(), viewModelProviderFactory).get(MainViewModel::class.java)
 
         mainViewModel.getModelLiveData().observe(viewLifecycleOwner,
                 Observer { state -> renderModelsByCategory(state) })
-
-//        mainViewModel.loadCurrentCategoryName()
         //        textToSpeech = pronunciationUtil.getTTS(requireContext());
         initializeViews(view)
-        hintRecyclerView.layoutManager = LinearLayoutManager(requireContext(),
-                LinearLayoutManager.HORIZONTAL,
-                false)
+        hintRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         hintRecyclerView.adapter = hintAdapter
         viewClickListeners()
     }
@@ -149,12 +144,10 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
         //        stayAlert = getLayoutInflater().inflate(R.layout.stay_alert_card, constraintLayout, false);
         //        okButton1 = parentalSupervision.findViewById(R.id.warning_button_ok_1);
         //        okButton2 = stayAlert.findViewById(R.id.warning_button_ok_2);
-
     }
 
     private fun renderCurrentCategory(category: String) {
                 mainViewModel.loadModelsByCat(category)
-                Log.d("hint", "renderCurrentCategory: " + category)
     }
 
     private fun renderModelsByCategory(state: MainState) {
@@ -192,7 +185,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
         if (REQUEST_KEY == requestKey) {
             category = result.getString(KEY_ID)
             renderCurrentCategory(category)
-            Log.d("hintfragment", category)
         }
     }
 
