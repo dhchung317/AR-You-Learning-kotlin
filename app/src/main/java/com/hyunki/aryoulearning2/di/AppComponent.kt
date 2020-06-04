@@ -3,18 +3,16 @@ package com.hyunki.aryoulearning2.di
 import android.app.Application
 
 import com.hyunki.aryoulearning2.BaseApplication
-import com.hyunki.aryoulearning2.db.ModelDatabaseModule
+import com.hyunki.aryoulearning2.data.db.ModelDatabaseModule
 import com.hyunki.aryoulearning2.di.main.MainModule
 import com.hyunki.aryoulearning2.di.main.MainViewModelsModule
-import com.hyunki.aryoulearning2.network.main.MainApi
 import com.hyunki.aryoulearning2.ui.main.MainActivity
-import com.hyunki.aryoulearning2.ui.main.MainRepository
-import com.hyunki.aryoulearning2.ui.main.ar.ArHostFragment
-import com.hyunki.aryoulearning2.ui.main.hint.HintFragment
-import com.hyunki.aryoulearning2.ui.main.list.ListFragment
-import com.hyunki.aryoulearning2.ui.main.replay.ReplayFragment
-import com.hyunki.aryoulearning2.ui.main.results.ResultsFragment
-import com.hyunki.aryoulearning2.ui.main.tutorial.TutorialFragment
+import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArHostFragment
+import com.hyunki.aryoulearning2.ui.main.fragment.hint.HintFragment
+import com.hyunki.aryoulearning2.ui.main.fragment.list.ListFragment
+import com.hyunki.aryoulearning2.ui.main.fragment.replay.ReplayFragment
+import com.hyunki.aryoulearning2.ui.main.fragment.results.ResultsFragment
+import com.hyunki.aryoulearning2.ui.main.fragment.tutorial.TutorialFragment
 
 import javax.inject.Singleton
 

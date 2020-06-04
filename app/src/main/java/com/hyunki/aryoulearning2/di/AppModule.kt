@@ -1,7 +1,7 @@
 package com.hyunki.aryoulearning2.di
 
 import android.app.Application
-import com.hyunki.aryoulearning2.network.main.MainApi
+import com.hyunki.aryoulearning2.data.network.main.MainApi
 import com.hyunki.aryoulearning2.util.Constants
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 
@@ -35,5 +35,6 @@ class AppModule {
     fun providePronunciationUtil(application: Application): PronunciationUtil {
         return PronunciationUtil(application.baseContext)
     }
+
 }
 
