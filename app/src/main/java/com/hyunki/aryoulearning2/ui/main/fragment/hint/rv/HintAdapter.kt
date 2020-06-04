@@ -35,30 +35,34 @@ constructor(private val pronunciationUtil: PronunciationUtil) : RecyclerView.Ada
         return modelList.size
     }
 
-    inner class HintViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class HintViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener{
+        private val imageView: ImageView = itemView.findViewById<ImageView>(R.id.hint_fragment_image_view)
+        private val textView: TextView = itemView.findViewById<TextView>(R.id.hint_fragment_textview)
+
+        init{
+            itemView.setOnClickListener(this)
+        }
 
         fun onBind(model: Model) {
-            val imageView = itemView.findViewById<ImageView>(R.id.hint_fragment_image_view)
-            val textView = itemView.findViewById<TextView>(R.id.hint_fragment_textview)
-
             textView.setTextColor(Color.DKGRAY)
             Picasso.get().load(model.image).into(imageView)
             textView.text = model.name
-            itemView.setOnClickListener {
+
+        }
+
+        override fun onClick(v: View?) {
+            val model = modelList[adapterPosition]
                 pronunciationUtil.textToSpeechAnnouncer(model.name, pronunciationUtil.textToSpeech)
                 itemView.startAnimation(Animations.Normal().getVibrator(itemView))
                 textView.setTextColor(Color.LTGRAY)
                 val timer = object : CountDownTimer(1000, 1000) {
-
                     override fun onTick(millisUntilFinished: Long) {}
-
                     override fun onFinish() {
                         textView.setTextColor(Color.DKGRAY)
                         itemView.clearAnimation()
                     }
                 }
                 timer.start()
-            }
         }
     }
 
@@ -66,7 +70,5 @@ constructor(private val pronunciationUtil: PronunciationUtil) : RecyclerView.Ada
         this.modelList = modelList
         notifyDataSetChanged()
     }
-
-
 }
 
