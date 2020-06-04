@@ -9,6 +9,7 @@ import android.widget.ProgressBar
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 
 import com.hyunki.aryoulearning2.BaseApplication
@@ -34,29 +35,21 @@ class MainActivity : AppCompatActivity(), NavListener {
 
     @Inject
     lateinit var pronunciationUtil: PronunciationUtil
-
     @Inject
     lateinit var arHostFragment: ArHostFragment
-
     @Inject
     lateinit var categoryFragment: CategoryFragment
-
     @Inject
     lateinit var hintFragment: HintFragment
-
     @Inject
     lateinit var replayFragment: ReplayFragment
-
     @Inject
     lateinit var resultsFragment: ResultsFragment
-
     @Inject
     lateinit var tutorialFragment: TutorialFragment
-
     @JvmField
     @Inject
     var resId: Int = 0
-
     @Inject
     lateinit var providerFactory: ViewModelProviderFactory
 
@@ -79,7 +72,7 @@ class MainActivity : AppCompatActivity(), NavListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        viewModel = ViewModelProviders.of(this, providerFactory).get(MainViewModel::class.java)
+        viewModel = ViewModelProvider(this, providerFactory).get(MainViewModel::class.java)
 
         progressBar = findViewById(R.id.progress_bar)
         Log.d(TAG, "onCreate")

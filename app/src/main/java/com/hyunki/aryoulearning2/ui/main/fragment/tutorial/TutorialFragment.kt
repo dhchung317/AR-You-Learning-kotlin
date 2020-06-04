@@ -98,6 +98,6 @@ constructor() : Fragment() {
     }
 
     companion object {
-        val MODEL_LIST = "MODEL_LIST"
+        const val MODEL_LIST = "MODEL_LIST"
     }
 }
