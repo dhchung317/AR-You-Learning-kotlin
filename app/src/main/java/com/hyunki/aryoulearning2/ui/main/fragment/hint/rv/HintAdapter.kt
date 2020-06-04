@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.animation.Animations
 import com.hyunki.aryoulearning2.data.db.model.Model
-import com.hyunki.aryoulearning2.ui.main.fragment.controller.FragmentListener
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.squareup.picasso.Picasso
 
@@ -23,7 +22,6 @@ import javax.inject.Inject
 class HintAdapter @Inject
 constructor(private val pronunciationUtil: PronunciationUtil) : RecyclerView.Adapter<HintAdapter.HintViewHolder>() {
     private var modelList: List<Model> = ArrayList()
-
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): HintViewHolder {
         return HintViewHolder(LayoutInflater.from(viewGroup.context).inflate(R.layout.hint_item_view, viewGroup, false))
@@ -44,21 +42,15 @@ constructor(private val pronunciationUtil: PronunciationUtil) : RecyclerView.Ada
             val textView = itemView.findViewById<TextView>(R.id.hint_fragment_textview)
 
             textView.setTextColor(Color.DKGRAY)
-
             Picasso.get().load(model.image).into(imageView)
-
             textView.text = model.name
-
             itemView.setOnClickListener {
-
                 pronunciationUtil.textToSpeechAnnouncer(model.name, pronunciationUtil.textToSpeech)
                 itemView.startAnimation(Animations.Normal().getVibrator(itemView))
                 textView.setTextColor(Color.LTGRAY)
                 val timer = object : CountDownTimer(1000, 1000) {
 
-                    override fun onTick(millisUntilFinished: Long) {
-
-                    }
+                    override fun onTick(millisUntilFinished: Long) {}
 
                     override fun onFinish() {
                         textView.setTextColor(Color.DKGRAY)
@@ -74,5 +66,7 @@ constructor(private val pronunciationUtil: PronunciationUtil) : RecyclerView.Ada
         this.modelList = modelList
         notifyDataSetChanged()
     }
+
+
 }
 

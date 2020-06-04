@@ -8,7 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 import com.hyunki.aryoulearning2.data.db.model.Model
-import com.hyunki.aryoulearning2.data.MainRepository
+import com.hyunki.aryoulearning2.data.MainRepositoryImpl
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.hyunki.aryoulearning2.data.ArState
 import io.reactivex.Observable
@@ -25,15 +25,12 @@ import io.reactivex.rxkotlin.toMap
 import io.reactivex.schedulers.Schedulers
 
 class ArViewModel @Inject
-constructor(private val application: Application, private val mainRepository: MainRepository) : ViewModel() {
-
+constructor(private val application: Application, private val mainRepositoryImpl: MainRepositoryImpl) : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
 
     private val modelLiveData = MutableLiveData<ArState>()
-
     private val futureModelMapListLiveData = MutableLiveData<ArState>()
     private val futureLetterMapLiveData = MutableLiveData<ArState>()
-
     private val modelMapListLiveData = MutableLiveData<ArState>()
     private val letterMapLiveData = MutableLiveData<ArState>()
 
@@ -41,7 +38,6 @@ constructor(private val application: Application, private val mainRepository: Ma
     private var isLettersLoaded = false
 
     private fun onModelsFetched(models: List<Model>) {
-        Log.d(TAG, "onModelsFetched: " + models.size)
         modelLiveData.value = ArState.Success.OnModelsLoaded(models)
     }
 
@@ -63,27 +59,21 @@ constructor(private val application: Application, private val mainRepository: Ma
 
     fun fetchModelsFromRepository(category: String) {
         modelLiveData.value = ArState.Loading
-//        val catDisposable = mainRepository.currentCategory.subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe { currentCategory ->
-                    val modelDisposable = mainRepository.getModelsByCat(category)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribeBy(
-                                    onSuccess = { this.onModelsFetched(it) },
-                                    onError = { error ->
-                                        modelLiveData.value = ArState.Error
-                                        onError(error)
-                                    }
-                            )
-                    compositeDisposable.add(modelDisposable)
-//                }
-//        compositeDisposable.add(catDisposable)
+        val modelDisposable = mainRepositoryImpl.getModelsByCat(category)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeBy(
+                        onSuccess = { this.onModelsFetched(it) },
+                        onError = { error ->
+                            modelLiveData.value = ArState.Error
+                            onError(error)
+                        }
+                )
+        compositeDisposable.add(modelDisposable)
     }
 
     fun loadListMapsOfFutureModels(modelList: List<Model>) {
         futureModelMapListLiveData.value = ArState.Loading
-
         val listDisposable = Single.just(modelList)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -106,19 +96,17 @@ constructor(private val application: Application, private val mainRepository: Ma
     }
 
     fun loadMapOfFutureLetters(futureMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>) {
-
         futureModelMapListLiveData.value = ArState.Loading
-
-        val futureModelMapDisposable = Single.just(futureMapList)
+        val futureModelMapDisposable = Observable.just(futureMapList)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .flattenAsObservable { it }
-                .flatMap { Observable.just(it.keys) }
                 .flatMapIterable { it }
                 .flatMap {
                     val wordArray = mutableListOf<Char>()
-                    for (s in it) {
-                        wordArray.add(s)
+                    for (s in it.keys) {
+                        for (c in s) {
+                            wordArray.add(c)
+                        }
                     }
                     Observable.just(wordArray)
                 }
@@ -143,9 +131,7 @@ constructor(private val application: Application, private val mainRepository: Ma
 
     fun loadLetterRenderables(futureLetterMap: MutableMap<String, CompletableFuture<ModelRenderable>>) {
         val lettersCount = futureLetterMap.size
-
         letterMapLiveData.value = ArState.Loading
-
         val futureLetterMapDisposable = Observable.just(futureLetterMap)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -158,8 +144,6 @@ constructor(private val application: Application, private val mainRepository: Ma
 
                                 isLettersLoaded = true
                             }
-                            Log.d(TAG, m.size.toString())
-                            Log.d(TAG, lettersCount.toString())
                         }
                     }
                     Single.just(m)
@@ -170,14 +154,12 @@ constructor(private val application: Application, private val mainRepository: Ma
                             letterMapLiveData.value = ArState.Error
                             onError(error)
                         })
-
         compositeDisposable.add(futureLetterMapDisposable)
     }
 
     fun loadModelRenderables(futureModelMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>) {
         val modelsCount = futureModelMapList.size
         modelMapListLiveData.value = ArState.Loading
-
         val modelMapListDisposable = Observable.just(futureModelMapList)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -192,12 +174,9 @@ constructor(private val application: Application, private val mainRepository: Ma
                                 if (list.size == modelsCount) {
                                     isModelsLoaded = true
                                 }
-                                Log.d(TAG, m.size.toString())
-                                Log.d(TAG, modelsCount.toString())
                             }
                         }
                     }
-
                     Observable.just(list)
                 }
                 .subscribeBy(
@@ -206,7 +185,6 @@ constructor(private val application: Application, private val mainRepository: Ma
                             futureModelMapListLiveData.value = ArState.Error
                             onError(error)
                         })
-
         compositeDisposable.add(modelMapListDisposable)
     }
 

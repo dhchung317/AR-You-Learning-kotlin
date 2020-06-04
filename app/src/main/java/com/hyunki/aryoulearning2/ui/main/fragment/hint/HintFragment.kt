@@ -33,15 +33,7 @@ class HintFragment @Inject
 constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
         //    @Inject
         //    PronunciationUtil pronunciationUtil;
-
             private val hintAdapter: HintAdapter) : Fragment(), FragmentListener{
-
-    override fun setCurrentCategoryFromFragment(category: String) {
-        parentFragmentManager.setFragmentResult(
-                ArHostFragment.REQUEST_KEY,
-                bundleOf(ArHostFragment.KEY_ID to category)
-        )
-    }
 
     private lateinit var hintRecyclerView: RecyclerView
     private lateinit var constraintLayout: ConstraintLayout
@@ -93,6 +85,13 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
                 false)
         hintRecyclerView.adapter = hintAdapter
         viewClickListeners()
+    }
+
+    override fun setCurrentCategoryFromFragment(category: String) {
+        parentFragmentManager.setFragmentResult(
+                ArHostFragment.REQUEST_KEY,
+                bundleOf(ArHostFragment.KEY_ID to category)
+        )
     }
 
     private fun disableViews(view: View?) {
@@ -190,10 +189,11 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
     }
 
     private fun onFragmentResult(requestKey: String, result: Bundle) {
-        Preconditions.checkState(REQUEST_KEY == requestKey)
-        category = result.getString(KEY_ID)
-        renderCurrentCategory(category)
-        Log.d("hintfragment",category)
+        if (REQUEST_KEY == requestKey) {
+            category = result.getString(KEY_ID)
+            renderCurrentCategory(category)
+            Log.d("hintfragment", category)
+        }
     }
 
     override fun onDestroyView() {
@@ -203,7 +203,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
 
     companion object {
         const val REQUEST_KEY = "get-current-category"
-
         const val KEY_ID = "current-category"
     }
 }

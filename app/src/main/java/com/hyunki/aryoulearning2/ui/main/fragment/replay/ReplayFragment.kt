@@ -28,8 +28,6 @@ constructor() : Fragment() {
     private lateinit var homeButtonCard: CardView
     private lateinit var playAgainButtonCard: CardView
 
-    private val modelList = ArrayList<Model>()
-
     private lateinit var textToSpeech: TextToSpeech
     private lateinit var pronunciationUtil: PronunciationUtil
 

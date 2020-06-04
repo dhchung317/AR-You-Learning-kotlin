@@ -12,14 +12,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.StrictMode
 import android.speech.tts.TextToSpeech
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import androidx.core.app.ActivityCompat
-import androidx.fragment.app.Fragment
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -28,23 +20,26 @@ import android.widget.ProgressBar
 import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
-
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
-import com.hyunki.aryoulearning2.ui.main.MainViewModel
 import com.hyunki.aryoulearning2.data.MainState
+import com.hyunki.aryoulearning2.data.db.model.Model
+import com.hyunki.aryoulearning2.ui.main.MainViewModel
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.hyunki.aryoulearning2.ui.main.fragment.results.rv.ResultsAdapter
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
-import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
-
 import java.io.File
 import java.io.FileOutputStream
-import java.util.Date
-import java.util.HashMap
-
+import java.util.*
 import javax.inject.Inject
 
 //TODO- refactor resultsfragment
@@ -63,7 +58,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     private lateinit var navListener: NavListener
 
     override fun onAttach(context: Context) {
-        (activity!!.application as BaseApplication).appComponent.inject(this)
+        (requireActivity().application as BaseApplication).appComponent.inject(this)
         super.onAttach(context)
 
         if (context is NavListener) {
@@ -92,8 +87,8 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProviders.of(activity!!, viewModelProviderFactory).get(MainViewModel::class.java)
-        progressBar = activity!!.findViewById(R.id.progress_bar)
+        viewModel = ViewModelProviders.of(requireActivity(), viewModelProviderFactory).get(MainViewModel::class.java)
+        progressBar = requireActivity().findViewById(R.id.progress_bar)
         initializeViews(view)
         setViews()
         renderModelList(viewModel.getModelLiveData().value!!)
@@ -116,7 +111,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     private fun shareFABClick() {
         shareFAB.setOnClickListener { v ->
             if (ContextCompat.checkSelfPermission(v.context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(v.context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this@ResultsFragment.activity!!,
+                ActivityCompat.requestPermissions(this@ResultsFragment.requireActivity(),
                         arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CODE)
                 this@ResultsFragment.takeScreenshotAndShare(v)
             } else {
@@ -159,7 +154,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         val intent = Intent()
         intent.action = Intent.ACTION_SEND
         intent.type = "image/*"
-
         intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "")
         intent.putExtra(android.content.Intent.EXTRA_TEXT, "")
         intent.putExtra(Intent.EXTRA_STREAM, uri)
@@ -168,7 +162,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         } catch (e: ActivityNotFoundException) {
             Toast.makeText(context, "No App Available", Toast.LENGTH_SHORT).show()
         }
-
     }
 
     private fun saveBitmap(bitmap: Bitmap) {
@@ -190,11 +183,9 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         } catch (e: Throwable) {
             e.printStackTrace()
         }
-
     }
 
     private fun displayRatingBarAttempts() {
-
         rainbowRatingBar.numStars = viewModel.getWordHistory().size
         rainbowRatingBar.stepSize = 1f
         rainbowRatingBar.rating = getCorrectAnswerCount(viewModel.getWordHistory()).toFloat()
@@ -203,12 +194,9 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     private fun renderModelList(state: MainState) {
         Log.d("results", "renderModelList: " + state.javaClass)
-        when (state){
+        when (state) {
 
-            is MainState.Loading -> {
-                progressBar.bringToFront()
-                showProgressBar(true)
-            }
+            is MainState.Loading -> showProgressBar(true)
 
             is MainState.Error -> showProgressBar(false)
 
@@ -234,8 +222,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     override fun onDestroy() {
         super.onDestroy()
-                textToSpeech.shutdown();
-
+        textToSpeech.shutdown();
     }
 
     private fun getCorrectAnswerCount(wordHistory: List<CurrentWord>): Int {
