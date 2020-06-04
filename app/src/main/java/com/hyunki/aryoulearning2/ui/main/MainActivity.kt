@@ -14,12 +14,11 @@ import androidx.lifecycle.ViewModelProviders
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.data.MainState
-import com.hyunki.aryoulearning2.data.db.model.Category
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArHostFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.hyunki.aryoulearning2.ui.main.fragment.hint.HintFragment
-import com.hyunki.aryoulearning2.ui.main.fragment.list.ListFragment
+import com.hyunki.aryoulearning2.ui.main.fragment.category.CategoryFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.replay.ReplayFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.results.ResultsFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.tutorial.TutorialFragment
@@ -40,7 +39,7 @@ class MainActivity : AppCompatActivity(), NavListener {
     lateinit var arHostFragment: ArHostFragment
 
     @Inject
-    lateinit var listFragment: ListFragment
+    lateinit var categoryFragment: CategoryFragment
 
     @Inject
     lateinit var hintFragment: HintFragment
@@ -115,7 +114,7 @@ class MainActivity : AppCompatActivity(), NavListener {
     override fun moveToListFragment() {
         supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.fragment_container, listFragment)
+                .replace(R.id.fragment_container, categoryFragment)
                 .commit()
     }
 

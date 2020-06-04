@@ -16,8 +16,8 @@ import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.squareup.picasso.Picasso
 
 class HintViewHolder(itemView: View, private val modelList: List<Model>, val pronunciationUtil: PronunciationUtil) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
-    private val imageView: ImageView = itemView.findViewById<ImageView>(R.id.hint_fragment_image_view)
-    private val textView: TextView = itemView.findViewById<TextView>(R.id.hint_fragment_textview)
+    private val imageView: ImageView = itemView.findViewById(R.id.hint_fragment_image_view)
+    private val textView: TextView = itemView.findViewById(R.id.hint_fragment_textview)
 
     init {
         itemView.setOnClickListener(this)

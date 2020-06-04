@@ -1,4 +1,4 @@
-package com.hyunki.aryoulearning2.ui.main.fragment.list
+package com.hyunki.aryoulearning2.ui.main.fragment.category
 
 import android.content.Context
 import android.os.Bundle
@@ -20,12 +20,12 @@ import com.hyunki.aryoulearning2.ui.main.MainViewModel
 import com.hyunki.aryoulearning2.data.MainState
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArHostFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.FragmentListener
-import com.hyunki.aryoulearning2.ui.main.fragment.list.rv.ListAdapter
+import com.hyunki.aryoulearning2.ui.main.fragment.category.rv.CategoryAdapter
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 
 import javax.inject.Inject
 
-class ListFragment @Inject
+class CategoryFragment @Inject
 constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
         Fragment(), FragmentListener {
 
@@ -35,23 +35,12 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
 
     private lateinit var progressBar: ProgressBar
 
-    private lateinit var listAdapter: ListAdapter
+    private lateinit var categoryAdapter: CategoryAdapter
 
 
     override fun onAttach(context: Context) {
         (activity?.application as BaseApplication).appComponent.inject(this)
         super.onAttach(context)
-        Log.d(TAG, "onAttach: on attach ran")
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        progressBar = requireActivity().findViewById(R.id.progress_bar)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Log.d(TAG, " on create ran")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -59,8 +48,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Log.d(TAG, " on viewcreated ran")
-
+        progressBar = requireActivity().findViewById(R.id.progress_bar)
         recyclerView = view.findViewById(R.id.category_rv)
         mainViewModel = ViewModelProviders.of(requireActivity(), viewModelProviderFactory).get(MainViewModel::class.java)
         mainViewModel.loadCategories()
@@ -78,8 +66,8 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
         recyclerView.layoutManager = LinearLayoutManager(requireContext(),
                 RecyclerView.HORIZONTAL,
                 false)
-        listAdapter = ListAdapter(this)
-        recyclerView.adapter = listAdapter
+        categoryAdapter = CategoryAdapter(this)
+        recyclerView.adapter = categoryAdapter
     }
 
     private fun renderCategories(state: MainState) {
@@ -91,8 +79,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
             is MainState.Error -> showProgressBar(false)
             is MainState.Success.OnCategoriesLoaded -> {
                 showProgressBar(false)
-                listAdapter.setLists(state.categories)
-                Log.d(TAG, "renderCategories: " + state.categories.size)
+                categoryAdapter.setLists(state.categories)
             }
         }
     }

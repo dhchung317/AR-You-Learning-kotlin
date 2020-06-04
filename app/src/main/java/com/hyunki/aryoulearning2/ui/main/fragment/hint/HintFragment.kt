@@ -66,7 +66,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
         return inflater.inflate(R.layout.fragment_hint, container, false)
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         constraintLayout = view.findViewById(R.id.hint_layout)
@@ -154,7 +153,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
 
     private fun renderCurrentCategory(category: String) {
                 mainViewModel.loadModelsByCat(category)
-                Log.d("hint", "renderCurrentCategory: " + category)
     }
 
     private fun renderModelsByCategory(state: MainState) {
@@ -192,7 +190,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
         if (REQUEST_KEY == requestKey) {
             category = result.getString(KEY_ID)
             renderCurrentCategory(category)
-            Log.d("hintfragment", category)
         }
     }
 
