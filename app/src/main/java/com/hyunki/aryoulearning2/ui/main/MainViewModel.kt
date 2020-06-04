@@ -4,10 +4,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.hyunki.aryoulearning2.data.MainRepository
+import com.hyunki.aryoulearning2.data.MainRepositoryImpl
 import com.hyunki.aryoulearning2.data.MainState
 import com.hyunki.aryoulearning2.data.db.model.Category
-import com.hyunki.aryoulearning2.data.db.model.CurrentCategory
 import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.data.db.model.ModelResponse
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
@@ -19,7 +18,7 @@ import java.util.*
 import javax.inject.Inject
 
 class MainViewModel @Inject
-internal constructor(private val mainRepository: MainRepository) : ViewModel() {
+internal constructor(private val mainRepositoryImpl: MainRepositoryImpl) : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
 
     private val modelResponsesData = MutableLiveData<MainState>()
@@ -29,7 +28,7 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
 
     fun loadModelResponses() {
         modelResponsesData.value = MainState.Loading
-        val modelResDisposable = mainRepository.modelResponses
+        val modelResDisposable = mainRepositoryImpl.getModelResponses()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
@@ -40,18 +39,17 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
                         }
                 )
         compositeDisposable.add(modelResDisposable)
-
     }
 
     private fun saveModelResponseData(modelResponses: ArrayList<ModelResponse>) {
         for (i in modelResponses.indices) {
-            mainRepository.insertCat(Category(
+            mainRepositoryImpl.insertCat(Category(
                     modelResponses[i].category,
                     modelResponses[i].background
             ))
             for (j in 0 until modelResponses[i].list.size) {
                 Log.d(TAG, "observeModelResponses: " + modelResponses[i].list[j].name)
-                mainRepository.insertModel(Model(
+                mainRepositoryImpl.insertModel(Model(
                         modelResponses[i].category,
                         modelResponses[i].list[j].name,
                         modelResponses[i].list[j].image
@@ -63,7 +61,7 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
     fun loadModelsByCat(cat: String) {
         modelLiveData.value = MainState.Loading
         Log.d(TAG, "loadModelsByCat: loading models by cat")
-        val modelDisposable = mainRepository.getModelsByCat(cat)
+        val modelDisposable = mainRepositoryImpl.getModelsByCat(cat)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
@@ -78,7 +76,7 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
 
     fun loadCategories() {
         catLiveData.value = MainState.Loading
-        val catDisposable = mainRepository.allCats
+        val catDisposable = mainRepositoryImpl.getAllCats()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
@@ -131,7 +129,7 @@ internal constructor(private val mainRepository: MainRepository) : ViewModel() {
     }
 
     fun clearEntireDatabase() {
-        mainRepository.clearEntireDatabase()
+        mainRepositoryImpl.clearEntireDatabase()
     }
 
     override fun onCleared() {

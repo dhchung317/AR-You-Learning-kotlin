@@ -69,7 +69,7 @@ constructor() : Fragment() {
             if (isVideoViewPlaying) {
                 tutorialVideoView.pause()
             }
-            activity!!.onBackPressed()
+            requireActivity().onBackPressed()
         }
         playVideoButton.setOnClickListener { v ->
             if (isVideoViewPlaying) {
@@ -85,7 +85,7 @@ constructor() : Fragment() {
     private fun playTutorial() {
         val mediaController = MediaController(requireContext())
         tutorialVideoView.setMediaController(mediaController)
-        val pathToTutorial = "android.resource://" + Objects.requireNonNull<FragmentActivity>(activity).getPackageName() + "/" + R.raw.ar_tutorial
+        val pathToTutorial = "android.resource://" + requireActivity().packageName + "/" + R.raw.ar_tutorial
         val tutorialUri = Uri.parse(pathToTutorial)
         tutorialVideoView.setVideoURI(tutorialUri)
     }

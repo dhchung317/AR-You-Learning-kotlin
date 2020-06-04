@@ -13,11 +13,8 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
     private val roundLimit = 3
     private val keyStack = Stack<String>()
     private val wordHistoryList = ArrayList<CurrentWord>()
-    var attempt = ""
+    var attempt: String = ""
         private set
-
-    val currentWordAnswer: String
-        get() = currentWord.answer
 
     init {
         while (keyStack.size < roundLimit) {
@@ -29,15 +26,9 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
         this.currentWord = CurrentWord(keyStack.pop())
     }
 
-    fun setCurrentWord(currentWord: CurrentWord) {
-        this.currentWord = currentWord
-    }
-
     fun addTappedLetterToCurrentWordAttempt(letter: String) {
-
-
-        if (attempt.length == currentWordAnswer.length) {
-            if (attempt.toLowerCase() != currentWordAnswer.toLowerCase()) {
+        if (attempt.length == getCurrentWordAnswer().length) {
+            if (attempt.toLowerCase() != getCurrentWordAnswer().toLowerCase()) {
                 recordWrongAnswer(attempt)
                 startNextGame(currentWord.answer)
             } else {
@@ -53,11 +44,7 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
         }
     }
 
-    fun recordWrongAnswer(wrongAnswer: String) {
-        currentWord.addWrongAnswerToSet(wrongAnswer)
-    }
-
-    fun startNextGame(key: String) {
+    private fun startNextGame(key: String) {
         refreshManager(key)
         gameCommands.startNextGame(key)
     }
@@ -75,7 +62,11 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
         return letter
     }
 
-    fun refreshManager(key: String) {
+    private fun recordWrongAnswer(wrongAnswer: String) {
+        currentWord.addWrongAnswerToSet(wrongAnswer)
+    }
+
+    private fun refreshManager(key: String) {
         if (currentWord.answer != key) {
             setCurrentWord(CurrentWord(key))
         }
@@ -83,9 +74,16 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
         attempt = ""
     }
 
+    private fun setCurrentWord(currentWord: CurrentWord) {
+        this.currentWord = currentWord
+    }
+
+    fun getCurrentWordAnswer(): String{
+        return currentWord.answer
+    }
+
     companion object {
         private val r = Random()
-
         private fun getRandom(max: Int, min: Int): Int {
             return r.nextInt(max - min) + min
         }
