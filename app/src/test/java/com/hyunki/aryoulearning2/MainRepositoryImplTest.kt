@@ -10,11 +10,11 @@ import com.hyunki.aryoulearning2.data.db.ModelDatabase
 import com.hyunki.aryoulearning2.data.db.dao.CategoryDao
 import com.hyunki.aryoulearning2.data.db.dao.ModelDao
 import com.hyunki.aryoulearning2.data.db.model.Category
+import com.hyunki.aryoulearning2.data.db.model.Model
+import com.hyunki.aryoulearning2.data.db.model.ModelResponse
 import com.hyunki.aryoulearning2.data.network.main.MainApi
-import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.spy
-import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.*
+import io.reactivex.Observable
 import org.apache.tools.ant.Main
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -82,6 +82,48 @@ class MainRepositoryImplTest {
     }
 
     @Test
+    fun `assert getModelResponses() returns size 2 when returned list has 2 items`() {
+        val modelDao = mock<ModelDao>()
+        val catDao = mock<CategoryDao>()
+        val api = mock<MainApi>()
+
+        val response = ArrayList<ModelResponse>()
+        response.add(ModelResponse(arrayListOf(),"category1","backgroundImage1"))
+        response.add(ModelResponse(arrayListOf(),"category2","backgroundImage2"))
+
+        whenever(api.getModels())
+                .thenReturn(Observable.just(response))
+
+        val repo = MainRepositoryImpl(modelDao, catDao, api)
+
+        val expected = 2
+
+        val actual = repo.getModelResponses().blockingSingle().size
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `assert getModelResponses() returns size zero when empty`() {
+        val modelDao = mock<ModelDao>()
+        val catDao = mock<CategoryDao>()
+        val api = mock<MainApi>()
+
+        val response = ArrayList<ModelResponse>()
+
+        whenever(api.getModels())
+                .thenReturn(Observable.just(response))
+
+        val repo = MainRepositoryImpl(modelDao, catDao, api)
+
+        val expected = 0
+
+        val actual = repo.getModelResponses().blockingSingle().size
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun `verify insertCat() inserts expected item`() {
         val modelDao = mock<ModelDao>()
         val catDao = mock<CategoryDao>()
@@ -96,6 +138,25 @@ class MainRepositoryImplTest {
         argumentCaptor<Category>()
                 .apply {
                     verify(catDao).insert(capture())
+                    assertEquals(expected, firstValue)
+                }
+    }
+
+    @Test
+    fun `verify insertModel() inserts expected item`() {
+        val modelDao = mock<ModelDao>()
+        val catDao = mock<CategoryDao>()
+        val api = mock<MainApi>()
+
+        val expected = Model("category1", "testModel1", "image1")
+
+        val repo = MainRepositoryImpl(modelDao, catDao, api)
+
+        repo.insertModel(expected)
+
+        argumentCaptor<Model>()
+                .apply {
+                    verify(modelDao).insert(capture())
                     assertEquals(expected, firstValue)
                 }
     }

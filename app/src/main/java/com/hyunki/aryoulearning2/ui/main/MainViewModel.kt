@@ -1,11 +1,9 @@
 package com.hyunki.aryoulearning2.ui.main
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.hyunki.aryoulearning2.data.MainRepository
-import com.hyunki.aryoulearning2.data.MainRepositoryImpl
 import com.hyunki.aryoulearning2.data.MainState
 import com.hyunki.aryoulearning2.data.db.model.Category
 import com.hyunki.aryoulearning2.data.db.model.Model
@@ -42,19 +40,15 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
         compositeDisposable.add(modelResDisposable)
     }
 
-    private fun saveModelResponseData(modelResponses: ArrayList<ModelResponse>) {
-        for (i in modelResponses.indices) {
-            mainRepositoryImpl.insertCat(Category(
-                    modelResponses[i].category,
-                    modelResponses[i].background
-            ))
-            for (j in 0 until modelResponses[i].list.size) {
-                mainRepositoryImpl.insertModel(Model(
-                        modelResponses[i].category,
-                        modelResponses[i].list[j].name,
-                        modelResponses[i].list[j].image
-                ))
-            }
+    private fun saveModelResponseDataCategories(categories: ArrayList<Category>) {
+        for (i in categories.indices) {
+            mainRepositoryImpl.insertCat(categories[i])
+        }
+    }
+
+    private fun saveModelResponseDataModels(models: ArrayList<Model>) {
+        for (i in models.indices) {
+            mainRepositoryImpl.insertModel(models[i])
         }
     }
 
@@ -121,8 +115,40 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
     }
 
     private fun onModelResponsesLoaded(modelResponses: ArrayList<ModelResponse>) {
-        saveModelResponseData(modelResponses)
+        saveModelResponseDataCategories(getCategoriesToSaveFromModelResponseData(modelResponses))
+        saveModelResponseDataModels(getModelsToSaveFromModelResponseData(modelResponses))
+
         modelResponsesData.value = MainState.Success.OnModelResponsesLoaded(modelResponses)
+    }
+
+    private fun getCategoriesToSaveFromModelResponseData(modelResponses: ArrayList<ModelResponse>): ArrayList<Category> {
+        val categories = arrayListOf<Category>()
+        for (i in modelResponses.indices) {
+            categories.add(Category(
+                    modelResponses[i].category,
+                    modelResponses[i].background
+            ))
+        }
+        return categories
+    }
+
+    private fun getModelsToSaveFromModelResponseData(modelResponses: ArrayList<ModelResponse>): ArrayList<Model> {
+        val models = arrayListOf<Model>()
+
+        for (i in modelResponses.indices) {
+            models.addAll(modelResponses[i].list)
+        }
+
+//        for (i in modelResponses.indices) {
+//            for (j in 0 until modelResponses[i].list.size) {
+//                models.add(Model(
+//                        modelResponses[i].category,
+//                        modelResponses[i].list[j].name,
+//                        modelResponses[i].list[j].image
+//                ))
+//            }
+//        }
+        return models
     }
 
     fun clearEntireDatabase() {

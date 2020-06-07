@@ -73,13 +73,13 @@ class MainViewModelTest {
     @Test
     fun `assert loadResponses() sets modelResponseData to mainStateSuccess on complete`() {
 
-        val testList = arrayListOf<ModelResponse>()
-        testList.add(ModelResponse(arrayListOf(),"category1","backgroundImage1"))
-        testList.add(ModelResponse(arrayListOf(),"category2","backgroundImage2"))
-        val expected = MainState.Success.OnModelResponsesLoaded(testList)
+        val testResponse = arrayListOf<ModelResponse>()
+        testResponse.add(ModelResponse(arrayListOf(),"category1","backgroundImage1"))
+        testResponse.add(ModelResponse(arrayListOf(),"category2","backgroundImage2"))
+        val expected = MainState.Success.OnModelResponsesLoaded(testResponse)
 
         whenever(repository.getModelResponses())
-                .thenReturn(Observable.just(testList))
+                .thenReturn(Observable.just(testResponse))
 
         model.loadModelResponses()
 
@@ -143,4 +143,15 @@ class MainViewModelTest {
         assertNotNull(actual)
         assertEquals(expected, actual)
     }
+
+//    @Test
+//    fun `verify getCategoriesFromModelResponses() returns correct list of categories`() {
+//        val testResponse = arrayListOf<ModelResponse>()
+//        testResponse.add(ModelResponse(arrayListOf(),"category1","backgroundImage1"))
+//        testResponse.add(ModelResponse(arrayListOf(),"category2","backgroundImage2"))
+//
+//        val expected = 2
+//
+//        val actual = model.
+//    }
 }
