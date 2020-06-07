@@ -325,7 +325,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             is ArState.Error -> showProgressBar(false)
             is ArState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
-                arViewModel.loadListMapsOfFutureModels(state.responses)
+                arViewModel.loadListMapsOfFutureModels(state.models)
             }
         }
     }
