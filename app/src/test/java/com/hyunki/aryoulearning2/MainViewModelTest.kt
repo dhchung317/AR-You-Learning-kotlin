@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.hyunki.aryoulearning2.data.MainRepository
 import com.hyunki.aryoulearning2.data.MainState
 import com.hyunki.aryoulearning2.data.db.model.Category
+import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.data.db.model.ModelResponse
 import com.hyunki.aryoulearning2.rules.RxImmediateSchedulerRule
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
@@ -23,6 +24,7 @@ class MainViewModelTest {
     @Rule
     @JvmField
     var testSchedulerRule = RxImmediateSchedulerRule()
+
     @Rule
     @JvmField
     val ruleForLivaData = InstantTaskExecutorRule()
@@ -74,8 +76,8 @@ class MainViewModelTest {
     fun `assert loadResponses() sets modelResponseData to mainStateSuccess on complete`() {
 
         val testResponse = arrayListOf<ModelResponse>()
-        testResponse.add(ModelResponse(arrayListOf(),"category1","backgroundImage1"))
-        testResponse.add(ModelResponse(arrayListOf(),"category2","backgroundImage2"))
+        testResponse.add(ModelResponse(arrayListOf(), "category1", "backgroundImage1"))
+        testResponse.add(ModelResponse(arrayListOf(), "category2", "backgroundImage2"))
         val expected = MainState.Success.OnModelResponsesLoaded(testResponse)
 
         whenever(repository.getModelResponses())
@@ -144,14 +146,62 @@ class MainViewModelTest {
         assertEquals(expected, actual)
     }
 
-//    @Test
-//    fun `verify getCategoriesFromModelResponses() returns correct list of categories`() {
-//        val testResponse = arrayListOf<ModelResponse>()
-//        testResponse.add(ModelResponse(arrayListOf(),"category1","backgroundImage1"))
-//        testResponse.add(ModelResponse(arrayListOf(),"category2","backgroundImage2"))
-//
-//        val expected = 2
-//
-//        val actual = model.
-//    }
+    @Test
+    fun `assert loadModelsByCat() sets modelLiveData to mainStateLoading on call`() {
+
+        val testCat = "testCat"
+        val expected = MainState.Loading
+
+        whenever(repository.getModelsByCat(testCat))
+                .thenReturn(Single.never())
+
+        model.loadModelsByCat(testCat)
+
+        val actual = model.getModelLiveData().value
+
+        assertNotNull(actual)
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `assert loadModelsByCat() sets modelLiveData to mainStateError on error`() {
+
+        val testCat = "testCat"
+        val expected = MainState.Error
+
+        whenever(repository.getModelsByCat(testCat))
+                .thenReturn(Single.error(Throwable()))
+
+        model.loadModelsByCat(testCat)
+
+        val actual = model.getModelLiveData().value
+
+        assertNotNull(actual)
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `assert loadModelsByCat() sets modelLiveData to mainStateSuccess on complete`() {
+        val testCat = "testCat"
+        val testList = arrayListOf<Model>()
+        testList.add(Model(testCat, "test1", "image1"))
+
+        val expected = MainState.Success.OnModelsLoaded(testList)
+
+        whenever(repository.getModelsByCat(testCat))
+                .thenReturn(Single.just(testList))
+
+        model.loadModelsByCat(testCat)
+
+        val actual = model.getModelLiveData().value
+
+        assertNotNull(actual)
+        assertEquals(expected, actual)
+
+        val state = actual as MainState.Success.OnModelsLoaded
+        val stateVal = state.models
+
+        assertTrue(stateVal[0].category == testCat)
+    }
+
 }
