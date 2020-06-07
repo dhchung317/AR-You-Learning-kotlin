@@ -11,6 +11,7 @@ import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.data.MainRepositoryImpl
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.hyunki.aryoulearning2.data.ArState
+import com.hyunki.aryoulearning2.data.MainRepository
 import io.reactivex.Observable
 import io.reactivex.Single
 
@@ -25,7 +26,7 @@ import io.reactivex.rxkotlin.toMap
 import io.reactivex.schedulers.Schedulers
 
 class ArViewModel @Inject
-constructor(private val application: Application, private val mainRepositoryImpl: MainRepositoryImpl) : ViewModel() {
+constructor(private val application: Application, private val mainRepositoryImpl: MainRepository) : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
 
     private val modelLiveData = MutableLiveData<ArState>()
