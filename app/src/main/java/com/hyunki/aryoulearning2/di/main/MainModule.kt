@@ -25,4 +25,6 @@ class MainModule {
     fun provideLottieHelper(): LottieHelper {
         return LottieHelper()
     }
+
+
 }

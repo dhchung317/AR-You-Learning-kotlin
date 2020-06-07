@@ -1,6 +1,10 @@
 package com.hyunki.aryoulearning2.di
 
 import android.app.Application
+import com.hyunki.aryoulearning2.data.MainRepository
+import com.hyunki.aryoulearning2.data.MainRepositoryImpl
+import com.hyunki.aryoulearning2.data.db.dao.CategoryDao
+import com.hyunki.aryoulearning2.data.db.dao.ModelDao
 import com.hyunki.aryoulearning2.data.network.main.MainApi
 import com.hyunki.aryoulearning2.util.Constants
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
@@ -34,6 +38,12 @@ class AppModule {
     @Singleton
     fun providePronunciationUtil(application: Application): PronunciationUtil {
         return PronunciationUtil(application.baseContext)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMainRepository(modelDao: ModelDao, categoryDao: CategoryDao, mainApi: MainApi): MainRepository {
+        return MainRepositoryImpl(modelDao, categoryDao, mainApi)
     }
 
 }

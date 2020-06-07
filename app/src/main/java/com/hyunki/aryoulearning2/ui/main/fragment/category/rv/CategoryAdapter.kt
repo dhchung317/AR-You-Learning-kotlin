@@ -1,6 +1,5 @@
 package com.hyunki.aryoulearning2.ui.main.fragment.category.rv
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -39,5 +38,4 @@ class CategoryAdapter(private val fListener: FragmentListener) : RecyclerView.Ad
         this.categories = categories
         notifyDataSetChanged()
     }
-
 }

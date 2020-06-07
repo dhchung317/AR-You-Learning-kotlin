@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.hyunki.aryoulearning2.data.MainRepository
 import com.hyunki.aryoulearning2.data.MainRepositoryImpl
 import com.hyunki.aryoulearning2.data.MainState
 import com.hyunki.aryoulearning2.data.db.model.Category
@@ -18,7 +19,7 @@ import java.util.*
 import javax.inject.Inject
 
 class MainViewModel @Inject
-internal constructor(private val mainRepositoryImpl: MainRepositoryImpl) : ViewModel() {
+internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
 
     private val modelResponsesData = MutableLiveData<MainState>()
@@ -108,7 +109,7 @@ internal constructor(private val mainRepositoryImpl: MainRepositoryImpl) : ViewM
     }
 
     private fun onError(throwable: Throwable) {
-        Log.d("MainViewModel", throwable.message)
+//        Log.d("MainViewModel", throwable.message)
     }
 
     private fun onModelsFetched(models: List<Model>) {
