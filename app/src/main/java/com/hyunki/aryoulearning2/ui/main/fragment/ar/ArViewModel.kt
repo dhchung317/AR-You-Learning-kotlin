@@ -73,9 +73,9 @@ constructor(private val application: Application, private val mainRepositoryImpl
         compositeDisposable.add(modelDisposable)
     }
 
-    fun loadListMapsOfFutureModels(modelList: List<Model>) {
+    fun loadListofMapsOfFutureModels(modelList: Single<List<Model>>) {
         futureModelMapListLiveData.value = ArState.Loading
-        val listDisposable = Single.just(modelList)
+        val listDisposable = modelList
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flattenAsObservable { it }
@@ -96,9 +96,10 @@ constructor(private val application: Application, private val mainRepositoryImpl
         compositeDisposable.add(listDisposable)
     }
 
-    fun loadMapOfFutureLetters(futureMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>) {
-        futureModelMapListLiveData.value = ArState.Loading
-        val futureModelMapDisposable = Observable.just(futureMapList)
+    fun loadMapOfFutureLetters(futureMapList: Observable<List<MutableMap<String, CompletableFuture<ModelRenderable>>>>) {
+        futureLetterMapLiveData.value = ArState.Loading
+
+        val futureModelMapDisposable = futureMapList
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMapIterable { it }
@@ -123,17 +124,18 @@ constructor(private val application: Application, private val mainRepositoryImpl
                 .subscribeBy(
                         onSuccess = { this.onFutureLetterMapLoaded(it) },
                         onError = { error ->
-                            futureModelMapListLiveData.value = ArState.Error
+                            futureLetterMapLiveData.value = ArState.Error
                             onError(error)
                         }
                 )
         compositeDisposable.add(futureModelMapDisposable)
     }
 
-    fun loadLetterRenderables(futureLetterMap: MutableMap<String, CompletableFuture<ModelRenderable>>) {
-        val lettersCount = futureLetterMap.size
+    //TODO test what rxOperator count returns
+    fun loadLetterRenderables(futureLetterMap: Observable<MutableMap<String, CompletableFuture<ModelRenderable>>>) {
+        val lettersCount = futureLetterMap.count()
         letterMapLiveData.value = ArState.Loading
-        val futureLetterMapDisposable = Observable.just(futureLetterMap)
+        val futureLetterMapDisposable = futureLetterMap
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMapSingle {
@@ -141,8 +143,7 @@ constructor(private val application: Application, private val mainRepositoryImpl
                     for (e in it) {
                         CompletableFuture.allOf(e.value).thenAccept {
                             m[e.key] = e.value.get()
-                            if (m.size == lettersCount) {
-
+                            if (m.size == lettersCount.blockingGet().toInt()) {
                                 isLettersLoaded = true
                             }
                         }
@@ -158,10 +159,10 @@ constructor(private val application: Application, private val mainRepositoryImpl
         compositeDisposable.add(futureLetterMapDisposable)
     }
 
-    fun loadModelRenderables(futureModelMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>) {
-        val modelsCount = futureModelMapList.size
+    fun loadModelRenderables(futureModelMapList: Observable<List<MutableMap<String, CompletableFuture<ModelRenderable>>>>) {
+        val modelsCount = futureModelMapList.count()
         modelMapListLiveData.value = ArState.Loading
-        val modelMapListDisposable = Observable.just(futureModelMapList)
+        val modelMapListDisposable = futureModelMapList
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap {
@@ -172,7 +173,7 @@ constructor(private val application: Application, private val mainRepositoryImpl
                             CompletableFuture.allOf(e.value).thenAccept {
                                 map[e.key] = e.value.get()
                                 list.add(map)
-                                if (list.size == modelsCount) {
+                                if (list.size == modelsCount.blockingGet().toInt()) {
                                     isModelsLoaded = true
                                 }
                             }
@@ -218,7 +219,7 @@ constructor(private val application: Application, private val mainRepositoryImpl
     }
 
     private fun onError(throwable: Throwable) {
-        Log.d(TAG, throwable.message)
+//        Log.d(TAG, throwable.message)
     }
 
     companion object {

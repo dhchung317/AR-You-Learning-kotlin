@@ -34,6 +34,8 @@ import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ModelUtil
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
+import io.reactivex.Observable.just
+import io.reactivex.Single
 import java.util.*
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -325,7 +327,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             is ArState.Error -> showProgressBar(false)
             is ArState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
-                arViewModel.loadListMapsOfFutureModels(state.models)
+                arViewModel.loadListofMapsOfFutureModels(Single.just(state.models))
             }
         }
     }
@@ -336,8 +338,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             is ArState.Error -> showProgressBar(false)
             is ArState.Success.OnFutureModelMapListLoaded -> {
                 showProgressBar(false)
-                arViewModel.loadMapOfFutureLetters(state.futureModelMapList)
-                arViewModel.loadModelRenderables(state.futureModelMapList)
+                arViewModel.loadMapOfFutureLetters(just(state.futureModelMapList))
+                arViewModel.loadModelRenderables(just(state.futureModelMapList))
             }
         }
     }
@@ -348,7 +350,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             is ArState.Error -> showProgressBar(false)
             is ArState.Success.OnFutureLetterMapLoaded -> {
                 showProgressBar(false)
-                arViewModel.loadLetterRenderables(state.futureLetterMap)
+                arViewModel.loadLetterRenderables(just(state.futureLetterMap))
             }
         }
     }
