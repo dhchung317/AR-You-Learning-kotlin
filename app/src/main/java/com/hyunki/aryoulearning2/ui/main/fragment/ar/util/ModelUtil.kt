@@ -14,6 +14,7 @@ import com.google.ar.sceneform.ux.TransformableNode
 import java.util.HashSet
 import java.util.Random
 
+//TODO refactor class to make testing easier
 object ModelUtil {
 
     private val r = Random()

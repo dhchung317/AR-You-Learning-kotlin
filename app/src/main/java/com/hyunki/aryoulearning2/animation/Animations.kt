@@ -14,9 +14,7 @@ import com.google.ar.sceneform.math.Vector3Evaluator
 import com.hyunki.aryoulearning2.R
 
 class Animations {
-
     class AR {
-
         fun createRotationAnimator(): ObjectAnimator {
             val orientation1 = Quaternion.axisAngle(Vector3(0.0f, 1.0f, 0.0f), 0f)
             val orientation2 = Quaternion.axisAngle(Vector3(0.0f, 1.0f, 0.0f), 120f)

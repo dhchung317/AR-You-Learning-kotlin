@@ -40,7 +40,6 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
-//TODO-figure out bounce/float animation
 class ArHostFragment @Inject
 constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), GameCommandListener {
     @Inject
