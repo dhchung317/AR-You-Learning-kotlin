@@ -74,29 +74,30 @@ object ModelUtil {
         }
 
         val base = AnchorNode(anchor)
-        val trNode = setUpTrNodeAndReturn(arFragment,renderable,base)
-        trNode.localPosition = getRandomUniqueCoordinates(parent.localPosition)
+        val trNode = setUpTrNodeAndReturn(arFragment,renderable,parent)
+        trNode.setParent(base)
         return base
     }
 
-    private fun setUpTrNodeAndReturn(arFragment: ArFragment, renderable: ModelRenderable?, base: AnchorNode): TransformableNode {
+    private fun setUpTrNodeAndReturn(arFragment: ArFragment, renderable: ModelRenderable?, parent: Node): TransformableNode {
         val trNode = TransformableNode(arFragment.transformationSystem)
-        trNode.renderable = renderable
-        trNode.setParent(base)
 
-        setTrNodeLookAndScale(trNode)
+        return trNode.apply {
+            this.renderable = renderable
+            this.localPosition = getRandomUniqueCoordinates(parent.localPosition)
+        }.let {
+            setTrNodeLookAndScale(it)
+            animateTrNode(it)
+        }
+    }
 
-        animateTrNode(trNode)
-
+    private fun setTrNodeLookAndScale(trNode: TransformableNode): TransformableNode{
+        trNode.setLookDirection(Vector3(0f, 0f, getRandom(4, 0).toFloat()))
+        trNode.localScale = Vector3(1.0f, getRandom(10, 0) * .1f, 1.0f)
         return trNode
     }
 
-    private fun setTrNodeLookAndScale(trNode: TransformableNode){
-        trNode.setLookDirection(Vector3(0f, 0f, getRandom(4, 0).toFloat()))
-        trNode.localScale = Vector3(1.0f, getRandom(10, 0) * .1f, 1.0f)
-    }
-
-    private fun animateTrNode(trNode: TransformableNode){
+    private fun animateTrNode(trNode: TransformableNode): TransformableNode{
         val floating = Animations.AR().createFloatAnimator(trNode)
         val rotate = Animations.AR().createRotationAnimator()
         rotate.target = trNode
@@ -106,6 +107,8 @@ object ModelUtil {
         floating.target = trNode
         floating.duration = getRandom(2500, 2000).toLong()
         floating.start()
+
+        return trNode
     }
 
     private fun getRandomUniqueCoordinates( checkAgainstTheseCoordinates: Vector3): Vector3{
@@ -114,7 +117,6 @@ object ModelUtil {
         while (checkDoesLetterCollide(coordinates, checkAgainstTheseCoordinates)) {
             coordinates = randomCoordinates
         }
-
         return coordinates
     }
 
