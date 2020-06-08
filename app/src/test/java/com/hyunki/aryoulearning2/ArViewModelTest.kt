@@ -47,12 +47,7 @@ class ArViewModelTest {
         model = ArViewModel(application, repository)
     }
 
-    private fun createObserver(): Observer<ArState> = spy(Observer { })
-
-//    @Test
-//    fun testVM() {
-//        model.getFutureLetterMapLiveData()
-//    }
+    private fun createObserverSpy(): Observer<ArState> = spy(Observer { })
 
     @Test
     fun `assert fetchModelsFromRepository() sets modelLiveData to arStateLoading on call`() {
@@ -135,7 +130,7 @@ class ArViewModelTest {
     fun `assert loadListOfMapsOfFutureModels() sets futureModelMapListLiveData to arStateLoading on call before complete`() {
         val expected = ArState.Loading
 
-        val mockObserver = this.createObserver()
+        val mockObserver = this.createObserverSpy()
 
         model.getFutureModelMapListLiveData().observeForever(mockObserver)
 
@@ -146,11 +141,13 @@ class ArViewModelTest {
         })
     }
 
+    //TODO test loadlistofmapsotfuturemodels for success case and test for correct/incorrect values
+
     @Test
     fun `assert loadListOfMapsOfFutureModels() sets futureModelMapListLiveData to arStateError on error`() {
         val expected = ArState.Error
 
-        val mockObserver = this.createObserver()
+        val mockObserver = this.createObserverSpy()
 
         model.getFutureModelMapListLiveData().observeForever(mockObserver)
 
@@ -168,31 +165,13 @@ class ArViewModelTest {
     fun `assert loadMapOfFutureLetters() sets futureModelMapListLiveData to arStateLoading on call before complete`() {
         val expected = ArState.Loading
 
-        val mockObserver = this.createObserver()
+        val mockObserver = this.createObserverSpy()
 
         model.getFutureLetterMapLiveData().observeForever(mockObserver)
 
         model.loadMapOfFutureLetters(Observable.never())
 
         verify(mockObserver).onChanged(check {
-            assertEquals(expected, it)
-        })
-    }
-
-    @Test
-    fun `assert loadMapOfFutureLetters() sets futureModelMapListLiveData to arStateLoading on error`() {
-        val expected = ArState.Error
-
-        val mockObserver = this.createObserver()
-
-        model.getFutureLetterMapLiveData().observeForever(mockObserver)
-
-        val inOrder = inOrder(mockObserver)
-
-        model.loadMapOfFutureLetters(Observable.error(Throwable()))
-
-        inOrder.verify(mockObserver).onChanged(ArState.Loading)
-        inOrder.verify(mockObserver).onChanged(check {
             assertEquals(expected, it)
         })
     }
@@ -212,7 +191,7 @@ class ArViewModelTest {
         map2["def"] = mockFutureModel
         mapList.add(map2)
 
-        val mockObserver = this.createObserver()
+        val mockObserver = this.createObserverSpy()
         model.getFutureLetterMapLiveData().observeForever(mockObserver)
         val inOrder = inOrder(mockObserver)
 
@@ -230,31 +209,45 @@ class ArViewModelTest {
     }
 
     @Test
-    fun `assert loadLetterRenderables() sets letterMapLiveData to arStateLoading on call before complete`() {
-        val expected = ArState.Loading
+    fun `assert loadMapOfFutureLetters() sets futureModelMapListLiveData to arStateLoading on error`() {
+        val expected = ArState.Error
 
-//        val map = mutableMapOf<String, CompletableFuture<ModelRenderable>>()
-//        val mockFutureModel = mock<CompletableFuture<ModelRenderable>>()
-//        map["a"] = mockFutureModel
+        val mockObserver = this.createObserverSpy()
 
-        val mockObserver = this.createObserver()
-        model.getLetterMapLiveData().observeForever(mockObserver)
+        model.getFutureLetterMapLiveData().observeForever(mockObserver)
 
-//        val inOrder = inOrder(mockObserver)
+        val inOrder = inOrder(mockObserver)
 
-        model.loadLetterRenderables(Observable.never())
+        model.loadMapOfFutureLetters(Observable.error(Throwable()))
 
-//        inOrder.verify(mockObserver).onChanged(expected)
-        verify(mockObserver).onChanged(check {
+        inOrder.verify(mockObserver).onChanged(ArState.Loading)
+        inOrder.verify(mockObserver).onChanged(check {
             assertEquals(expected, it)
         })
     }
 
     @Test
+    fun `assert loadLetterRenderables() sets letterMapLiveData to arStateLoading on call before complete`() {
+        val expected = ArState.Loading
+
+        val mockObserver = this.createObserverSpy()
+
+        model.getLetterMapLiveData().observeForever(mockObserver)
+
+        model.loadLetterRenderables(Observable.never())
+
+        verify(mockObserver).onChanged(check {
+            assertEquals(expected, it)
+        })
+    }
+
+    //TODO test loadletterrenderables success case and test for correct/incorrect values
+
+    @Test
     fun `assert loadLetterRenderables() sets letterMapLiveData to arStateError on error`() {
         val expected = ArState.Error
 
-        val mockObserver = this.createObserver()
+        val mockObserver = this.createObserverSpy()
         model.getLetterMapLiveData().observeForever(mockObserver)
 
         val inOrder = inOrder(mockObserver)

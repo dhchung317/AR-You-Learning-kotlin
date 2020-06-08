@@ -445,7 +445,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private fun placeSingleLetter(letter: String) {
         val letterAnchorNode = ModelUtil.getLetter(base, letterMap[letter], arFragment)
+
         letterAnchorNode.children[0].setOnTapListener(getNodeOnTapListener(letter, letterAnchorNode))
+
         Log.d("arx", "tryPlaceGame: " + letterMap[letter]!!)
         connectAnchorToBase(letterAnchorNode)
     }
