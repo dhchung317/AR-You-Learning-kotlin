@@ -183,7 +183,7 @@ constructor(private val application: Application, private val mainRepositoryImpl
                 .subscribeBy(
                         onNext = { this.onModelRenderableMapListLoaded(it) },
                         onError = { error ->
-                            futureModelMapListLiveData.value = ArState.Error
+                            modelMapListLiveData.value = ArState.Error
                             onError(error)
                         })
         compositeDisposable.add(modelMapListDisposable)
