@@ -112,7 +112,6 @@ class GameManagerTest {
         assertEquals(expected, actual)
     }
 
-
     @Test
     fun `assert that addTappedLetterToCurrentWordAttempt() adds a wrong attempt to currentWord when attempt is incorrect`() {
         gameManager = GameManager(testKeys, gameCommandListener, navListener)

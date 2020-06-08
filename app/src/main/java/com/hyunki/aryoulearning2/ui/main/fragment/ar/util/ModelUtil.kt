@@ -15,7 +15,12 @@ import java.util.HashSet
 import java.util.Random
 
 //TODO refactor class to make testing easier
-object ModelUtil {
+class ModelUtil {
+    companion object Factory {
+        const val xRange = 2
+        const val yRange = 2
+        const val zRange = 3
+    }
 
     private val r = Random()
     private val collisionSet = HashSet<Vector3>()
@@ -24,6 +29,10 @@ object ModelUtil {
         get() = Vector3(getRandom(5, -5).toFloat(),
                 getRandom(2, -6).toFloat(),
                 getRandom(-2, -10).toFloat())
+
+    private fun getRandom(max: Int, min: Int): Int {
+        return r.nextInt(max - min) + min
+    }
 
     fun getGameAnchor(model: ModelRenderable): Node {
         val base = Node()
@@ -107,32 +116,27 @@ object ModelUtil {
         return base
     }
 
-    private fun getRandom(max: Int, min: Int): Int {
-        return r.nextInt(max - min) + min
-    }
+    fun checkDoesLetterCollide(newV3: Vector3, parentModel: Vector3): Boolean {
 
-    private fun checkDoesLetterCollide(newV3: Vector3, parentModel: Vector3): Boolean {
+        if ((newV3.x <= parentModel.x + xRange && newV3.x >= parentModel.x - xRange || newV3.x == parentModel.x)
+                && (newV3.y <= parentModel.y + yRange && newV3.y >= parentModel.y - yRange || newV3.y == parentModel.y)
+                && (newV3.z <= parentModel.z + zRange && newV3.z >= parentModel.z - zRange || newV3.z == parentModel.z)) {
+            return true
+        }
 
         if (collisionSet.isEmpty()) {
             collisionSet.add(newV3)
             return false
         }
-
-        if (newV3.x < parentModel.x + 2 && newV3.x > parentModel.x - 2
-                && newV3.y < parentModel.y + 2 && newV3.y > parentModel.y - 2
-                && newV3.z < parentModel.z + 3 && newV3.z > parentModel.z - 3) {
-            return true
-        }
-
+        //if the coordinates are within a range of any existing coordinates
         for (v in collisionSet) {
-            //if the coordinates are within a range of any existing coordinates
-            if (newV3.x < v.x + 2 && newV3.x > v.x - 2
-                    && newV3.y < v.y + 2 && newV3.y > v.y - 2
-                    && newV3.z < v.z + 3 && newV3.z > v.z - 3) {
-                return true
+            return if ((newV3.x <= v.x + xRange && newV3.x >= v.x - xRange || newV3.x == v.x)
+                    && (newV3.y <= v.y + yRange && newV3.y >= v.y - yRange || newV3.y == v.y)
+                    && (newV3.z <= v.z + zRange && newV3.z >= v.z - zRange|| newV3.z == v.z)) {
+                true
             } else {
                 collisionSet.add(newV3)
-                return false
+                false
             }
         }
         return true
@@ -141,4 +145,6 @@ object ModelUtil {
     fun refreshCollisionSet() {
         collisionSet.clear()
     }
+
+
 }

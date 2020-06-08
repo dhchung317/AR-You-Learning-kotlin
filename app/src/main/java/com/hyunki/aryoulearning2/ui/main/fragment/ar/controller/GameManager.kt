@@ -19,9 +19,9 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
         private set
     var attempt: String = ""
         private set
+    var modelUtil: ModelUtil = ModelUtil()
 
     init {
-
         while (keyStack.size < roundLimit && keyStack.size < modelMapKeys.size) {
             val ran = getRandom(modelMapKeys.size, 0)
             if (!keyStack.contains(modelMapKeys[ran])) {
@@ -77,7 +77,7 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
         if (currentWord.answer != key) {
             currentWord = CurrentWord(key)
         }
-        ModelUtil.refreshCollisionSet()
+        modelUtil.refreshCollisionSet()
         attempt = ""
     }
 

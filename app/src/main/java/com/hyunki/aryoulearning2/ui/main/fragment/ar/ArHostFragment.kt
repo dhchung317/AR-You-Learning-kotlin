@@ -47,6 +47,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     @Inject
     lateinit var lottieHelper: LottieHelper
 
+    lateinit var modelUtil: ModelUtil
+
     private lateinit var progressBar: ProgressBar
 
     private lateinit var arViewModel: ArViewModel
@@ -283,6 +285,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 mainAnchorNode!!.setParent(arFragment.arSceneView.scene)
                 //                    Node gameSystem = createGame(modelMapListLiveData.get(0));
                 gameManager = GameManager(getKeysFromModelMapList(modelMapList), this, listener)
+                modelUtil = gameManager.modelUtil
                 Log.d("arhostfrag", "tryPlaceGame: " + modelMapList.size)
                 val modelKey = gameManager.getCurrentWordAnswer()
                 wordCardView.visibility = View.VISIBLE
@@ -420,7 +423,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 //    }
 
     private fun createSingleGame(mainModel: ModelRenderable, name: String) {
-        base = ModelUtil.getGameAnchor(mainModel)
+        base = modelUtil.getGameAnchor(mainModel)
         mainAnchorNode?.addChild(base)
         placeLetters(name)
     }
@@ -443,7 +446,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun placeSingleLetter(letter: String) {
-        val letterAnchorNode = ModelUtil.getLetter(base, letterMap[letter], arFragment)
+        val letterAnchorNode = modelUtil.getLetter(base, letterMap[letter], arFragment)
         letterAnchorNode.children[0].setOnTapListener(getNodeOnTapListener(letter, letterAnchorNode))
         Log.d("arx", "tryPlaceGame: " + letterMap[letter]!!)
         connectAnchorToBase(letterAnchorNode)

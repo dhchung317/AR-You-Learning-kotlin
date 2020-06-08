@@ -20,11 +20,13 @@ class LottieHelper {
 
     fun getAnimationView(context: Context?, type: AnimationType): LottieAnimationView {
         val lav = LottieAnimationView(context)
+        lav.id = type.ordinal
         lav.visibility = View.VISIBLE
         lav.loop(false)
         lav.setAnimation(getType(type))
         lav.scale = 1f
         lav.speed = .8f
+
         return lav
     }
 
