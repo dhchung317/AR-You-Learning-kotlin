@@ -13,7 +13,7 @@ sealed class ArState {
     sealed class Success : ArState() {
 
         data class OnModelsLoaded(
-                val responses: List<Model>
+                val models: List<Model>
         ) : Success()
 
         data class OnFutureModelMapListLoaded(

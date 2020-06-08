@@ -124,6 +124,67 @@ class MainRepositoryImplTest {
     }
 
     @Test
+    fun `assert getModelsByCat() returns size zero when empty`() {
+        val modelDao = mock<ModelDao>()
+        val catDao = spy(db.catDao())
+        val api = mock<MainApi>()
+        val repo = MainRepositoryImpl(modelDao, catDao, api)
+
+        val expected = 0
+
+        val actual = repo.getAllCats().blockingGet().size
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `assert getModelsByCat() returns list of 2 models when 2 models of matching model-category is populated`() {
+        val modelDao = spy(db.modelDao())
+        val catDao = mock<CategoryDao>()
+        val api = mock<MainApi>()
+
+        val testCategory = "testCategory"
+        val notTestCategory = "notTestCategory"
+
+        db.modelDao().insert(Model(testCategory, "testModel1" ,"image1"))
+        db.modelDao().insert(Model(testCategory, "testModel2", "image2"))
+        db.modelDao().insert(Model(notTestCategory, "testModel3", "image3"))
+
+        val repo = MainRepositoryImpl(modelDao, catDao, api)
+
+        val expected = 2
+
+        val actual = repo.getModelsByCat(testCategory).blockingGet().size
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `assert getModelsByCat() returns list of expected category items`() {
+        val modelDao = spy(db.modelDao())
+        val catDao = mock<CategoryDao>()
+        val api = mock<MainApi>()
+
+        val testCategory = "testCategory"
+        val notTestCategory = "notTestCategory"
+
+        db.modelDao().insert(Model(testCategory, "testModel1" ,"image1"))
+        db.modelDao().insert(Model(testCategory, "testModel2", "image2"))
+        db.modelDao().insert(Model(notTestCategory, "testModel3", "image3"))
+
+        val repo = MainRepositoryImpl(modelDao, catDao, api)
+
+        val expected = testCategory
+
+        val models = repo.getModelsByCat(testCategory).blockingGet()
+
+        for(m in models) {
+            val actual = m.category
+            assertEquals(expected, actual)
+        }
+    }
+
+    @Test
     fun `verify insertCat() inserts expected item`() {
         val modelDao = mock<ModelDao>()
         val catDao = mock<CategoryDao>()

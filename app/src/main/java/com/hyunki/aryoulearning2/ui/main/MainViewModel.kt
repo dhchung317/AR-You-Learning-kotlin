@@ -115,10 +115,9 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
     }
 
     private fun onModelResponsesLoaded(modelResponses: ArrayList<ModelResponse>) {
+        modelResponsesData.value = MainState.Success.OnModelResponsesLoaded(modelResponses)
         saveModelResponseDataCategories(getCategoriesToSaveFromModelResponseData(modelResponses))
         saveModelResponseDataModels(getModelsToSaveFromModelResponseData(modelResponses))
-
-        modelResponsesData.value = MainState.Success.OnModelResponsesLoaded(modelResponses)
     }
 
     private fun getCategoriesToSaveFromModelResponseData(modelResponses: ArrayList<ModelResponse>): ArrayList<Category> {
