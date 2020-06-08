@@ -147,7 +147,7 @@ class MainActivity : AppCompatActivity(), NavListener {
                 .addToBackStack(null)
                 .commit()
     }
-    override fun setWordHistoryFromGameFragment(wordHistory: List<CurrentWord>) {
+    override fun saveWordHistoryFromGameFragment(wordHistory: List<CurrentWord>) {
         viewModel.setWordHistory(wordHistory)
     }
 

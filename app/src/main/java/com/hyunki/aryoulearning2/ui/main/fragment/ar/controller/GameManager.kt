@@ -9,15 +9,20 @@ import java.util.Random
 import java.util.Stack
 
 class GameManager(modelMapKeys: List<String>, private val gameCommands: GameCommandListener, private val navListener: NavListener) {
-    private var currentWord: CurrentWord
+    var currentWord: CurrentWord
+        private set
     private val roundLimit = 3
-    private val keyStack = Stack<String>()
-    private val wordHistoryList = ArrayList<CurrentWord>()
+
+    val keyStack = Stack<String>()
+
+    var wordHistoryList = ArrayList<CurrentWord>()
+        private set
     var attempt: String = ""
         private set
 
     init {
-        while (keyStack.size < roundLimit) {
+
+        while (keyStack.size < roundLimit && keyStack.size < modelMapKeys.size) {
             val ran = getRandom(modelMapKeys.size, 0)
             if (!keyStack.contains(modelMapKeys[ran])) {
                 keyStack.add(modelMapKeys[ran])
@@ -27,6 +32,8 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
     }
 
     fun addTappedLetterToCurrentWordAttempt(letter: String) {
+        addLetterToAttempt(letter)
+
         if (attempt.length == getCurrentWordAnswer().length) {
             if (attempt.toLowerCase() != getCurrentWordAnswer().toLowerCase()) {
                 recordWrongAnswer(attempt)
@@ -37,7 +44,7 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
                     startNextGame(keyStack.pop())
                 } else {
                     wordHistoryList.add(currentWord)
-                    navListener.setWordHistoryFromGameFragment(wordHistoryList)
+                    navListener.saveWordHistoryFromGameFragment(wordHistoryList)
                     navListener.moveToReplayFragment()
                 }
             }
@@ -49,7 +56,7 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
         gameCommands.startNextGame(key)
     }
 
-    fun addLetterToAttempt(letter: String) {
+    private fun addLetterToAttempt(letter: String) {
         this.attempt += letter
     }
 
@@ -68,18 +75,18 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
 
     private fun refreshManager(key: String) {
         if (currentWord.answer != key) {
-            setCurrentWord(CurrentWord(key))
+            currentWord = CurrentWord(key)
         }
         ModelUtil.refreshCollisionSet()
         attempt = ""
     }
 
-    private fun setCurrentWord(currentWord: CurrentWord) {
-        this.currentWord = currentWord
+    fun getCurrentWordAnswer(): String {
+        return currentWord.answer
     }
 
-    fun getCurrentWordAnswer(): String{
-        return currentWord.answer
+    fun getKeyCount(): Int {
+        return keyStack.size
     }
 
     companion object {
@@ -87,5 +94,6 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
         private fun getRandom(max: Int, min: Int): Int {
             return r.nextInt(max - min) + min
         }
+
     }
 }

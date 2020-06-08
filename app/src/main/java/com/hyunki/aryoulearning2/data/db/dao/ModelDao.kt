@@ -18,9 +18,6 @@ interface ModelDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(model: Model)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(models: List<Model>)
-
     @Query("DELETE FROM models")
     fun deleteAll()
 

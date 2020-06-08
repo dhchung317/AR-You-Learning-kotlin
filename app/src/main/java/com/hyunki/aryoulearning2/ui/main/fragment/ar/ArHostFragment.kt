@@ -493,7 +493,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private fun getNodeOnTapListener(letterString: String, letterAnchorNode: AnchorNode): Node.OnTapListener {
         return Node.OnTapListener { _, motionEvent ->
             run {
-                gameManager.addLetterToAttempt(letterString)
+//                gameManager.addLetterToAttempt(letterString)
                 lottieHelper.addAnimationViewOnTopOfLetter(
                         getLetterTapAnimation(checkIfTappedLetterIsCorrect(letterString)),
                         (motionEvent.x - 7).roundToInt(),
