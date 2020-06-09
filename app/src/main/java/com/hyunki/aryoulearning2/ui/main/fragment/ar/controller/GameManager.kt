@@ -41,6 +41,7 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
     fun onWordAnswered() {
         if (isWordAnswered()) {
             when (isCorrectAnswer()) {
+
                 true -> {
 //                    onAnswerCorrect()
                     showCard(isCorrect = true)
@@ -49,6 +50,7 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
                 else -> {
 //                    onAnswerIncorrect()
                     showCard(isCorrect = false)
+                    recordWrongAnswer(attempt)
                     //showCard() with incorrect validators
                 }
             }
@@ -74,14 +76,14 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
         }
     }
     private fun onAnswerWasIncorrect() {
-        recordWrongAnswer(attempt)
         startNextGame(currentWord.answerModel)
     }
 
     private fun onAnswerWasCorrect() {
+        wordHistoryList.add(currentWord)
         when (areGamesLeft()) {
-            true -> whenGamesLeft()
-            else -> whenGamesOver()
+            true -> onGamesLeft()
+            else -> onGamesOver()
         }
     }
 
@@ -89,13 +91,11 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
         return keyStack.size > 0
     }
 
-    private fun whenGamesLeft() {
-        wordHistoryList.add(currentWord)
+    private fun onGamesLeft() {
         startNextGame(keyStack.pop())
     }
 
-    private fun whenGamesOver() {
-        wordHistoryList.add(currentWord)
+    private fun onGamesOver() {
         navListener.saveWordHistoryFromGameFragment(wordHistoryList)
         navListener.moveToReplayFragment()
     }
