@@ -17,7 +17,7 @@ import com.nhaarman.mockitokotlin2.*
 import io.reactivex.Observable
 import org.apache.tools.ant.Main
 import org.junit.After
-import org.junit.Assert.assertEquals
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -85,8 +85,8 @@ class MainRepositoryImplTest {
         val api = mock<MainApi>()
 
         val response = ArrayList<ModelResponse>()
-        response.add(ModelResponse(arrayListOf(),"category1","backgroundImage1"))
-        response.add(ModelResponse(arrayListOf(),"category2","backgroundImage2"))
+        response.add(ModelResponse(arrayListOf(), "category1", "backgroundImage1"))
+        response.add(ModelResponse(arrayListOf(), "category2", "backgroundImage2"))
 
         whenever(api.getModels())
                 .thenReturn(Observable.just(response))
@@ -143,7 +143,7 @@ class MainRepositoryImplTest {
         val testCategory = "testCategory"
         val notTestCategory = "notTestCategory"
 
-        db.modelDao().insert(Model(testCategory, "testModel1" ,"image1"))
+        db.modelDao().insert(Model(testCategory, "testModel1", "image1"))
         db.modelDao().insert(Model(testCategory, "testModel2", "image2"))
         db.modelDao().insert(Model(notTestCategory, "testModel3", "image3"))
 
@@ -165,7 +165,7 @@ class MainRepositoryImplTest {
         val testCategory = "testCategory"
         val notTestCategory = "notTestCategory"
 
-        db.modelDao().insert(Model(testCategory, "testModel1" ,"image1"))
+        db.modelDao().insert(Model(testCategory, "testModel1", "image1"))
         db.modelDao().insert(Model(testCategory, "testModel2", "image2"))
         db.modelDao().insert(Model(notTestCategory, "testModel3", "image3"))
 
@@ -175,7 +175,7 @@ class MainRepositoryImplTest {
 
         val models = repo.getModelsByCat(testCategory).blockingGet()
 
-        for(m in models) {
+        for (m in models) {
             val actual = m.category
             assertEquals(expected, actual)
         }
@@ -218,6 +218,50 @@ class MainRepositoryImplTest {
                     assertEquals(expected, firstValue)
                 }
     }
+
+    @Test
+    fun `verify clearEntireDatabase() runs dao deleteAll()`() {
+        val modelDao = spy(db.modelDao())
+        val catDao = spy(db.catDao())
+        val api = mock<MainApi>()
+
+        val repo = MainRepositoryImpl(modelDao, catDao, api)
+
+        repo.clearEntireDatabase()
+
+        verify(catDao).deleteAll()
+        verify(modelDao).deleteAll()
+    }
+
+    @Test
+    fun `verify db is empty after adding items and calling clearEntireDatabase()`() {
+        val modelDao = spy(db.modelDao())
+        val catDao = spy(db.catDao())
+        val api = mock<MainApi>()
+
+        val repo = MainRepositoryImpl(modelDao, catDao, api)
+
+        val testCategory = "category1"
+
+        db.modelDao().insert(Model(testCategory, "testModel1", "image1"))
+        db.catDao().insert(Category("category1", "image1"))
+
+        assertNotNull(db.modelDao().getModelsByCat(testCategory))
+        assertNotNull(db.catDao().allCategories)
+
+        assertEquals(1, db.modelDao().getModelsByCat(testCategory).blockingGet().size)
+        assertEquals(1, db.catDao().allCategories.blockingGet().size)
+
+        repo.clearEntireDatabase()
+
+        verify(catDao).deleteAll()
+        verify(modelDao).deleteAll()
+
+        val expected = 0
+        assertEquals(expected, db.modelDao().getModelsByCat(testCategory).blockingGet().size)
+        assertEquals(expected, db.catDao().allCategories.blockingGet().size)
+    }
+
 
     @After
     fun teardown() {
