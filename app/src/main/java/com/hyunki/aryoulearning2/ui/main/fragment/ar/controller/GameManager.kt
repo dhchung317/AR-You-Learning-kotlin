@@ -29,30 +29,57 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
         this.currentWord = CurrentWord(keyStack.pop())
     }
 
-    fun addTappedLetterToCurrentWordAttempt(letter: String): Boolean {
+    fun addTappedLetterToCurrentWordAttempt(letter: String) {
         addLetterToAttempt(letter)
-        val isCorrect = checkIfTappedLetterIsCorrect(letter)
-//TODO logic would benefit from some sort of livedata/observable/listener implementation
-//TODO factor out need for lowercase checks
-        if (attempt.length == getCurrentWordAnswer().length) {
-            if (attempt != getCurrentWordAnswer()) {
-                recordWrongAnswer(attempt)
-                startNextGame(currentWord.answer)
-            } else {
-                if (keyStack.size > 0) {
-                    wordHistoryList.add(currentWord)
-                    startNextGame(keyStack.pop())
-                } else {
-                    wordHistoryList.add(currentWord)
-                    navListener.saveWordHistoryFromGameFragment(wordHistoryList)
-                    navListener.moveToReplayFragment()
-                }
-            }
-        }
-        return isCorrect
+        onWordAnswered()
     }
 
-    private fun checkIfTappedLetterIsCorrect(tappedLetter: String): Boolean {
+    private fun onWordAnswered() {
+        if (isWordAnswered()) {
+            when (isCorrectAnswer()) {
+                true -> onAnswerCorrect()
+                else -> onAnswerIncorrect()
+            }
+        }
+    }
+
+
+    private fun isWordAnswered(): Boolean {
+        return attempt.length == currentWord.answer.length
+    }
+
+    private fun isCorrectAnswer(): Boolean {
+        return attempt == getCurrentWordAnswer()
+    }
+
+    private fun onAnswerIncorrect() {
+        recordWrongAnswer(attempt)
+        startNextGame(currentWord.answer)
+    }
+
+    private fun onAnswerCorrect() {
+        when (areGamesLeft()) {
+            true -> whenGamesLeft()
+            else -> whenGamesOver()
+        }
+    }
+
+    private fun areGamesLeft(): Boolean {
+        return keyStack.size > 0
+    }
+
+    private fun whenGamesLeft() {
+        wordHistoryList.add(currentWord)
+        startNextGame(keyStack.pop())
+    }
+
+    private fun whenGamesOver() {
+        wordHistoryList.add(currentWord)
+        navListener.saveWordHistoryFromGameFragment(wordHistoryList)
+        navListener.moveToReplayFragment()
+    }
+
+    fun checkIfTappedLetterIsCorrect(tappedLetter: String): Boolean {
         val correctLetter =
                 getCurrentWordAnswer()[attempt.length - 1].toString()
         return tappedLetter == correctLetter

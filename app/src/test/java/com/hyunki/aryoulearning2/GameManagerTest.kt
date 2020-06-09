@@ -7,6 +7,7 @@ import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
 import java.util.*
@@ -176,8 +177,28 @@ class GameManagerTest {
         gameManager.addTappedLetterToCurrentWordAttempt(answer[0].toString())
         gameManager.addTappedLetterToCurrentWordAttempt(answer[1].toString())
         gameManager.addTappedLetterToCurrentWordAttempt(answer[2].toString())
+//        gameManager.onWordAnswered()
 
         val actual = answer == gameManager.getCurrentWordAnswer()
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `assert that when addTappedLetterToCurrentWordAttempt() loads a new word attempt is empty`() {
+        val keys = arrayListOf("cat", "bat")
+        gameManager = GameManager(keys, gameCommandListener, navListener)
+
+        val initialAnswer = gameManager.getCurrentWordAnswer()
+
+        gameManager.addTappedLetterToCurrentWordAttempt(initialAnswer[0].toString())
+        gameManager.addTappedLetterToCurrentWordAttempt(initialAnswer[1].toString())
+        gameManager.addTappedLetterToCurrentWordAttempt(initialAnswer[2].toString())
+
+        assertFalse(initialAnswer == gameManager.currentWord.answer)
+
+        val expected = ""
+        val actual = gameManager.attempt
 
         assertEquals(expected, actual)
     }
