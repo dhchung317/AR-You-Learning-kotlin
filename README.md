@@ -1,7 +1,8 @@
-# AR you learning 2
-Refactor of original project
+# AR you learning 2 - kotlin
+kotlin refactor of original project
 
-Goals will be to incorporate the most recent libraries and best pratices
+Goals will be to learn and apply kotlin, unit testing, rx and di while refactoring code and playing around with architecture
+
 ## Current Libraries:
 * Androidx
 * RxJava2
@@ -12,6 +13,7 @@ Goals will be to incorporate the most recent libraries and best pratices
 * ARCore
 * Sceneform
 * Lottie
+* Mockito
 
 Original description below:
 
