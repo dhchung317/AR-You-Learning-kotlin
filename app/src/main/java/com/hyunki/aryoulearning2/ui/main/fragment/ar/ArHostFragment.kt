@@ -178,7 +178,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         //        setAnimations();
     }
 
-//TODO fix/refactor validator cards that show results for every round
+    //TODO fix/refactor validator cards that show results for every round
     private fun initViews(view: View) {
         wordCardView = view.findViewById(R.id.card_wordContainer)
         wordContainer = view.findViewById(R.id.word_container)
@@ -214,6 +214,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                         onSingleTap(e)
                         return true
                     }
+
                     override fun onDown(e: MotionEvent): Boolean {
                         onSingleTap(e)
                         return true
@@ -467,12 +468,15 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun getLetterTapAnimation(isCorrect: Boolean): LottieAnimationView {
-        return if (isCorrect) {
-            lottieHelper.getAnimationView(
-                    activity, LottieHelper.AnimationType.SPARKLES)
-        } else {
-            lottieHelper.getAnimationView(
-                    activity, LottieHelper.AnimationType.ERROR)
+        return when (isCorrect) {
+            true -> {
+                lottieHelper.getAnimationView(activity,
+                        LottieHelper.AnimationType.SPARKLES)
+            }
+            else -> {
+                lottieHelper.getAnimationView(activity,
+                        LottieHelper.AnimationType.ERROR)
+            }
         }
     }
 
@@ -538,6 +542,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                         it, arrayOf(Manifest.permission.CAMERA), requestCode)
             }
         }
+
         const val REQUEST_KEY = "get-current-category"
         const val KEY_ID = "current-category"
     }
