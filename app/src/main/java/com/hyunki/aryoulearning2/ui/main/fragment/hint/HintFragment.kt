@@ -124,6 +124,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
             //                okButton2.setOnClickListener(v11 -> {
             //                    constraintLayout.removeView(stayAlert);
             listener.moveToGameFragment()
+
             //                });
             //            });
         }

@@ -32,12 +32,14 @@ import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.animation.Animations
 import com.hyunki.aryoulearning2.animation.LottieHelper
 import com.hyunki.aryoulearning2.data.ArState
+import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameCommandListener
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameManager
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ModelUtil
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
+import com.squareup.picasso.Picasso
 import io.reactivex.Observable
 import io.reactivex.Single
 import java.util.*
@@ -56,6 +58,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     lateinit var application: Application
 
     private lateinit var modelUtil: ModelUtil
+    private lateinit var modelList: List<Model>
 
     private lateinit var progressBar: ProgressBar
 
@@ -139,6 +142,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         frameLayout = view.findViewById(R.id.frame_layout)
 
         setUpViews(view)
+        setAnimations()
+
         gestureDetector = getGestureDetector()
         requestCameraPermission(activity, RC_PERMISSIONS)
         arViewModel = ViewModelProvider(this, viewModelProviderFactory).get(ArViewModel::class.java)
@@ -179,25 +184,38 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         wordContainer.removeAllViews()
     }
 
-//TODO("show validator card with data from game manager")
+    //TODO("show validator card with data from game manager")
     override fun showCard(isCorrect: Boolean) {
+        validatorWord.text = gameManager.currentWord.answer
+        validatorWrongWord.visibility = View.INVISIBLE
+        validatorWrongPrompt.visibility = View.INVISIBLE
+        Picasso.get().load(gameManager.currentWord.image).into(validatorImage)
         when (isCorrect) {
             true -> setUpCardWithCorrectValidators()
             else -> setUpCardWithInorrectValidators()
         }
+        validatorOkButton.setOnClickListener {
+            onHidingCard(isCorrect)
+            fadeOut.startDelay = 500
+            fadeOut.start()
+        }
+        fadeIn.start()
     }
 
-    override fun hideCard(wasCorrect: Boolean) {
+    override fun onHidingCard(wasCorrect: Boolean) {
         gameManager.onHidingCard(wasCorrect)
-        TODO("hide validator card, method should be tied to button listener in this")
     }
 
     private fun setUpCardWithCorrectValidators() {
         //setup views to validate that the user is correct
+        validatorBackgroundImage.setImageResource(R.drawable.star)
     }
 
     private fun setUpCardWithInorrectValidators() {
         //setup views to inform the user they were incorrect
+        validatorBackgroundImage.setImageResource(R.drawable.error)
+        validatorWrongWord.visibility = View.VISIBLE
+        validatorWrongPrompt.visibility = View.VISIBLE
     }
 
     private fun setUpViews(view: View) {
@@ -314,7 +332,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             val trackable = mainHit.trackable
 
             if (trackable is Plane && trackable.isPoseInPolygon(mainHit.hitPose)) {
-                gameManager = GameManager(getKeysFromModelMapList(modelMapList), this, listener)
+                gameManager = GameManager(modelList, this, listener)
                 modelUtil = gameManager.modelUtil
                 // Create the Anchor.
                 if (trackable.getTrackingState() == TrackingState.TRACKING) {
@@ -369,6 +387,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             is ArState.Error -> showProgressBar(false)
             is ArState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
+                modelList = state.models
                 arViewModel.loadListofMapsOfFutureModels(Single.just(state.models))
             }
         }
@@ -437,14 +456,12 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         fadeIn.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationStart(animation: Animator) {
                 frameLayout.addView(wordValidatorLayout)
+                validatorOkButton.isClickable = false
             }
 
             override fun onAnimationEnd(animation: Animator) {
                 super.onAnimationEnd(animation)
-                validatorOkButton.setOnClickListener { v ->
-                    fadeOut.startDelay = 500
-                    fadeOut.start()
-                }
+                validatorOkButton.isClickable = true
             }
         })
 
@@ -453,7 +470,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             override fun onAnimationEnd(animation: Animator) {
                 super.onAnimationEnd(animation)
                 frameLayout.removeView(wordValidatorLayout)
-                gameManager.onWordAnswered()
 
 //                                if (roundCounter < roundLimit && roundCounter < modelMapListLiveData.size()) {
 //                                    createNextGame(modelMapListLiveData.get(roundCounter));
@@ -550,7 +566,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                     frameLayout.removeView(lav)
                 }
             })
-
+            gameManager.onWordAnswered()
         }
     }
 

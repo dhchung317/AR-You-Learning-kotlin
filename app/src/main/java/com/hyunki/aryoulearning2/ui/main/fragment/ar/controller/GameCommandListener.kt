@@ -5,5 +5,5 @@ interface GameCommandListener {
 
     fun showCard(isCorrect: Boolean)
 
-    fun hideCard(wasCorrect: Boolean)
+    fun onHidingCard(wasCorrect: Boolean)
 }
