@@ -492,10 +492,14 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private fun getNodeOnTapListener(letterString: String, letterAnchorNode: AnchorNode): Node.OnTapListener {
         return Node.OnTapListener { _, motionEvent ->
-            addLetterToWordBox(letterString.toLowerCase(Locale.getDefault()))
+
+            val isCorrect = gameManager.checkIfTappedLetterIsCorrect(letterString)
+
+            addLetterToWordBox(letterString)
             letterAnchorNode.anchor?.detach()
-            val isCorrect =
-                    gameManager.addTappedLetterToCurrentWordAttempt(letterString.toLowerCase(Locale.getDefault()))
+
+            gameManager.addTappedLetterToCurrentWordAttempt(letterString)
+
             lottieHelper.addAnimationViewOnTopOfLetter(
                     getLetterTapAnimation(isCorrect),
                     (motionEvent.x - 7).roundToInt(),
