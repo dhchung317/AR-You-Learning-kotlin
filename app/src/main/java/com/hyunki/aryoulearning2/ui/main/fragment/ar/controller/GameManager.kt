@@ -30,11 +30,12 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
     }
 
     fun addTappedLetterToCurrentWordAttempt(letter: String): Boolean {
-        val isCorrect = checkIfTappedLetterIsCorrect(letter)
         addLetterToAttempt(letter)
+        val isCorrect = checkIfTappedLetterIsCorrect(letter)
 //TODO logic would benefit from some sort of livedata/observable/listener implementation
+//TODO factor out need for lowercase checks
         if (attempt.length == getCurrentWordAnswer().length) {
-            if (attempt.toLowerCase() != getCurrentWordAnswer().toLowerCase()) {
+            if (attempt != getCurrentWordAnswer()) {
                 recordWrongAnswer(attempt)
                 startNextGame(currentWord.answer)
             } else {
@@ -54,7 +55,7 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
     private fun checkIfTappedLetterIsCorrect(tappedLetter: String): Boolean {
         val correctLetter =
                 getCurrentWordAnswer()[attempt.length - 1].toString()
-        return tappedLetter.toLowerCase(Locale.getDefault()) == correctLetter.toLowerCase(Locale.getDefault())
+        return tappedLetter == correctLetter
     }
 
     private fun startNextGame(key: String) {
