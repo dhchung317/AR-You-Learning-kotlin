@@ -34,19 +34,21 @@ import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ModelUtil
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
-import io.reactivex.Observable.just
+import io.reactivex.Observable
 import io.reactivex.Single
 import java.util.*
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
-//TODO-figure out bounce/float animation
 class ArHostFragment @Inject
 constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), GameCommandListener {
     @Inject
     lateinit var viewModelProviderFactory: ViewModelProviderFactory
+
     @Inject
     lateinit var lottieHelper: LottieHelper
+
+    lateinit var modelUtil: ModelUtil
 
     private lateinit var progressBar: ProgressBar
 
@@ -95,6 +97,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private var modelMapList: List<MutableMap<String, ModelRenderable>> = ArrayList()
     private var letterMap = mutableMapOf<String, ModelRenderable>()
 
+    //TODO implement text to speech
 //    private val textToSpeech: TextToSpeech
 //    init {
 //        this.textToSpeech = pronunciationUtil.textToSpeech
@@ -109,6 +112,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         //        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
     }
 
+    //TODO implement audio effects
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setUpResultListener()
@@ -141,6 +145,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         placedAnimation = false
     }
 
+    //TODO implement audio effects shutdown
     override fun onDestroy() {
         super.onDestroy()
 //        textToSpeech.shutdown()
@@ -173,6 +178,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         //        setAnimations();
     }
 
+//TODO fix/refactor validator cards that show results for every round
     private fun initViews(view: View) {
         wordCardView = view.findViewById(R.id.card_wordContainer)
         wordContainer = view.findViewById(R.id.word_container)
@@ -206,12 +212,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 object : GestureDetector.SimpleOnGestureListener() {
                     override fun onSingleTapUp(e: MotionEvent): Boolean {
                         onSingleTap(e)
-                        Log.d("arhost gesturedectect", "reached")
                         return true
                     }
                     override fun onDown(e: MotionEvent): Boolean {
                         onSingleTap(e)
-                        Log.d("arhost gesturedectect", "reached")
                         return true
                     }
                 })
@@ -256,11 +260,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
         if (!arViewModel.isLettersLoaded() || !arViewModel.isModelsLoaded()) {
             // We can't do anything yet.
-            Log.d("arhost singletap", "not loaded")
             return
         }
         val frame = arFragment.arSceneView.arFrame
-        Log.d("arhost frame", frame.toString())
+
         if (frame != null) {
             if (!hasPlacedGame && tryPlaceGame(tap, frame)) {
                 hasPlacedGame = true
@@ -271,22 +274,24 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private fun tryPlaceGame(tap: MotionEvent?, frame: Frame): Boolean {
         if (tap != null && frame.camera.trackingState == TrackingState.TRACKING) {
-
             mainHit = frame.hitTest(tap)[0]
-
             val trackable = mainHit.trackable
+
             if (trackable is Plane && trackable.isPoseInPolygon(mainHit.hitPose)) {
+                gameManager = GameManager(getKeysFromModelMapList(modelMapList), this, listener)
+                modelUtil = gameManager.modelUtil
                 // Create the Anchor.
                 if (trackable.getTrackingState() == TrackingState.TRACKING) {
                     mainAnchor = mainHit.createAnchor()
                 }
+
                 mainAnchorNode = AnchorNode(mainAnchor)
                 mainAnchorNode!!.setParent(arFragment.arSceneView.scene)
-                //                    Node gameSystem = createGame(modelMapListLiveData.get(0));
-                gameManager = GameManager(getKeysFromModelMapList(modelMapList), this, listener)
-                Log.d("arhostfrag", "tryPlaceGame: " + modelMapList.size)
+
                 val modelKey = gameManager.getCurrentWordAnswer()
+
                 wordCardView.visibility = View.VISIBLE
+
                 for (i in modelMapList.indices) {
                     for ((key, value) in modelMapList[i]) {
                         if (key == modelKey) {
@@ -294,13 +299,14 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                         }
                     }
                 }
+
                 return true
             }
         }
         return false
     }
 
-    private fun runViewModel(arViewModel: ArViewModel){
+    private fun runViewModel(arViewModel: ArViewModel) {
         arViewModel.getModelLiveData().observe(viewLifecycleOwner,
                 Observer { models -> processModelData(models) })
         arViewModel.getFutureModelMapListLiveData().observe(viewLifecycleOwner,
@@ -321,7 +327,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         }
     }
 
-    private fun processModelData(state: ArState){
+    private fun processModelData(state: ArState) {
         when (state) {
             is ArState.Loading -> showProgressBar(true)
             is ArState.Error -> showProgressBar(false)
@@ -332,14 +338,14 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         }
     }
 
-    private fun processFutureModelMapList(state: ArState){
+    private fun processFutureModelMapList(state: ArState) {
         when (state) {
             is ArState.Loading -> showProgressBar(true)
             is ArState.Error -> showProgressBar(false)
             is ArState.Success.OnFutureModelMapListLoaded -> {
                 showProgressBar(false)
-                arViewModel.loadMapOfFutureLetters(just(state.futureModelMapList))
-                arViewModel.loadModelRenderables(just(state.futureModelMapList))
+                arViewModel.loadMapOfFutureLetters(Observable.just(state.futureModelMapList))
+                arViewModel.loadModelRenderables(Observable.just(state.futureModelMapList))
             }
         }
     }
@@ -350,7 +356,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             is ArState.Error -> showProgressBar(false)
             is ArState.Success.OnFutureLetterMapLoaded -> {
                 showProgressBar(false)
-                arViewModel.loadLetterRenderables(just(state.futureLetterMap))
+                arViewModel.loadLetterRenderables(Observable.just(state.futureLetterMap))
             }
         }
     }
@@ -387,8 +393,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         return keys
     }
 
-    //TODO - refactor animations to separate class
-    //
+//TODO - refactor animations to separate class
+
 //    private fun setAnimations() {
 //        fadeIn = Animations.Normal().setCardFadeInAnimator(wordValidatorCv)
 //
@@ -421,7 +427,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 //    }
 
     private fun createSingleGame(mainModel: ModelRenderable, name: String) {
-        base = ModelUtil.getGameAnchor(mainModel)
+        base = modelUtil.getGameAnchor(mainModel)
         mainAnchorNode?.addChild(base)
         placeLetters(name)
     }
@@ -436,7 +442,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         val t = TextView(activity)
         t.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         t.typeface = ballonTF
-        t.setTextColor(ContextCompat.getColor(requireContext(),R.color.colorWhite))
+        t.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorWhite))
         t.textSize = 100f
         t.text = letter
         t.textAlignment = View.TEXT_ALIGNMENT_CENTER
@@ -444,11 +450,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun placeSingleLetter(letter: String) {
-        val letterAnchorNode = ModelUtil.getLetter(base, letterMap[letter], arFragment)
-
+        val letterAnchorNode = modelUtil.getLetter(base, letterMap[letter], arFragment)
         letterAnchorNode.children[0].setOnTapListener(getNodeOnTapListener(letter, letterAnchorNode))
-
-        Log.d("arx", "tryPlaceGame: " + letterMap[letter]!!)
         connectAnchorToBase(letterAnchorNode)
     }
 
@@ -461,12 +464,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private fun addLetterToWordBox(letter: String) {
         addLetterToWordContainer(letter)
-    }
-
-    private fun checkIfTappedLetterIsCorrect(tappedLetter: String): Boolean {
-        val correctLetter =
-                gameManager.getCurrentWordAnswer()[gameManager.attempt.length - 1].toString()
-        return tappedLetter.toLowerCase(Locale.getDefault()) == correctLetter.toLowerCase(Locale.getDefault())
     }
 
     private fun getLetterTapAnimation(isCorrect: Boolean): LottieAnimationView {
@@ -495,18 +492,15 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private fun getNodeOnTapListener(letterString: String, letterAnchorNode: AnchorNode): Node.OnTapListener {
         return Node.OnTapListener { _, motionEvent ->
-            run {
-                gameManager.addLetterToAttempt(letterString)
-                lottieHelper.addAnimationViewOnTopOfLetter(
-                        getLetterTapAnimation(checkIfTappedLetterIsCorrect(letterString)),
-                        (motionEvent.x - 7).roundToInt(),
-                        (motionEvent.y + 7).roundToInt(),
-                        frameLayout)
-
-                addLetterToWordBox(letterString.toLowerCase(Locale.getDefault()))
-                gameManager.addTappedLetterToCurrentWordAttempt(letterString.toLowerCase(Locale.getDefault()))
-                Objects.requireNonNull<Anchor>(letterAnchorNode.anchor).detach()
-            }
+            addLetterToWordBox(letterString.toLowerCase(Locale.getDefault()))
+            letterAnchorNode.anchor?.detach()
+            val isCorrect =
+                    gameManager.addTappedLetterToCurrentWordAttempt(letterString.toLowerCase(Locale.getDefault()))
+            lottieHelper.addAnimationViewOnTopOfLetter(
+                    getLetterTapAnimation(isCorrect),
+                    (motionEvent.x - 7).roundToInt(),
+                    (motionEvent.y + 7).roundToInt(),
+                    frameLayout)
         }
     }
 
@@ -526,10 +520,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun onFragmentResult(requestKey: String, result: Bundle) {
-        if(REQUEST_KEY == requestKey) {
+        if (REQUEST_KEY == requestKey) {
             category = result.getString(KEY_ID)
             arViewModel.fetchModelsFromRepository(category)
-            Log.d("arhost", category)
         }
     }
 

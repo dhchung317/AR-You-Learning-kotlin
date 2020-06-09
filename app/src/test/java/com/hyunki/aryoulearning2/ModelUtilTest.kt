@@ -2,28 +2,87 @@ package com.hyunki.aryoulearning2
 
 import com.google.ar.sceneform.math.Vector3
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ModelUtil
+import org.junit.Assert.assertEquals
 import org.junit.Before
-import java.util.*
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.junit.MockitoJUnitRunner
 
+@RunWith(MockitoJUnitRunner::class)
 class ModelUtilTest {
 
-    private lateinit var collisionSet: HashSet<Vector3>
+    lateinit var modelUtil: ModelUtil
+
+    private var xRange: Int = 0
+    private var yRange: Int = 0
+    private var zRange: Int = 0
 
     @Before
     fun setup() {
-        collisionSet = HashSet<Vector3>()
+        modelUtil = ModelUtil()
+
+        xRange = ModelUtil.xRange
+        yRange = ModelUtil.yRange
+        zRange = ModelUtil.zRange
     }
 
-    companion object {
-        private val r = Random()
+    @Test
+    fun `assert true when checkLetterDoesCollide() compares vectors with equal properties`() {
+        val vector1 = Vector3(1f,1f,1f)
+        val vector2 = Vector3(1f,1f,1f)
 
-        private fun getRandom(max: Int, min: Int): Int {
-            return r.nextInt(max - min) + min
-        }
+        val expected = true
 
-        private val randomCoordinates: Vector3
-            get() = Vector3(getRandom(5, -5).toFloat(),
-                    getRandom(2, -6).toFloat(),
-                    getRandom(-2, -10).toFloat())
+        val actual = modelUtil.checkDoesLetterCollide(vector1,vector2)
+
+        assertEquals(expected,actual)
+    }
+
+    @Test
+    fun `assert true when checkLetterDoesCollide() compares vectors with properties within a plus range`() {
+        val vector1 = Vector3(1f ,1f,1f)
+        val vector2 = Vector3(1f + xRange,1f + yRange,1f + zRange)
+
+        val expected = true
+
+        val actual = modelUtil.checkDoesLetterCollide(vector1,vector2)
+
+        assertEquals(expected,actual)
+    }
+
+    @Test
+    fun `assert true when checkLetterDoesCollide() compares vectors with properties within a minus range`() {
+        val vector1 = Vector3(1f ,1f,1f)
+        val vector2 = Vector3(1f - xRange,1f - yRange,1f - zRange)
+
+        val expected = true
+
+        val actual = modelUtil.checkDoesLetterCollide(vector1,vector2)
+
+        assertEquals(expected,actual)
+    }
+
+    @Test
+    fun `assert false when checkLetterDoesCollide() compares vectors with properties outside a minus range`() {
+        val vector1 = Vector3(1f ,1f, 1f)
+        val vector2 = Vector3(1f - (xRange + 1),1f - (yRange + 1),1f - (zRange + 1))
+
+        val expected = false
+
+        val actual = modelUtil.checkDoesLetterCollide(vector1,vector2)
+
+        assertEquals(expected,actual)
+    }
+
+    @Test
+    fun `assert  when checkLetterDoesCollide() compares vectors with properties outside a plus range`() {
+        val vector1 = Vector3(1f ,1f, 1f)
+        val vector2 = Vector3(1f + (xRange + 1),1f + (yRange + 1),1f + (zRange + 1))
+
+        val expected = false
+
+        val actual = modelUtil.checkDoesLetterCollide(vector1,vector2)
+
+        assertEquals(expected,actual)
     }
 }

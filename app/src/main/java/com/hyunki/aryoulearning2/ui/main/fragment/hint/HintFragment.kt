@@ -30,6 +30,7 @@ import com.hyunki.aryoulearning2.ui.main.fragment.hint.rv.HintAdapter
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 import javax.inject.Inject
 
+//TODO refactor/implement pronounciation util
 class HintFragment @Inject
 constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
         //    @Inject

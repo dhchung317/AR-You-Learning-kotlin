@@ -131,7 +131,6 @@ constructor(private val application: Application, private val mainRepositoryImpl
         compositeDisposable.add(futureModelMapDisposable)
     }
 
-    //TODO test what rxOperator count returns
     fun loadLetterRenderables(futureLetterMap: Observable<MutableMap<String, CompletableFuture<ModelRenderable>>>) {
         val lettersCount = futureLetterMap.count()
         letterMapLiveData.value = ArState.Loading
@@ -184,7 +183,7 @@ constructor(private val application: Application, private val mainRepositoryImpl
                 .subscribeBy(
                         onNext = { this.onModelRenderableMapListLoaded(it) },
                         onError = { error ->
-                            futureModelMapListLiveData.value = ArState.Error
+                            modelMapListLiveData.value = ArState.Error
                             onError(error)
                         })
         compositeDisposable.add(modelMapListDisposable)

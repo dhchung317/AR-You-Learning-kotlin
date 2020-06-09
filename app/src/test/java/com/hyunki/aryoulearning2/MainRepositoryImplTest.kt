@@ -35,9 +35,6 @@ class MainRepositoryImplTest {
     val expectedExceptionRule: ExpectedException = ExpectedException.none()
 
     private lateinit var db: ModelDatabase
-//    private lateinit var spyCatDao: CategoryDao
-//    private lateinit var spyModelDao: CategoryDao
-//    private lateinit var mainApi: MainApi
 
     @Before
     fun setup() {

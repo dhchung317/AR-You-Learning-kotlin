@@ -164,23 +164,6 @@ class MainViewModelTest {
     }
 
     @Test
-    fun `assert loadModelsByCat() sets modelLiveData to mainStateError on error`() {
-
-        val testCat = "testCat"
-        val expected = MainState.Error
-
-        whenever(repository.getModelsByCat(testCat))
-                .thenReturn(Single.error(Throwable()))
-
-        model.loadModelsByCat(testCat)
-
-        val actual = model.getModelLiveData().value
-
-        assertNotNull(actual)
-        assertEquals(expected, actual)
-    }
-
-    @Test
     fun `assert loadModelsByCat() sets modelLiveData to mainStateSuccess on complete`() {
         val testCat = "testCat"
         val testList = arrayListOf<Model>()
@@ -202,6 +185,23 @@ class MainViewModelTest {
         val stateVal = state.models
 
         assertTrue(stateVal[0].category == testCat)
+    }
+
+    @Test
+    fun `assert loadModelsByCat() sets modelLiveData to mainStateError on error`() {
+
+        val testCat = "testCat"
+        val expected = MainState.Error
+
+        whenever(repository.getModelsByCat(testCat))
+                .thenReturn(Single.error(Throwable()))
+
+        model.loadModelsByCat(testCat)
+
+        val actual = model.getModelLiveData().value
+
+        assertNotNull(actual)
+        assertEquals(expected, actual)
     }
 
 }
