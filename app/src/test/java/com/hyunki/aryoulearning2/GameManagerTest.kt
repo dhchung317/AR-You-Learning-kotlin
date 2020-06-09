@@ -15,9 +15,9 @@ import java.util.*
 
 class GameManagerTest {
 
-    lateinit var gameManager: GameManager
+    private lateinit var gameManager: GameManager
 
-    lateinit var gameCommandListener: GameCommandListener
+    private lateinit var gameCommandListener: GameCommandListener
 
     lateinit var testKeys: ArrayList<String>
 
@@ -27,7 +27,7 @@ class GameManagerTest {
     fun setup() {
         gameCommandListener = mock()
         navListener = mock()
-        testKeys = arrayListOf<String>("cat", "rat", "bat")
+        testKeys = arrayListOf("cat", "rat", "bat")
     }
 
     @Test
@@ -43,7 +43,7 @@ class GameManagerTest {
 
     @Test
     fun `assert that gameManager still inits when key size is less than round limit (3)`() {
-        val lessKeys = arrayListOf<String>("cat", "rat")
+        val lessKeys = arrayListOf("cat", "rat")
         gameManager = GameManager(lessKeys, gameCommandListener, navListener)
 
         val expected = 1

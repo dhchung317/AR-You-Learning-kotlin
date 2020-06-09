@@ -1,6 +1,5 @@
 package com.hyunki.aryoulearning2
 
-import android.app.Application
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
