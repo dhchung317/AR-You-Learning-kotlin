@@ -5,10 +5,13 @@ import android.animation.AnimatorListenerAdapter
 import android.app.Activity
 import android.content.Context
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.findFragment
 
 import com.airbnb.lottie.LottieAnimationView
+import com.google.ar.sceneform.ux.ArFragment
 
 class LottieHelper {
 
@@ -39,24 +42,18 @@ class LottieHelper {
     }
 
     //adds a lottie view to the corresposnding x and y coordinates
-    fun addAnimationViewOnTopOfLetter(lav: LottieAnimationView, x: Int, y: Int, f: FrameLayout) {
+    fun getAnimationViewOnTopOfLetter(lav: LottieAnimationView, x: Int, y: Int): LottieAnimationView {
         lav.x = x.toFloat()
         lav.y = y.toFloat()
-        f.addView(lav, 300, 300)
         lav.playAnimation()
-        lav.addAnimatorListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator) {
-                f.removeView(lav)
-            }
-        })
+
+        return lav
     }
 
-    fun addTapAnimationToScreen(lavTap: LottieAnimationView, activity: FragmentActivity, f: FrameLayout) {
-        val width = activity.window.decorView.width
-        val height = activity.window.decorView.height
+    fun getTapAnimationToScreen(lavTap: LottieAnimationView, width: Int, height: Int): LottieAnimationView {
         lavTap.x = (width / 2 - 50).toFloat()
         lavTap.y = (height / 2 - 50).toFloat()
-        f.addView(lavTap, 500, 500)
         lavTap.playAnimation()
+        return lavTap
     }
 }

@@ -29,16 +29,26 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
         this.currentWord = CurrentWord(keyStack.pop())
     }
 
-    fun addTappedLetterToCurrentWordAttempt(letter: String) {
+    fun addTappedLetterToCurrentWordAttempt(letter: String): Boolean {
         addLetterToAttempt(letter)
-        onWordAnswered()
+        val isCorrect = checkIfTappedLetterIsCorrect(letter)
+//        onWordAnswered()
+        return isCorrect
     }
 
-    private fun onWordAnswered() {
+    fun onWordAnswered() {
         if (isWordAnswered()) {
             when (isCorrectAnswer()) {
-                true -> onAnswerCorrect()
-                else -> onAnswerIncorrect()
+                true -> {
+//                    onAnswerCorrect()
+                    showCard(isCorrect = true)
+                    //showCard() with correct validators
+                }
+                else -> {
+//                    onAnswerIncorrect()
+                    showCard(isCorrect = false)
+                    //showCard() with incorrect validators
+                }
             }
         }
     }
@@ -50,8 +60,17 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
 
     private fun isCorrectAnswer(): Boolean {
         return attempt == getCurrentWordAnswer()
+
     }
 
+    fun onHidingCard(wasAnswerCorrect: Boolean){
+        when (wasAnswerCorrect) {
+            //listener from fragment will inform manager which course of action to take
+            true -> onAnswerCorrect()
+
+            else -> onAnswerIncorrect()
+        }
+    }
     private fun onAnswerIncorrect() {
         recordWrongAnswer(attempt)
         startNextGame(currentWord.answer)
@@ -79,7 +98,7 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
         navListener.moveToReplayFragment()
     }
 
-    fun checkIfTappedLetterIsCorrect(tappedLetter: String): Boolean {
+    private fun checkIfTappedLetterIsCorrect(tappedLetter: String): Boolean {
         val correctLetter =
                 getCurrentWordAnswer()[attempt.length - 1].toString()
         return tappedLetter == correctLetter
@@ -113,6 +132,11 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
         }
         modelUtil.refreshCollisionSet()
         attempt = ""
+    }
+
+    private fun showCard(isCorrect: Boolean) {
+        //pass along data for frgment to show
+        gameCommands.showCard(isCorrect)
     }
 
     fun getCurrentWordAnswer(): String {
