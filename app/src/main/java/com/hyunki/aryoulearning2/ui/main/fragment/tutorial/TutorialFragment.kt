@@ -20,6 +20,7 @@ import java.util.Objects
 
 import javax.inject.Inject
 
+//TODO refactor tutorial fragment
 class TutorialFragment @Inject
 constructor() : Fragment() {
     private lateinit var backButton: Button

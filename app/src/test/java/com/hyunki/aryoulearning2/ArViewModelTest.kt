@@ -124,19 +124,6 @@ class ArViewModelTest {
         })
     }
 
-//    val mapList = arrayListOf<MutableMap<String, CompletableFuture<ModelRenderable>>>()
-//    val mockFutureModel = mock<CompletableFuture<ModelRenderable>>()
-//    val map = mutableMapOf<String, CompletableFuture<ModelRenderable>>()
-//        val map2 = mutableMapOf<String, CompletableFuture<ModelRenderable>>()
-//        val map3 = mutableMapOf<String, CompletableFuture<ModelRenderable>>()
-//        map["abc"] = mockFutureModel
-//        map2["def"] = mockFutureModel
-//        map3["ghi"] = mockFutureModel
-//
-//        mapList.add(map)
-//        mapList.add(map2)
-//        mapList.add(map3)
-
     @Test
     fun `assert loadListOfMapsOfFutureModels() sets futureModelMapListLiveData to arStateSuccess on success`() {
 

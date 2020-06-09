@@ -14,7 +14,6 @@ import com.google.ar.sceneform.ux.TransformableNode
 import java.util.HashSet
 import java.util.Random
 
-//TODO refactor class to make testing easier
 class ModelUtil {
     companion object Factory {
         const val xRange = 2
@@ -38,20 +37,13 @@ class ModelUtil {
         val base = Node()
         val mainModel = Node()
         mainModel.setParent(base)
-
         mainModel.renderable = model
-
         mainModel.localPosition = Vector3(base.localPosition.x, //x
                 base.localPosition.y, //y
                 base.localPosition.z)
+
         mainModel.setLookDirection(Vector3(0f, 0f, 4f))
         mainModel.localScale = Vector3(1.0f, 1.0f, 1.0f)
-
-        //        for (int i = 0; i < name.length(); i++) {
-        //            createLetter(
-        //                    Character.toString(name.charAt(i)),
-        //                    name, base, model);
-        //        }
 
         val rotate = Animations.AR().createRotationAnimator()
 

@@ -18,6 +18,7 @@ import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.squareup.picasso.Picasso
 
+//TODO refactor results adapter
 class ResultsAdapter(private val wordHistory: List<CurrentWord>, private val modelMap: Map<String, Model>, private val pronunUtil: PronunciationUtil, private val TTS: TextToSpeech) : RecyclerView.Adapter<ResultsAdapter.ResultsViewHolder>() {
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, position: Int): ResultsViewHolder {

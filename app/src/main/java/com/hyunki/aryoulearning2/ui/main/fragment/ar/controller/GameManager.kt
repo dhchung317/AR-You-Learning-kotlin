@@ -3,23 +3,21 @@ package com.hyunki.aryoulearning2.ui.main.fragment.ar.controller
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ModelUtil
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
-
-import java.util.ArrayList
-import java.util.Random
-import java.util.Stack
+import java.util.*
 
 class GameManager(modelMapKeys: List<String>, private val gameCommands: GameCommandListener, private val navListener: NavListener) {
-    var currentWord: CurrentWord
-        private set
     private val roundLimit = 3
-
     val keyStack = Stack<String>()
+    var modelUtil: ModelUtil = ModelUtil()
 
     var wordHistoryList = ArrayList<CurrentWord>()
         private set
+
     var attempt: String = ""
         private set
-    var modelUtil: ModelUtil = ModelUtil()
+
+    var currentWord: CurrentWord
+        private set
 
     init {
         while (keyStack.size < roundLimit && keyStack.size < modelMapKeys.size) {
@@ -31,9 +29,10 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
         this.currentWord = CurrentWord(keyStack.pop())
     }
 
-    fun addTappedLetterToCurrentWordAttempt(letter: String) {
+    fun addTappedLetterToCurrentWordAttempt(letter: String): Boolean {
+        val isCorrect = checkIfTappedLetterIsCorrect(letter)
         addLetterToAttempt(letter)
-
+//TODO logic would benefit from some sort of livedata/observable/listener implementation
         if (attempt.length == getCurrentWordAnswer().length) {
             if (attempt.toLowerCase() != getCurrentWordAnswer().toLowerCase()) {
                 recordWrongAnswer(attempt)
@@ -49,6 +48,13 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
                 }
             }
         }
+        return isCorrect
+    }
+
+    private fun checkIfTappedLetterIsCorrect(tappedLetter: String): Boolean {
+        val correctLetter =
+                getCurrentWordAnswer()[attempt.length - 1].toString()
+        return tappedLetter.toLowerCase(Locale.getDefault()) == correctLetter.toLowerCase(Locale.getDefault())
     }
 
     private fun startNextGame(key: String) {
@@ -94,6 +100,5 @@ class GameManager(modelMapKeys: List<String>, private val gameCommands: GameComm
         private fun getRandom(max: Int, min: Int): Int {
             return r.nextInt(max - min) + min
         }
-
     }
 }

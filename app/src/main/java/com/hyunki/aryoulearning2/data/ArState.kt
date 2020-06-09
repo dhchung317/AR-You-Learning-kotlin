@@ -32,5 +32,4 @@ sealed class ArState {
                 val modelMap: List<MutableMap<String,ModelRenderable>>
         ) : Success()
     }
-
 }

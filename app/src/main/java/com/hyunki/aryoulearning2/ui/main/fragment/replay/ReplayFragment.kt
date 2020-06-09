@@ -20,6 +20,7 @@ import java.util.ArrayList
 
 import javax.inject.Inject
 
+//TODO refactor replay fragment
 class ReplayFragment @Inject
 constructor() : Fragment() {
     private lateinit var listener: NavListener

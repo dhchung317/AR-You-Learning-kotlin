@@ -58,10 +58,8 @@ class MainActivity : AppCompatActivity(), NavListener {
         val decorView = window.decorView
 
         if (hasFocus) {
-            decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-
+            decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
                     or View.SYSTEM_UI_FLAG_IMMERSIVE)
         }
     }
@@ -73,16 +71,14 @@ class MainActivity : AppCompatActivity(), NavListener {
         setContentView(R.layout.activity_main)
         prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         viewModel = ViewModelProvider(this, providerFactory).get(MainViewModel::class.java)
-
         progressBar = findViewById(R.id.progress_bar)
-        Log.d(TAG, "onCreate")
-//        if (prefs.contains(NETWORK_CALL_COMPLETED)) {
-//            Log.d(TAG, "onCreate: " + prefs.contains(NETWORK_CALL_COMPLETED))
-//            moveToListFragment()
-//        } else {
+
+        if (prefs.contains(NETWORK_CALL_COMPLETED)) {
+            moveToListFragment()
+        } else {
             viewModel.loadModelResponses()
             viewModel.getModelResponsesData().observe(this, Observer<MainState> { this.renderModelResponses(it) })
-//        }
+        }
     }
 
     private fun renderModelResponses(state: MainState) {

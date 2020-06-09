@@ -55,8 +55,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
 
         mainViewModel.getCatLiveData().observe(viewLifecycleOwner, Observer { categories ->
             renderCategories(categories)
-            Log.d(TAG, "onViewCreated: " + mainViewModel.getCatLiveData().value!!.javaClass)
-
         })
         initRecyclerView()
     }
@@ -73,7 +71,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
     private fun renderCategories(state: MainState) {
         when (state) {
             is MainState.Loading -> {
-//                progressBar.bringToFront()
                 showProgressBar(true)
             }
             is MainState.Error -> showProgressBar(false)
@@ -103,10 +100,4 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
         const val TAG = "ListFragmentX"
 
     }
-
-    //    @Override
-    //    public void onResume() {
-    //        super.onResume();
-    //        renderCategories(mainViewModel.getCatLiveData().getValue());
-    //    }
 }

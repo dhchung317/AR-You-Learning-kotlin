@@ -137,16 +137,6 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
         for (i in modelResponses.indices) {
             models.addAll(modelResponses[i].list)
         }
-
-//        for (i in modelResponses.indices) {
-//            for (j in 0 until modelResponses[i].list.size) {
-//                models.add(Model(
-//                        modelResponses[i].category,
-//                        modelResponses[i].list[j].name,
-//                        modelResponses[i].list[j].image
-//                ))
-//            }
-//        }
         return models
     }
 
