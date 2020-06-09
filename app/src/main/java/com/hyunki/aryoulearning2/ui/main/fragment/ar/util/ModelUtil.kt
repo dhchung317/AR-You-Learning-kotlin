@@ -109,8 +109,7 @@ class ModelUtil {
 
         return trNode
     }
-
-
+    
     fun checkDoesLetterCollide(newV3: Vector3, parentModel: Vector3): Boolean {
         if ((newV3.x <= parentModel.x + xRange && newV3.x >= parentModel.x - xRange || newV3.x == parentModel.x)
                 && (newV3.y <= parentModel.y + yRange && newV3.y >= parentModel.y - yRange || newV3.y == parentModel.y)
@@ -134,6 +133,15 @@ class ModelUtil {
             }
         }
         return true
+    }
+
+    private fun getRandomUniqueCoordinates( checkAgainstTheseCoordinates: Vector3): Vector3{
+        var coordinates = randomCoordinates
+
+        while (checkDoesLetterCollide(coordinates, checkAgainstTheseCoordinates)) {
+            coordinates = randomCoordinates
+        }
+        return coordinates
     }
 
     fun refreshCollisionSet() {

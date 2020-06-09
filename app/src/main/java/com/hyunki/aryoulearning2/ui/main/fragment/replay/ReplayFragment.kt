@@ -21,7 +21,8 @@ import java.util.ArrayList
 import javax.inject.Inject
 
 //TODO refactor replay fragment
-//TODO play again loads, but game does not start, debug arfragment on replay
+//TODO play again loads, but game does not start, debug arfragment on replay (going home works).
+// probably needs fragment result listener setup
 //TODO results not working at all
 class ReplayFragment @Inject
 constructor() : Fragment() {
