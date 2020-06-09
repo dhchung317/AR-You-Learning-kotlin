@@ -1,11 +1,23 @@
 package com.hyunki.aryoulearning2
 
+import com.google.ar.core.Session
+import com.google.ar.sceneform.ArSceneView
+import com.google.ar.sceneform.Node
 import com.google.ar.sceneform.math.Vector3
+import com.google.ar.sceneform.rendering.ModelRenderable
+import com.google.ar.sceneform.ux.ArFragment
+import com.google.ar.sceneform.ux.TransformationSystem
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ModelUtil
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.junit.MockitoJUnitRunner
 
+@RunWith(MockitoJUnitRunner::class)
 class ModelUtilTest {
 
     lateinit var modelUtil: ModelUtil
@@ -13,6 +25,15 @@ class ModelUtilTest {
     private var xRange: Int = 0
     private var yRange: Int = 0
     private var zRange: Int = 0
+
+    @Mock
+    lateinit var arFragment: ArFragment
+    @Mock
+    lateinit var transformationSystem: TransformationSystem
+    @Mock
+    lateinit var sceneView: ArSceneView
+    @Mock
+   lateinit var session: Session
 
     @Before
     fun setup() {
@@ -82,4 +103,23 @@ class ModelUtilTest {
 
         assertEquals(expected,actual)
     }
+
+//    @Test
+//    fun `test getLetter()`(){
+//        val node: Node = mock()
+//        val modelRenderable: ModelRenderable = mock()
+//
+//        whenever(arFragment.transformationSystem).thenReturn(transformationSystem)
+//        whenever(arFragment.arSceneView).thenReturn(sceneView)
+//        whenever(arFragment.arSceneView.session).thenReturn(session)
+//
+//        val expected = modelRenderable.id
+//
+//        val x = modelUtil.getLetter(node,modelRenderable,arFragment)
+//
+//        for(node in x.children){
+//            val actual = node.renderable?.id?.get()
+//            assertEquals(expected, actual)
+//        }
+//    }
 }

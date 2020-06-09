@@ -74,16 +74,13 @@ class ModelUtil {
 
         val session = arFragment.arSceneView.session
         var anchor: Anchor? = null
-
         if (session != null) {
-
             try {
                 session.resume()
 
             } catch (e: CameraNotAvailableException) {
                 e.printStackTrace()
             }
-
             anchor = session.createAnchor(Pose(pos, rotation))
 
         }
