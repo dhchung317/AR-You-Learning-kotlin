@@ -142,7 +142,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         frameLayout = view.findViewById(R.id.frame_layout)
 
         setUpViews(view)
-        setAnimations()
 
         gestureDetector = getGestureDetector()
         requestCameraPermission(activity, RC_PERMISSIONS)
@@ -184,7 +183,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         wordContainer.removeAllViews()
     }
 
-    //TODO("show validator card with data from game manager")
     override fun showCard(isCorrect: Boolean) {
         validatorWord.text = gameManager.currentWord.answer
         validatorWrongWord.visibility = View.INVISIBLE
@@ -207,12 +205,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun setUpCardWithCorrectValidators() {
-        //setup views to validate that the user is correct
         validatorBackgroundImage.setImageResource(R.drawable.star)
     }
 
     private fun setUpCardWithInorrectValidators() {
-        //setup views to inform the user they were incorrect
         validatorBackgroundImage.setImageResource(R.drawable.error)
         validatorWrongWord.visibility = View.VISIBLE
         validatorWrongPrompt.visibility = View.VISIBLE
@@ -221,10 +217,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private fun setUpViews(view: View) {
         initViews(view)
         setListeners()
-        //        setAnimations();
+        setAnimations();
     }
 
-    //TODO fix/refactor validator cards that show results for every round
     private fun initViews(view: View) {
         wordCardView = view.findViewById(R.id.card_wordContainer)
         wordContainer = view.findViewById(R.id.word_container)
@@ -353,7 +348,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                         }
                     }
                 }
-
                 return true
             }
         }
@@ -438,18 +432,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         }
     }
 
-    private fun getKeysFromModelMapList(mapList: List<MutableMap<String, ModelRenderable>>): List<String> {
-        val keys = ArrayList<String>()
-        for (i in mapList.indices) {
-            for ((key) in mapList[i]) {
-                keys.add(key)
-            }
-        }
-        return keys
-    }
-
 //TODO - refactor animations to separate class
-
     private fun setAnimations() {
         fadeIn = Animations.Normal().setCardFadeInAnimator(wordValidatorCv)
 
@@ -470,12 +453,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             override fun onAnimationEnd(animation: Animator) {
                 super.onAnimationEnd(animation)
                 frameLayout.removeView(wordValidatorLayout)
-
-//                                if (roundCounter < roundLimit && roundCounter < modelMapListLiveData.size()) {
-//                                    createNextGame(modelMapListLiveData.get(roundCounter));
-//                                } else {
-//                                    moveToReplayFragment();
-//                                }
             }
         })
     }
@@ -551,9 +528,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         return Node.OnTapListener { _, motionEvent ->
             addLetterToWordBox(letterString)
             letterAnchorNode.anchor?.detach()
-
             val isCorrect = gameManager.addTappedLetterToCurrentWordAttempt(letterString)
-
             val lav =
                     lottieHelper.getAnimationViewOnTopOfLetter(
                             getLetterTapAnimation(isCorrect),
