@@ -304,7 +304,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         }
     }
 
-
     private fun onSingleTap(tap: MotionEvent) {
 
         if (!arViewModel.isLettersLoaded() || !arViewModel.isModelsLoaded()) {

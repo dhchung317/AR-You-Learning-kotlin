@@ -18,7 +18,6 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 
-
 class MainViewModelTest {
 
     @Rule
@@ -42,7 +41,6 @@ class MainViewModelTest {
 
     @Test
     fun `assert loadResponses() sets modelResponseData to mainStateError on error`() {
-
         val expected = MainState.Error
 
         whenever(repository.getModelResponses())
@@ -58,7 +56,6 @@ class MainViewModelTest {
 
     @Test
     fun `assert loadResponses() sets modelResponseData to mainStateLoading on call`() {
-
         val expected = MainState.Loading
 
         whenever(repository.getModelResponses())
@@ -74,7 +71,6 @@ class MainViewModelTest {
 
     @Test
     fun `assert loadResponses() sets modelResponseData to mainStateSuccess on complete`() {
-
         val testResponse = arrayListOf<ModelResponse>()
         testResponse.add(ModelResponse(arrayListOf(), "category1", "backgroundImage1"))
         testResponse.add(ModelResponse(arrayListOf(), "category2", "backgroundImage2"))
@@ -98,7 +94,6 @@ class MainViewModelTest {
 
     @Test
     fun `assert loadCategories() sets catLiveData to mainStateLoading on call`() {
-
         val expected = MainState.Loading
 
         whenever(repository.getAllCats())
@@ -114,7 +109,6 @@ class MainViewModelTest {
 
     @Test
     fun `assert loadCategories() sets catLiveData to mainStateError on error`() {
-
         val expected = MainState.Error
 
         whenever(repository.getAllCats())
@@ -130,7 +124,6 @@ class MainViewModelTest {
 
     @Test
     fun `assert loadCategories() sets catLiveData to mainStateSuccess on complete`() {
-
         val testList = mutableListOf<Category>()
 
         val expected = MainState.Success.OnCategoriesLoaded(testList)
@@ -148,7 +141,6 @@ class MainViewModelTest {
 
     @Test
     fun `assert loadModelsByCat() sets modelLiveData to mainStateLoading on call`() {
-
         val testCat = "testCat"
         val expected = MainState.Loading
 
@@ -189,7 +181,6 @@ class MainViewModelTest {
 
     @Test
     fun `assert loadModelsByCat() sets modelLiveData to mainStateError on error`() {
-
         val testCat = "testCat"
         val expected = MainState.Error
 
@@ -203,5 +194,4 @@ class MainViewModelTest {
         assertNotNull(actual)
         assertEquals(expected, actual)
     }
-
 }
