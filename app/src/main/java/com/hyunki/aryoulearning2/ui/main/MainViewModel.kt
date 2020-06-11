@@ -30,47 +30,40 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
         emit(MainState.Loading)
 
         try {
-            runBlocking {
-                val result = async {mainRepositoryImpl.getModelResponses()}
-
-                val e = MainState.Success.OnModelResponsesLoaded(result.await())
-                emit(e)
-               saveResponseData(result.await())
+            val result = mainRepositoryImpl.getModelResponses()
+            emit(MainState.Success.OnModelResponsesLoaded(result))
+            viewModelScope.launch(Dispatchers.Default) {
+                saveResponseData(result)
             }
-
         } catch (exception: Exception) {
             emit(MainState.Error(exception.localizedMessage))
             Log.d(TAG, "getModelResponses: " + exception.cause)
         }
     }
 
-    suspend fun saveResponseData(response: List<ModelResponse>) {
-
-        val x = saveModels(getModelList(response))
+    private suspend fun saveResponseData(response: List<ModelResponse>) {
+        saveModels(getModelList(response))
         saveCategories(getCategories(response))
-
-        Log.d(TAG, "getModelResponses: " + mainRepositoryImpl.checkSize())
-        Log.d(TAG, "getModelResponses: " + x)
-
     }
 
-    fun getModelsByCat(cat: String): LiveData<List<Model>> {
-//        emit(MainState.Loading)
-//        try {
-//            val result = MainState.Success.OnModelsLoaded(
-//                    mainRepositoryImpl.getModelsByCat(cat))
-//            emit(result)
-//        } catch (exception: Exception) {
-//            Log.d(TAG, "loadModelsByCat: " + exception.message)
-//            emit(MainState.Error(exception.message.toString()))
-//
-//        }
-        return mainRepositoryImpl.getModelsByCat(cat)
-
+    fun getModelsByCat(cat: String) = liveData(Dispatchers.IO) {
+        emit(MainState.Loading)
+        try {
+            val result = mainRepositoryImpl.getModelsByCat(cat)
+            emit(MainState.Success.OnModelsLoaded(result))
+        } catch (exception: Exception) {
+            emit(MainState.Error(exception.message.toString()))
+        }
     }
 
-    fun getAllCats(): LiveData<List<Category>> {
-        return mainRepositoryImpl.getAllCats()
+    fun getAllCats() = liveData(Dispatchers.IO) {
+        emit(MainState.Loading)
+        try {
+            val result = mainRepositoryImpl.getAllCats()
+            emit(MainState.Success.OnCategoriesLoaded(result))
+        } catch (exception: Exception) {
+            emit(MainState.Error(exception.message.toString()))
+        }
     }
 
 

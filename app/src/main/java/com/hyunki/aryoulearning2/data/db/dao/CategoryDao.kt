@@ -13,8 +13,8 @@ import io.reactivex.Single
 @Dao
 interface CategoryDao {
 
-    @get:Query("SELECT * FROM category")
-    val allCategories: LiveData<List<Category>>
+    @Query("SELECT * FROM category")
+    suspend fun getAllCategories(): List<Category>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(category: Category)

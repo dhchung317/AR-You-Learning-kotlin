@@ -18,36 +18,26 @@ import javax.inject.Singleton
 class MainRepositoryImpl @Inject
 constructor(private val modelDao: ModelDao, private val categoryDao: CategoryDao, private val mainApi: MainApi):MainRepository {
 
-    override fun getAllCats(): LiveData<List<Category>>{
-        return categoryDao.allCategories
+    override suspend fun getAllCats(): List<Category>{
+        return categoryDao.getAllCategories()
     }
 
     override suspend fun getModelResponses(): List<ModelResponse> = mainApi.getModels()
 
-
-    override fun getModelsByCat(cat: String): LiveData<List<Model>> {
-//        Log.d("mainrepo", "getModelsByCat: " + cat)
-//        val models = modelDao.getModelsByCat(cat)
-//        Log.d("mainrepo", "getModelsByCat: " + models.size)
+    override suspend fun getModelsByCat(cat: String): List<Model> {
         return modelDao.getModelsByCat(cat)
     }
 
     override suspend fun insertModel(model: Model): Long {
-        Log.d("mainrepo", "insertModel: " + model.name)
         return modelDao.insert(model)
     }
 
     override suspend fun insertAllModels(vararg models: Model): List<Long> {
-        Log.d("mainrepo", "insertAllModels: " + models.size)
         return modelDao.insertAll(*models)
     }
 
     override suspend fun insertCat(category: Category) {
         categoryDao.insert(category)
-    }
-
-    override fun checkSize(): Int {
-        return modelDao.checkSize()
     }
 
     override fun clearEntireDatabase() {

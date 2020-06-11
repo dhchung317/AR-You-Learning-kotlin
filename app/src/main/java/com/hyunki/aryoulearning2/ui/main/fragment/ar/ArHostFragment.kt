@@ -354,8 +354,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun runViewModel(arViewModel: ArViewModel) {
-        arViewModel.getModelLiveData().observe(viewLifecycleOwner,
-                Observer { models -> processModelData(models) })
         arViewModel.getFutureModelMapListLiveData().observe(viewLifecycleOwner,
                 Observer { mapList -> processFutureModelMapList(mapList) })
         arViewModel.getFutureLetterMapLiveData().observe(viewLifecycleOwner,
@@ -562,7 +560,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private fun onFragmentResult(requestKey: String, result: Bundle) {
         if (REQUEST_KEY == requestKey) {
             category = result.getString(KEY_ID)
-//            arViewModel.fetchModelsFromRepository(category)
+            arViewModel.getModelsFromRepositoryByCategory(category)
+                    .observe(viewLifecycleOwner, Observer {
+                        processModelData(it)
+            })
         }
     }
 

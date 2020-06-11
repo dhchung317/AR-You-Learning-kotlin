@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
+import com.hyunki.aryoulearning2.data.MainState
 import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArHostFragment
@@ -154,23 +155,24 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
     private fun renderCurrentCategory(category: String) {
         Log.d("hint", "renderCurrentCategory: render called")
         Log.d("hint", "renderCurrentCategory: " + category)
-        mainViewModel.getModelsByCat(category).observe(viewLifecycleOwner, Observer {
-            Log.d("hint", "renderCurrentCategory: " + it.size)
-            renderModelsByCategory(it)
+        mainViewModel.getModelsByCat(category).observe(viewLifecycleOwner, Observer { state ->
+//            Log.d("hint", "renderCurrentCategory: " + it.size)
+            renderModelsByCategory(state)
         })
     }
 
-    private fun renderModelsByCategory(models: List<Model>) {
-        Log.d("hint", "renderModelsByCategory: " + models.size)
-//        when (state) {
-//            is MainState.Loading -> {
-//                progressBar.bringToFront()
-//                showProgressBar(true)
-//            }
-//            is MainState.Error -> showProgressBar(false)
-//            is MainState.Success.OnModelsLoaded -> {
-//                showProgressBar(false)
-        hintAdapter.setList(models)
+    private fun renderModelsByCategory(state: MainState) {
+        when (state) {
+            is MainState.Loading -> {
+                progressBar.bringToFront()
+                showProgressBar(true)
+            }
+            is MainState.Error -> showProgressBar(false)
+            is MainState.Success.OnModelsLoaded -> {
+                showProgressBar(false)
+                hintAdapter.setList(state.models)
+            }
+        }
     }
 
     private fun showProgressBar(isVisible: Boolean) {

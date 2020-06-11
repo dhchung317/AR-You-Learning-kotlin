@@ -6,6 +6,7 @@ import android.util.Log
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
 
 import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.data.MainRepositoryImpl
@@ -24,6 +25,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.toMap
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
 
 class ArViewModel @Inject
 constructor(private val application: Application, private val mainRepositoryImpl: MainRepository) : ViewModel() {
@@ -38,9 +40,9 @@ constructor(private val application: Application, private val mainRepositoryImpl
     private var isModelsLoaded = false
     private var isLettersLoaded = false
 
-    private fun onModelsFetched(models: List<Model>) {
-        modelLiveData.value = ArState.Success.OnModelsLoaded(models)
-    }
+//    private fun onModelsFetched(models: List<Model>) {
+//        modelLiveData.value = ArState.Success.OnModelsLoaded(models)
+//    }
 
     private fun onFutureModelMapListsLoaded(futureModelMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>) {
         futureModelMapListLiveData.value = ArState.Success.OnFutureModelMapListLoaded(futureModelMapList)
@@ -56,6 +58,17 @@ constructor(private val application: Application, private val mainRepositoryImpl
 
     private fun onModelRenderableMapListLoaded(modelMapList: List<MutableMap<String, ModelRenderable>>) {
         modelMapListLiveData.value = ArState.Success.OnModelMapListLoaded(modelMapList)
+    }
+
+    fun getModelsFromRepositoryByCategory(category: String) = liveData(Dispatchers.IO) {
+        emit(ArState.Loading)
+        try {
+            val result = mainRepositoryImpl.getModelsByCat(category)
+            emit(ArState.Success.OnModelsLoaded(result))
+
+        }catch (exception: Exception) {
+            emit(ArState.Error)
+        }
     }
 
 //    fun fetchModelsFromRepository(category: String) {

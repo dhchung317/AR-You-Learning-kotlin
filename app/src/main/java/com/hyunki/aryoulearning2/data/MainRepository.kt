@@ -10,19 +10,17 @@ import kotlinx.coroutines.Deferred
 import java.util.ArrayList
 
 interface MainRepository {
-    fun getAllCats(): LiveData<List<Category>>
+    suspend fun getAllCats(): List<Category>
 
     suspend fun getModelResponses(): List<ModelResponse>
 
-    fun getModelsByCat(cat: String): LiveData<List<Model>>
+    suspend fun getModelsByCat(cat: String): List<Model>
 
     suspend fun insertModel(model: Model): Long
 
     suspend fun insertAllModels(vararg models: Model): List<Long>
 
     suspend fun insertCat(category: Category)
-
-    fun checkSize(): Int
 
     fun clearEntireDatabase()
 }
