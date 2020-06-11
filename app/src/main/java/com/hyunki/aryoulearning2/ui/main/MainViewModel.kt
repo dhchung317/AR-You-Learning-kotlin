@@ -1,8 +1,10 @@
 package com.hyunki.aryoulearning2.ui.main
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
 import com.hyunki.aryoulearning2.data.MainRepository
 import com.hyunki.aryoulearning2.data.MainState
 import com.hyunki.aryoulearning2.data.db.model.Category
@@ -13,8 +15,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 class MainViewModel @Inject
 internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel() {
@@ -25,20 +29,38 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
     private val catLiveData = MutableLiveData<MainState>()
     private var wordHistory: List<CurrentWord> = ArrayList()
 
-    fun loadModelResponses() {
-        modelResponsesData.value = MainState.Loading
-        val modelResDisposable = mainRepositoryImpl.getModelResponses()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                        onNext = { onModelResponsesLoaded(it) },
-                        onError = { error ->
-                            modelResponsesData.value = MainState.Error
-                            onError(error)
-                        }
-                )
-        compositeDisposable.add(modelResDisposable)
+    fun getModelResponses() = liveData(Dispatchers.IO) {
+        emit(MainState.Loading)
+
+        try {
+            val result = MainState.Success.OnModelResponsesLoaded(
+                    mainRepositoryImpl.getModelResponses())
+            emit(result)
+
+            saveModelResponseDataCategories(getCategoriesToSaveFromModelResponseData(result.responses))
+            saveModelResponseDataModels(getModelsToSaveFromModelResponseData(result.responses))
+
+        } catch (exception: Exception) {
+            Log.d(TAG, "getModelResponses: " + exception.message)
+            emit(MainState.Error)
+        }
     }
+
+
+//    fun loadModelResponses() {
+//        modelResponsesData.value = MainState.Loading
+//        val modelResDisposable = mainRepositoryImpl.getModelResponses()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribeBy(
+//                        onNext = { onModelResponsesLoaded(it) },
+//                        onError = { error ->
+//                            modelResponsesData.value = MainState.Error
+//                            onError(error)
+//                        }
+//                )
+//        compositeDisposable.add(modelResDisposable)
+//    }
 
     private fun saveModelResponseDataCategories(categories: ArrayList<Category>) {
         for (i in categories.indices) {
@@ -114,10 +136,10 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
         catLiveData.value = MainState.Success.OnCategoriesLoaded(categories)
     }
 
-    private fun onModelResponsesLoaded(modelResponses: ArrayList<ModelResponse>) {
-        modelResponsesData.value = MainState.Success.OnModelResponsesLoaded(modelResponses)
-        saveModelResponseDataCategories(getCategoriesToSaveFromModelResponseData(modelResponses))
-        saveModelResponseDataModels(getModelsToSaveFromModelResponseData(modelResponses))
+    private fun onModelResponsesLoaded() {
+//        modelResponsesData.value = MainState.Success.OnModelResponsesLoaded(modelResponses)
+//        saveModelResponseDataCategories(getCategoriesToSaveFromModelResponseData(modelResponses))
+//        saveModelResponseDataModels(getModelsToSaveFromModelResponseData(modelResponses))
     }
 
     private fun getCategoriesToSaveFromModelResponseData(modelResponses: ArrayList<ModelResponse>): ArrayList<Category> {

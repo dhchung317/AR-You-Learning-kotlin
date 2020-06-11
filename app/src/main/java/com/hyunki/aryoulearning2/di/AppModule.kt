@@ -8,6 +8,7 @@ import com.hyunki.aryoulearning2.data.db.dao.ModelDao
 import com.hyunki.aryoulearning2.data.network.main.MainApi
 import com.hyunki.aryoulearning2.util.Constants
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 
 import javax.inject.Singleton
 
@@ -24,7 +25,7 @@ class AppModule {
     @Singleton
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder().baseUrl(Constants.BASE_URL)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .addConverterFactory(GsonConverterFactory.create()).build()
     }
 

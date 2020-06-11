@@ -20,9 +20,8 @@ constructor(private val modelDao: ModelDao, private val categoryDao: CategoryDao
         return categoryDao.allCategories
     }
 
-    override fun getModelResponses(): Observable<ArrayList<ModelResponse>>{
-        return mainApi.getModels()
-    }
+    override suspend fun getModelResponses(): ArrayList<ModelResponse> = mainApi.getModels()
+
 
     override fun getModelsByCat(cat: String): Single<List<Model>> {
         return modelDao.getModelsByCat(cat)

@@ -13,7 +13,7 @@ sealed class MainState {
     sealed class Success : MainState() {
 
         data class OnModelResponsesLoaded(
-                val responses: List<ModelResponse>
+                val responses: ArrayList<ModelResponse>
         ) : Success()
 
         data class OnModelsLoaded(

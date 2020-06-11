@@ -73,12 +73,12 @@ class MainActivity : AppCompatActivity(), NavListener {
         viewModel = ViewModelProvider(this, providerFactory).get(MainViewModel::class.java)
         progressBar = findViewById(R.id.progress_bar)
 
-        if (prefs.contains(NETWORK_CALL_COMPLETED)) {
-            moveToListFragment()
-        } else {
-            viewModel.loadModelResponses()
-            viewModel.getModelResponsesData().observe(this, Observer<MainState> { this.renderModelResponses(it) })
-        }
+//        if (prefs.contains(NETWORK_CALL_COMPLETED)) {
+//            moveToListFragment()
+//        } else {
+//            viewModel.loadModelResponses()
+            viewModel.getModelResponses().observe(this, Observer { this.renderModelResponses(it) })
+//        }
     }
 
     private fun renderModelResponses(state: MainState) {
@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity(), NavListener {
             is MainState.Loading -> showProgressBar(true)
             is MainState.Error -> showProgressBar(false)
             is MainState.Success.OnModelResponsesLoaded -> {
-                prefs.edit().putString(NETWORK_CALL_COMPLETED, "success").apply()
+//                prefs.edit().putString(NETWORK_CALL_COMPLETED, "success").apply()
                 moveToListFragment()
             }
         }
