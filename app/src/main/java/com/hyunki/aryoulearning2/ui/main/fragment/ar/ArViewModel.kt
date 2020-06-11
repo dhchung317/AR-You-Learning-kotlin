@@ -58,20 +58,20 @@ constructor(private val application: Application, private val mainRepositoryImpl
         modelMapListLiveData.value = ArState.Success.OnModelMapListLoaded(modelMapList)
     }
 
-    fun fetchModelsFromRepository(category: String) {
-        modelLiveData.value = ArState.Loading
-        val modelDisposable = mainRepositoryImpl.getModelsByCat(category)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                        onSuccess = { this.onModelsFetched(it) },
-                        onError = { error ->
-                            modelLiveData.value = ArState.Error
-                            onError(error)
-                        }
-                )
-        compositeDisposable.add(modelDisposable)
-    }
+//    fun fetchModelsFromRepository(category: String) {
+//        modelLiveData.value = ArState.Loading
+//        val modelDisposable = mainRepositoryImpl.getModelsByCat(category)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribeBy(
+//                        onSuccess = { this.onModelsFetched(it) },
+//                        onError = { error ->
+//                            modelLiveData.value = ArState.Error
+//                            onError(error)
+//                        }
+//                )
+//        compositeDisposable.add(modelDisposable)
+//    }
 
     fun loadListofMapsOfFutureModels(modelList: Single<List<Model>>) {
         futureModelMapListLiveData.value = ArState.Loading

@@ -77,15 +77,20 @@ class MainActivity : AppCompatActivity(), NavListener {
 //            moveToListFragment()
 //        } else {
 //            viewModel.loadModelResponses()
-            viewModel.getModelResponses().observe(this, Observer { this.renderModelResponses(it) })
+            viewModel.getModelResponses().observe(this, Observer {
+                renderModelResponses(it)
+            })
 //        }
     }
 
     private fun renderModelResponses(state: MainState) {
         when (state) {
             is MainState.Loading -> showProgressBar(true)
-            is MainState.Error -> showProgressBar(false)
+            is MainState.Error -> {
+                showProgressBar(false)
+            }
             is MainState.Success.OnModelResponsesLoaded -> {
+                showProgressBar(false)
 //                prefs.edit().putString(NETWORK_CALL_COMPLETED, "success").apply()
                 moveToListFragment()
             }

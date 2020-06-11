@@ -562,7 +562,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private fun onFragmentResult(requestKey: String, result: Bundle) {
         if (REQUEST_KEY == requestKey) {
             category = result.getString(KEY_ID)
-            arViewModel.fetchModelsFromRepository(category)
+//            arViewModel.fetchModelsFromRepository(category)
         }
     }
 

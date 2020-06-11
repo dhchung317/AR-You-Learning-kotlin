@@ -1,11 +1,9 @@
 package com.hyunki.aryoulearning2.ui.main
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
+import androidx.lifecycle.*
 import com.hyunki.aryoulearning2.data.MainRepository
+import com.hyunki.aryoulearning2.data.MainRepositoryImpl
 import com.hyunki.aryoulearning2.data.MainState
 import com.hyunki.aryoulearning2.data.db.model.Category
 import com.hyunki.aryoulearning2.data.db.model.Model
@@ -15,8 +13,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.Dispatchers
-import java.util.*
+import kotlinx.coroutines.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
@@ -33,17 +30,59 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
         emit(MainState.Loading)
 
         try {
-            val result = MainState.Success.OnModelResponsesLoaded(
-                    mainRepositoryImpl.getModelResponses())
-            emit(result)
+            runBlocking {
+                val result = async {mainRepositoryImpl.getModelResponses()}
 
-            saveModelResponseDataCategories(getCategoriesToSaveFromModelResponseData(result.responses))
-            saveModelResponseDataModels(getModelsToSaveFromModelResponseData(result.responses))
+                val e = MainState.Success.OnModelResponsesLoaded(result.await())
+                emit(e)
+               saveResponseData(result.await())
+            }
 
         } catch (exception: Exception) {
-            Log.d(TAG, "getModelResponses: " + exception.message)
-            emit(MainState.Error)
+            emit(MainState.Error(exception.localizedMessage))
+            Log.d(TAG, "getModelResponses: " + exception.cause)
         }
+    }
+
+    suspend fun saveResponseData(response: List<ModelResponse>) {
+
+        val x = saveModels(getModelList(response))
+        saveCategories(getCategories(response))
+
+        Log.d(TAG, "getModelResponses: " + mainRepositoryImpl.checkSize())
+        Log.d(TAG, "getModelResponses: " + x)
+
+    }
+
+    fun getModelsByCat(cat: String): LiveData<List<Model>> {
+//        emit(MainState.Loading)
+//        try {
+//            val result = MainState.Success.OnModelsLoaded(
+//                    mainRepositoryImpl.getModelsByCat(cat))
+//            emit(result)
+//        } catch (exception: Exception) {
+//            Log.d(TAG, "loadModelsByCat: " + exception.message)
+//            emit(MainState.Error(exception.message.toString()))
+//
+//        }
+        return mainRepositoryImpl.getModelsByCat(cat)
+
+    }
+
+    fun getAllCats(): LiveData<List<Category>> {
+        return mainRepositoryImpl.getAllCats()
+    }
+
+
+    private fun getModelList(data: List<ModelResponse>): List<Model> {
+//        val cats = async { parseCategoriesToSaveFromModelResponseData(data) }
+        return parseModelsToSaveFromModelResponseData(data)
+//        Log.d(TAG, "saveModelResponseData: " + models.await().size)
+
+    }
+
+    private fun getCategories(data: List<ModelResponse>): List<Category> {
+        return parseCategoriesToSaveFromModelResponseData(data)
     }
 
 
@@ -62,47 +101,60 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
 //        compositeDisposable.add(modelResDisposable)
 //    }
 
-    private fun saveModelResponseDataCategories(categories: ArrayList<Category>) {
+
+    private suspend fun saveCategories(categories: List<Category>) {
         for (i in categories.indices) {
             mainRepositoryImpl.insertCat(categories[i])
         }
     }
 
-    private fun saveModelResponseDataModels(models: ArrayList<Model>) {
-        for (i in models.indices) {
-            mainRepositoryImpl.insertModel(models[i])
-        }
+    private suspend fun saveModels(models: List<Model>): List<Long> {
+
+        return mainRepositoryImpl.insertAllModels(*models.toTypedArray())
+
+//        for (i in models.indices) {
+//            val x = mainRepositoryImpl.insertModel(models[i])
+//            Log.d(TAG, "saveModels: " + x)
+//        }
+
     }
 
-    fun loadModelsByCat(cat: String) {
-        modelLiveData.value = MainState.Loading
-        val modelDisposable = mainRepositoryImpl.getModelsByCat(cat)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                        onSuccess = { onModelsFetched(it) },
-                        onError = { error ->
-                            modelLiveData.value = MainState.Error
-                            onError(error)
-                        }
-                )
-        compositeDisposable.add(modelDisposable)
-    }
+//    fun getModelsByCat(cat: String): LiveData<List<Model>> {
+//        return mainRepositoryImpl.getModelsByCat(cat)
+//    }
 
-    fun loadCategories() {
-        catLiveData.value = MainState.Loading
-        val catDisposable = mainRepositoryImpl.getAllCats()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                        onSuccess = { this.onCatsFetched(it) },
-                        onError = { error ->
-                            catLiveData.value = MainState.Error
-                            onError(error)
-                        }
-                )
-        compositeDisposable.add(catDisposable)
-    }
+//        Log.d(TAG, "loadModelsByCat: " + cat)
+//
+//        modelLiveData.value = MainState.Loading
+//
+//        val modelDisposable = mainRepositoryImpl.getModelsByCat(cat)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribeBy(
+//                        onSuccess = { onModelsFetched(it) },
+//                        onError = { error ->
+//                            modelLiveData.value = MainState.Error(error.localizedMessage)
+//                            Log.d(TAG, "loadModelsByCat: " + error.localizedMessage)
+////                            onError(error)
+//                        }
+//                )
+//        compositeDisposable.add(modelDisposable)
+//    }
+
+//    fun loadCategories() {
+//        catLiveData.value = MainState.Loading
+//        val catDisposable = mainRepositoryImpl.getAllCats()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribeBy(
+//                        onSuccess = { this.onCatsFetched(it) },
+//                        onError = { error ->
+//                            catLiveData.value = MainState.Error(error.localizedMessage)
+////                            onError(error)
+//                        }
+//                )
+//        compositeDisposable.add(catDisposable)
+//    }
 
     fun getModelLiveData(): LiveData<MainState> {
         return modelLiveData
@@ -124,11 +176,12 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
         this.wordHistory = wordHistory
     }
 
-    private fun onError(throwable: Throwable) {
-//        Log.d("MainViewModel", throwable.message)
-    }
+//    private fun onError(throwable: Throwable) {
+////        Log.d("MainViewModel", throwable.message)
+//    }
 
     private fun onModelsFetched(models: List<Model>) {
+        Log.d(TAG, "onModelsFetched: " + models.size)
         modelLiveData.value = MainState.Success.OnModelsLoaded(models)
     }
 
@@ -142,7 +195,7 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
 //        saveModelResponseDataModels(getModelsToSaveFromModelResponseData(modelResponses))
     }
 
-    private fun getCategoriesToSaveFromModelResponseData(modelResponses: ArrayList<ModelResponse>): ArrayList<Category> {
+    private fun parseCategoriesToSaveFromModelResponseData(modelResponses: List<ModelResponse>): List<Category> {
         val categories = arrayListOf<Category>()
         for (i in modelResponses.indices) {
             categories.add(Category(
@@ -153,9 +206,8 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
         return categories
     }
 
-    private fun getModelsToSaveFromModelResponseData(modelResponses: ArrayList<ModelResponse>): ArrayList<Model> {
+    private fun parseModelsToSaveFromModelResponseData(modelResponses: List<ModelResponse>): List<Model> {
         val models = arrayListOf<Model>()
-
         for (i in modelResponses.indices) {
             models.addAll(modelResponses[i].list)
         }

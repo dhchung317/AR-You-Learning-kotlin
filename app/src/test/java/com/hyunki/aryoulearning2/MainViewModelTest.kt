@@ -147,7 +147,7 @@ class MainViewModelTest {
         whenever(repository.getModelsByCat(testCat))
                 .thenReturn(Single.never())
 
-        model.loadModelsByCat(testCat)
+        model.getModelsByCat(testCat)
 
         val actual = model.getModelLiveData().value
 
@@ -166,7 +166,7 @@ class MainViewModelTest {
         whenever(repository.getModelsByCat(testCat))
                 .thenReturn(Single.just(testList))
 
-        model.loadModelsByCat(testCat)
+        model.getModelsByCat(testCat)
 
         val actual = model.getModelLiveData().value
 
@@ -187,7 +187,7 @@ class MainViewModelTest {
         whenever(repository.getModelsByCat(testCat))
                 .thenReturn(Single.error(Throwable()))
 
-        model.loadModelsByCat(testCat)
+        model.getModelsByCat(testCat)
 
         val actual = model.getModelLiveData().value
 

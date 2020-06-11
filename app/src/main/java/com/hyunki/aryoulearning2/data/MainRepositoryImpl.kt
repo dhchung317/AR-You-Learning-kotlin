@@ -1,5 +1,7 @@
 package com.hyunki.aryoulearning2.data
 
+import android.util.Log
+import androidx.lifecycle.LiveData
 import com.hyunki.aryoulearning2.data.db.dao.CategoryDao
 import com.hyunki.aryoulearning2.data.db.dao.ModelDao
 import com.hyunki.aryoulearning2.data.db.model.Category
@@ -16,23 +18,36 @@ import javax.inject.Singleton
 class MainRepositoryImpl @Inject
 constructor(private val modelDao: ModelDao, private val categoryDao: CategoryDao, private val mainApi: MainApi):MainRepository {
 
-    override fun getAllCats(): Single<List<Category>>{
+    override fun getAllCats(): LiveData<List<Category>>{
         return categoryDao.allCategories
     }
 
-    override suspend fun getModelResponses(): ArrayList<ModelResponse> = mainApi.getModels()
+    override suspend fun getModelResponses(): List<ModelResponse> = mainApi.getModels()
 
 
-    override fun getModelsByCat(cat: String): Single<List<Model>> {
+    override fun getModelsByCat(cat: String): LiveData<List<Model>> {
+//        Log.d("mainrepo", "getModelsByCat: " + cat)
+//        val models = modelDao.getModelsByCat(cat)
+//        Log.d("mainrepo", "getModelsByCat: " + models.size)
         return modelDao.getModelsByCat(cat)
     }
 
-    override fun insertModel(model: Model) {
-        modelDao.insert(model)
+    override suspend fun insertModel(model: Model): Long {
+        Log.d("mainrepo", "insertModel: " + model.name)
+        return modelDao.insert(model)
     }
 
-    override fun insertCat(category: Category) {
+    override suspend fun insertAllModels(vararg models: Model): List<Long> {
+        Log.d("mainrepo", "insertAllModels: " + models.size)
+        return modelDao.insertAll(*models)
+    }
+
+    override suspend fun insertCat(category: Category) {
         categoryDao.insert(category)
+    }
+
+    override fun checkSize(): Int {
+        return modelDao.checkSize()
     }
 
     override fun clearEntireDatabase() {

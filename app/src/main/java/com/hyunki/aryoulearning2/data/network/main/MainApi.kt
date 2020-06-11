@@ -10,6 +10,6 @@ import retrofit2.http.GET
 
 interface MainApi {
 
-    @GET("kelveenfabian/75380ae0e467f513762454bbe49a6c2e/raw/7c745364e690cb292ee13eae0a157df6323e3a19/category.json")
+    @GET("dhchung317/1b9d814e3c82d643e91eff507c82513e/raw/ac1c2c7aebbc3a2a218efa5745e61a78796af4bf/ar-you-learning-2.json")
     suspend fun getModels(): ArrayList<ModelResponse>
 }

@@ -18,9 +18,11 @@ import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
 import com.hyunki.aryoulearning2.data.MainState
+import com.hyunki.aryoulearning2.data.db.model.Category
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArHostFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.FragmentListener
 import com.hyunki.aryoulearning2.ui.main.fragment.category.rv.CategoryAdapter
+import com.hyunki.aryoulearning2.ui.main.fragment.hint.HintFragment
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 
 import javax.inject.Inject
@@ -51,11 +53,13 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
         progressBar = requireActivity().findViewById(R.id.progress_bar)
         recyclerView = view.findViewById(R.id.category_rv)
         mainViewModel = ViewModelProviders.of(requireActivity(), viewModelProviderFactory).get(MainViewModel::class.java)
-        mainViewModel.loadCategories()
-
-        mainViewModel.getCatLiveData().observe(viewLifecycleOwner, Observer { categories ->
-            renderCategories(categories)
+        mainViewModel.getAllCats().observe(viewLifecycleOwner, Observer {
+            renderCategories(it)
         })
+//
+//        mainViewModel.getCatLiveData().observe(viewLifecycleOwner, Observer { categories ->
+//            renderCategories(categories)
+//        })
         initRecyclerView()
     }
 
@@ -68,17 +72,17 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
         recyclerView.adapter = categoryAdapter
     }
 
-    private fun renderCategories(state: MainState) {
-        when (state) {
-            is MainState.Loading -> {
-                showProgressBar(true)
-            }
-            is MainState.Error -> showProgressBar(false)
-            is MainState.Success.OnCategoriesLoaded -> {
-                showProgressBar(false)
-                categoryAdapter.setLists(state.categories)
-            }
-        }
+    private fun renderCategories(categories: List<Category>) {
+//        when (state) {
+//            is MainState.Loading -> {
+//                showProgressBar(true)
+//            }
+//            is MainState.Error -> showProgressBar(false)
+//            is MainState.Success.OnCategoriesLoaded -> {
+//                showProgressBar(false)
+//                Log.d(TAG, "renderCategories: " + state.categories.size)
+                categoryAdapter.setLists(categories)
+
     }
 
     private fun showProgressBar(isVisible: Boolean) {
@@ -91,8 +95,8 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
 
     override fun setCurrentCategoryFromFragment(category: String) {
         parentFragmentManager.setFragmentResult(
-                ArHostFragment.REQUEST_KEY,
-                bundleOf(ArHostFragment.KEY_ID to category)
+                HintFragment.REQUEST_KEY,
+                bundleOf(HintFragment.KEY_ID to category)
         )
     }
 
