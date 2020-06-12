@@ -26,6 +26,11 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.toMap
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.transform
 
 class ArViewModel @Inject
 constructor(private val application: Application, private val mainRepositoryImpl: MainRepository) : ViewModel() {
@@ -66,7 +71,7 @@ constructor(private val application: Application, private val mainRepositoryImpl
             val result = mainRepositoryImpl.getModelsByCat(category)
             emit(ArState.Success.OnModelsLoaded(result))
 
-        }catch (exception: Exception) {
+        } catch (exception: Exception) {
             emit(ArState.Error)
         }
     }
@@ -86,7 +91,26 @@ constructor(private val application: Application, private val mainRepositoryImpl
 //        compositeDisposable.add(modelDisposable)
 //    }
 
-    fun loadListofMapsOfFutureModels(modelList: Single<List<Model>>) {
+    @ExperimentalCoroutinesApi
+    fun getListOfMapsOfFutureModels(modelList: List<Model>) = liveData(Dispatchers.Default) {
+        emit(ArState.Loading)
+        try {
+            val listOfMaps = modelList.asFlow()
+                    .transform<Model, MutableMap<String, CompletableFuture<ModelRenderable>>> { it ->
+                        val futureMap = mutableMapOf<String, CompletableFuture<ModelRenderable>>()
+                        futureMap[it.name] =
+                                ModelRenderable.builder().setSource(
+                                        application, Uri.parse(it.name + ".sfb")).build()
+
+                    }.toList()
+            emit(ArState.Success.OnFutureModelMapListLoaded(listOfMaps))
+
+        } catch (exception: Exception) {
+            emit(ArState.Error)
+        }
+    }
+
+    fun loadListOfMapsOfFutureModels(modelList: Single<List<Model>>) {
         futureModelMapListLiveData.value = ArState.Loading
         val listDisposable = modelList
                 .subscribeOn(Schedulers.io())
@@ -108,6 +132,8 @@ constructor(private val application: Application, private val mainRepositoryImpl
                 )
         compositeDisposable.add(listDisposable)
     }
+
+    fun getMapOfFutureLetters
 
     fun loadMapOfFutureLetters(futureMapList: Observable<List<MutableMap<String, CompletableFuture<ModelRenderable>>>>) {
         futureLetterMapLiveData.value = ArState.Loading

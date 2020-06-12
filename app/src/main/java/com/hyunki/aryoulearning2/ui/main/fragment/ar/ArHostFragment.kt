@@ -42,6 +42,7 @@ import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 import com.squareup.picasso.Picasso
 import io.reactivex.Observable
 import io.reactivex.Single
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.util.*
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -354,8 +355,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun runViewModel(arViewModel: ArViewModel) {
-        arViewModel.getFutureModelMapListLiveData().observe(viewLifecycleOwner,
-                Observer { mapList -> processFutureModelMapList(mapList) })
+//        arViewModel.getFutureModelMapListLiveData().observe(viewLifecycleOwner,
+//                Observer { mapList -> processFutureModelMapList(mapList) })
         arViewModel.getFutureLetterMapLiveData().observe(viewLifecycleOwner,
                 Observer { map -> processFutureLetterMap(map) })
         arViewModel.getModelMapListLiveData().observe(viewLifecycleOwner,
@@ -372,6 +373,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         }
     }
 
+    @ExperimentalCoroutinesApi
     private fun processModelData(state: ArState) {
         when (state) {
             is ArState.Loading -> showProgressBar(true)
@@ -379,7 +381,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             is ArState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
                 modelList = state.models
-                arViewModel.loadListofMapsOfFutureModels(Single.just(state.models))
+                arViewModel.getListOfMapsOfFutureModels(modelList).observe(viewLifecycleOwner, Observer {
+                    processFutureModelMapList(it)
+                })
             }
         }
     }
@@ -575,7 +579,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                         it, arrayOf(Manifest.permission.CAMERA), requestCode)
             }
         }
-
         const val REQUEST_KEY = "get-current-category"
         const val KEY_ID = "current-category"
     }
