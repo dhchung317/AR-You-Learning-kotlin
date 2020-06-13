@@ -40,8 +40,6 @@ import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 import com.squareup.picasso.Picasso
-import io.reactivex.Observable
-import io.reactivex.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.util.*
 import javax.inject.Inject
@@ -106,7 +104,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private var placedAnimation = false
 
     private var modelMapList: List<MutableMap<String, ModelRenderable>> = ArrayList()
-    private var letterMap = mutableMapOf<String, ModelRenderable>()
+    private var letterMap = mapOf<String, ModelRenderable>()
 
     //TODO implement text to speech
 //    private val textToSpeech: TextToSpeech
@@ -148,7 +146,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         requestCameraPermission(activity, RC_PERMISSIONS)
         arViewModel = ViewModelProvider(this, viewModelProviderFactory).get(ArViewModel::class.java)
         setUpARScene(arFragment)
-        runViewModel(arViewModel)
     }
 
     override fun onDestroyView() {
@@ -169,7 +166,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     override fun startNextGame(modelKey: String) {
         Log.d("startnextgame:arhostfragment", "startNextGame: condition hit")
         refreshModelResources()
-
         mainAnchor = mainHit.createAnchor()
         mainAnchorNode = AnchorNode(mainAnchor)
         mainAnchorNode!!.setParent(arFragment.arSceneView.scene)
@@ -354,17 +350,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         return false
     }
 
-    private fun runViewModel(arViewModel: ArViewModel) {
-//        arViewModel.getFutureModelMapListLiveData().observe(viewLifecycleOwner,
-//                Observer { mapList -> processFutureModelMapList(mapList) })
-        arViewModel.getFutureLetterMapLiveData().observe(viewLifecycleOwner,
-                Observer { map -> processFutureLetterMap(map) })
-        arViewModel.getModelMapListLiveData().observe(viewLifecycleOwner,
-                Observer { mapList -> processModelMapList(mapList) })
-        arViewModel.getLetterMapLiveData().observe(viewLifecycleOwner,
-                Observer { map -> processLetterMap(map) })
-    }
-
     private fun showProgressBar(isVisible: Boolean) {
         if (isVisible) {
             progressBar.visibility = View.VISIBLE
@@ -377,25 +362,37 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private fun processModelData(state: ArState) {
         when (state) {
             is ArState.Loading -> showProgressBar(true)
-            is ArState.Error -> showProgressBar(false)
+            is ArState.Error -> {
+                showProgressBar(false)
+                Log.d(TAG, "processModelData: " + state.e)
+            }
             is ArState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
+                Log.d(TAG, "processModelData: " + state.models.size)
                 modelList = state.models
-                arViewModel.getListOfMapsOfFutureModels(modelList).observe(viewLifecycleOwner, Observer {
+                arViewModel.getListOfMapsOfFutureModels(state.models).observe(viewLifecycleOwner, Observer {
                     processFutureModelMapList(it)
                 })
             }
         }
     }
 
+    @ExperimentalCoroutinesApi
     private fun processFutureModelMapList(state: ArState) {
         when (state) {
             is ArState.Loading -> showProgressBar(true)
-            is ArState.Error -> showProgressBar(false)
+            is ArState.Error -> {
+                showProgressBar(false)
+            }
             is ArState.Success.OnFutureModelMapListLoaded -> {
                 showProgressBar(false)
-                arViewModel.loadMapOfFutureLetters(Observable.just(state.futureModelMapList))
-                arViewModel.loadModelRenderables(Observable.just(state.futureModelMapList))
+
+                arViewModel.getMapOfFutureLetters(state.futureModelMapList).observe(viewLifecycleOwner, Observer {
+                    processFutureLetterMap(it)
+                })
+                arViewModel.getModelRenderables(state.futureModelMapList).observe(viewLifecycleOwner, Observer {
+                    processModelMapList(it)
+                })
             }
         }
     }
@@ -403,10 +400,14 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private fun processFutureLetterMap(state: ArState) {
         when (state) {
             is ArState.Loading -> showProgressBar(true)
-            is ArState.Error -> showProgressBar(false)
+            is ArState.Error -> {
+                showProgressBar(false)
+            }
             is ArState.Success.OnFutureLetterMapLoaded -> {
                 showProgressBar(false)
-                arViewModel.loadLetterRenderables(Observable.just(state.futureLetterMap))
+                arViewModel.getLetterRenderables(state.futureLetterMap).observe(viewLifecycleOwner, Observer {
+                    processLetterMap(it)
+                })
             }
         }
     }
@@ -414,7 +415,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private fun processModelMapList(state: ArState) {
         when (state) {
             is ArState.Loading -> showProgressBar(true)
-            is ArState.Error -> showProgressBar(false)
+            is ArState.Error -> {
+                showProgressBar(false)
+            }
             is ArState.Success.OnModelMapListLoaded -> {
                 showProgressBar(false)
                 modelMapList = state.modelMap
@@ -425,7 +428,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private fun processLetterMap(state: ArState) {
         when (state) {
             is ArState.Loading -> showProgressBar(true)
-            is ArState.Error -> showProgressBar(false)
+            is ArState.Error -> {
+                showProgressBar(false)
+            }
             is ArState.Success.OnLetterMapLoaded -> {
                 showProgressBar(false)
                 letterMap = state.letterMap
@@ -433,10 +438,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         }
     }
 
-//TODO - refactor animations to separate class
+    //TODO - refactor animations to separate class
     private fun setAnimations() {
         fadeIn = Animations.Normal().setCardFadeInAnimator(wordValidatorCv)
-
         fadeIn.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationStart(animation: Animator) {
                 frameLayout.addView(wordValidatorLayout)
@@ -561,17 +565,19 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 })
     }
 
+    @ExperimentalCoroutinesApi
     private fun onFragmentResult(requestKey: String, result: Bundle) {
         if (REQUEST_KEY == requestKey) {
             category = result.getString(KEY_ID)
             arViewModel.getModelsFromRepositoryByCategory(category)
                     .observe(viewLifecycleOwner, Observer {
                         processModelData(it)
-            })
+                    })
         }
     }
 
     companion object {
+        private const val TAG = "arvhostfragment"
         private const val RC_PERMISSIONS = 0x123
         fun requestCameraPermission(activity: Activity?, requestCode: Int) {
             activity?.let {
@@ -579,6 +585,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                         it, arrayOf(Manifest.permission.CAMERA), requestCode)
             }
         }
+
         const val REQUEST_KEY = "get-current-category"
         const val KEY_ID = "current-category"
     }
