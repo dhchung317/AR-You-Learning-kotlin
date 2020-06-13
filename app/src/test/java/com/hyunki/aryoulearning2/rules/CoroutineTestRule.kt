@@ -9,6 +9,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
+import kotlin.coroutines.CoroutineContext
 
 @ExperimentalCoroutinesApi
 class CoroutineTestRule(val testDispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()) : TestWatcher() {
@@ -19,6 +20,7 @@ class CoroutineTestRule(val testDispatcher: TestCoroutineDispatcher = TestCorout
         override fun main(): CoroutineDispatcher = testDispatcher
         override fun unconfined(): CoroutineDispatcher = testDispatcher
     }
+
 
     override fun starting(description: Description?) {
         super.starting(description)

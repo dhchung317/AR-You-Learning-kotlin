@@ -2,6 +2,7 @@ package com.hyunki.aryoulearning2
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
@@ -17,6 +18,7 @@ import com.nhaarman.mockitokotlin2.*
 import io.reactivex.Observable
 import io.reactivex.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.*
 import org.junit.Before
@@ -25,6 +27,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+import java.lang.Exception
+import java.lang.NullPointerException
 import java.util.concurrent.CompletableFuture
 
 //TODO remake tests for coroutines
@@ -56,12 +60,10 @@ class ArViewModelTest {
         model = ArViewModel(application, repository, coroutinesTestRule.testDispatcherProvider)
     }
 
-
     private fun createObserver(): Observer<ArState> = spy(Observer { })
 
-
     @Test
-    fun `assert getModelsFromRepositoryByCategory() sets modelLiveData to arStateLoading on call before complete`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+    fun `assert getModelsFromRepositoryByCategory() emits arStateLoading on call before success`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val testCat = "testCategory"
 
         val data = listOf(Model("test1", testCat, "testImage"))
@@ -76,104 +78,56 @@ class ArViewModelTest {
         verify(observer).onChanged(ArState.Success.OnModelsLoaded(data))
     }
 
-//    @Test
-//    fun `assert fetchModelsFromRepository() sets modelLiveData to arStateSuccess on complete`() {
-//        val testCat = "testCat"
-//        val testList = arrayListOf<Model>()
-//        testList.add(Model(testCat, "test1", "image1"))
-//
-//        val expected = ArState.Success.OnModelsLoaded(testList)
-//
-//        whenever(repository.getModelsByCat(testCat))
-//                .thenReturn(Single.just(testList))
-//
-//        model.fetchModelsFromRepository(testCat)
-//
-//        val actual = model.getModelLiveData().value
-//
-//        assertNotNull(actual)
-//        assertEquals(expected, actual)
-//
-//        val state = actual as ArState.Success.OnModelsLoaded
-//        val stateVal = state.models
-//
-//        assertTrue(stateVal[0].category == testCat)
-//    }
-//
-//    @Test
-//    fun `assert fetchModelsFromRepository() sets modelLiveData to arStateError on error`() {
-//        val testCat = "testCat"
-//
-//        val expected = ArState.Error
-//
-//        whenever(repository.getModelsByCat(testCat))
-//                .thenReturn(Single.error(Throwable()))
-//
-//        model.fetchModelsFromRepository(testCat)
-//
-//        val actual = model.getModelLiveData().value
-//
-//        assertNotNull(actual)
-//        assertEquals(expected, actual)
-//    }
-//
-//    @Test
-//    fun `assert loadListOfMapsOfFutureModels() sets futureModelMapListLiveData to arStateLoading on call before complete`() {
-//        val expected = ArState.Loading
-//
-//        val mockObserver = this.createObserver()
-//
-//        model.getFutureModelMapListLiveData().observeForever(mockObserver)
-//
-//        model.loadListOfMapsOfFutureModels(Single.never())
-//
-//        verify(mockObserver).onChanged(check {
-//            assertEquals(expected, it)
-//        })
-//    }
+    @Test(expected = Exception::class)
+    fun `assert getModelsFromRepositoryByCategory() emits arStateError on error`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+        val testCat = "testCategory"
+
+        val error = Exception("")
+
+        whenever(repository.getModelsByCat(testCat)).thenThrow(error)
+
+        val observer = createObserver()
+        model.getModelsFromRepositoryByCategory(testCat).observeForever(observer)
+
+        verify(observer).onChanged(ArState.Loading)
+        verify(observer).onChanged(ArState.Error(error.localizedMessage))
+    }
+
+    @Test
+    fun `assert getListOfMapsOfFutureModels() emits arStateLoading on call before success`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+        val testCat = "testCategory"
+        val testInput = listOf(Model("test1", testCat, "testImage"))
+
+        val observer = createObserver()
+
+        model.getListOfMapsOfFutureModels(testInput).observeForever(observer)
+
+        val inOrder = inOrder(observer)
+        inOrder.verify(observer).onChanged(ArState.Loading)
+        inOrder.verify(observer).onChanged(check {
+            assertEquals(ArState.Success.OnFutureModelMapListLoaded::class.java, it::class.java)
+        })
+    }
 //
 //    //TODO test loadlistofmapsotfuturemodels for success case and test for correct/incorrect values
-//
-//    @Test
-//    fun `assert loadListOfMapsOfFutureModels() sets futureModelMapListLiveData to arStateSuccess on success`() {
-//
-//        val modelList = arrayListOf<Model>()
-//        modelList.add(Model("test","abc","image1"))
-//
-//        val expected = ArState.Success.OnFutureModelMapListLoaded::class
-//
-//        val mockObserver = this.createObserver()
-//
-//        model.getFutureModelMapListLiveData().observeForever(mockObserver)
-//
-//        val inOrder = inOrder(mockObserver)
-//
-//        model.loadListOfMapsOfFutureModels(Single.just(modelList))
-//
-//        inOrder.verify(mockObserver).onChanged(ArState.Loading)
-//        inOrder.verify(mockObserver).onChanged(check {
-//            assertEquals(expected, it::class)
-//        })
-//    }
-//
-//    @Test
-//    fun `assert loadListOfMapsOfFutureModels() sets futureModelMapListLiveData to arStateError on error`() {
-//        val expected = ArState.Error
-//
-//        val mockObserver = this.createObserver()
-//
-//        model.getFutureModelMapListLiveData().observeForever(mockObserver)
-//
-//        val inOrder = inOrder(mockObserver)
-//
-//        model.loadListOfMapsOfFutureModels(Single.error(Throwable()))
-//
-//        inOrder.verify(mockObserver).onChanged(ArState.Loading)
-//        inOrder.verify(mockObserver).onChanged(check {
-//            assertEquals(expected, it)
-//        })
-//    }
-//
+
+    @Suppress("UNCHECKED_CAST")
+    @Test
+    fun `assert getListOfMapsOfFutureModels() emits arStateError on error`() {
+        val badTestInput = listOf(Any())
+
+        val observer = this.createObserver()
+
+        model.getListOfMapsOfFutureModels(badTestInput as List<Model>).observeForever(observer)
+
+        val inOrder = inOrder(observer)
+
+        inOrder.verify(observer).onChanged(ArState.Loading)
+        inOrder.verify(observer).onChanged(check {
+            assertEquals(ArState.Error::class.java, it::class.java)
+        })
+    }
+
 //    @Test
 //    fun `assert loadMapOfFutureLetters() sets futureModelMapListLiveData to arStateLoading on call before complete`() {
 //        val expected = ArState.Loading
