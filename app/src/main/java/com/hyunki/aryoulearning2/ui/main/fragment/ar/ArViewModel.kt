@@ -10,7 +10,7 @@ import com.google.ar.sceneform.rendering.ModelRenderable
 import com.hyunki.aryoulearning2.data.ArState
 import com.hyunki.aryoulearning2.data.MainRepository
 import com.hyunki.aryoulearning2.data.db.model.Model
-import io.reactivex.disposables.CompositeDisposable
+import com.hyunki.aryoulearning2.util.DispatcherProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -19,8 +19,12 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 
-class ArViewModel @Inject
-constructor(private val application: Application, private val mainRepositoryImpl: MainRepository) : ViewModel() {
+class ArViewModel
+@Inject
+constructor(
+        private val application: Application,
+        private val mainRepositoryImpl: MainRepository,
+        private val defaultDispatcher: DispatcherProvider) : ViewModel() {
     private val modelLiveData = MutableLiveData<ArState>()
     private val futureModelMapListLiveData = MutableLiveData<ArState>()
     private val futureLetterMapLiveData = MutableLiveData<ArState>()
@@ -42,7 +46,7 @@ constructor(private val application: Application, private val mainRepositoryImpl
 
 //TODO fix use of await
     @ExperimentalCoroutinesApi
-    fun getListOfMapsOfFutureModels(modelList: List<Model>) = liveData(Dispatchers.IO) {
+    fun getListOfMapsOfFutureModels(modelList: List<Model>) = liveData(defaultDispatcher.io()) {
         emit(ArState.Loading)
         try {
             withContext(Dispatchers.Main) {
@@ -68,7 +72,7 @@ constructor(private val application: Application, private val mainRepositoryImpl
 
     //TODO refactor long chains
     @ExperimentalCoroutinesApi
-    fun getMapOfFutureLetters(futureModelMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>) = liveData(Dispatchers.IO) {
+    fun getMapOfFutureLetters(futureModelMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>) = liveData(defaultDispatcher.io()) {
         emit(ArState.Loading)
 
         try {
@@ -97,7 +101,7 @@ constructor(private val application: Application, private val mainRepositoryImpl
         }
     }
 
-    fun getLetterRenderables(futureLetterMap: Map<String, CompletableFuture<ModelRenderable>>) = liveData(Dispatchers.IO) {
+    fun getLetterRenderables(futureLetterMap: Map<String, CompletableFuture<ModelRenderable>>) = liveData(defaultDispatcher.io()) {
         val count = futureLetterMap.size
         emit(ArState.Loading)
         try {
@@ -120,7 +124,7 @@ constructor(private val application: Application, private val mainRepositoryImpl
         }
     }
 
-    fun getModelRenderables(futureModelMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>) = liveData(Dispatchers.IO) {
+    fun getModelRenderables(futureModelMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>) = liveData(defaultDispatcher.io()) {
         val count = futureModelMapList.size
         emit(ArState.Loading)
         try {

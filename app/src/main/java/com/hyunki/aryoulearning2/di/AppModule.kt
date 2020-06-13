@@ -7,6 +7,8 @@ import com.hyunki.aryoulearning2.data.db.dao.CategoryDao
 import com.hyunki.aryoulearning2.data.db.dao.ModelDao
 import com.hyunki.aryoulearning2.data.network.main.MainApi
 import com.hyunki.aryoulearning2.util.Constants
+import com.hyunki.aryoulearning2.util.DefaultDispatcherProvider
+import com.hyunki.aryoulearning2.util.DispatcherProvider
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 
 import javax.inject.Singleton
@@ -45,6 +47,12 @@ class AppModule {
     @Singleton
     fun provideMainRepository(modelDao: ModelDao, categoryDao: CategoryDao, mainApi: MainApi): MainRepository {
         return MainRepositoryImpl(modelDao, categoryDao, mainApi)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDefaultDispatcher(): DispatcherProvider {
+        return DefaultDispatcherProvider()
     }
 
 }
