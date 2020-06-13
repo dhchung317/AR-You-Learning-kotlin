@@ -18,6 +18,7 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 
+//TODO remake tests for coroutines
 class MainViewModelTest {
 
     @Rule

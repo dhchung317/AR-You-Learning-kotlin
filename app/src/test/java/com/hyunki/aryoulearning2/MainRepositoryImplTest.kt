@@ -25,6 +25,7 @@ import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+//TODO remake tests for refactored database logic
 @RunWith(AndroidJUnit4::class)
 class MainRepositoryImplTest {
 

@@ -21,8 +21,6 @@ import javax.inject.Inject
 
 class ArViewModel @Inject
 constructor(private val application: Application, private val mainRepositoryImpl: MainRepository) : ViewModel() {
-    private val compositeDisposable = CompositeDisposable()
-
     private val modelLiveData = MutableLiveData<ArState>()
     private val futureModelMapListLiveData = MutableLiveData<ArState>()
     private val futureLetterMapLiveData = MutableLiveData<ArState>()
@@ -60,7 +58,6 @@ constructor(private val application: Application, private val mainRepositoryImpl
                                 listOfMaps.add(futureMap)
 
                             }.collect()
-                    Log.d(TAG, "getListOfMapsOfFutureModels listofmaps: " + listOfMaps.size)
                     emit(ArState.Success.OnFutureModelMapListLoaded(listOfMaps))
                 }.await()
             }

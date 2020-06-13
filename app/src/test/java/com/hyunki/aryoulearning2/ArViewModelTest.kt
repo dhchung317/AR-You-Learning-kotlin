@@ -23,7 +23,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import java.util.concurrent.CompletableFuture
-
+//TODO remake tests for coroutines
 @RunWith(AndroidJUnit4::class)
 class ArViewModelTest {
 
