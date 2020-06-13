@@ -20,9 +20,9 @@ class GameManagerTest {
 
     private lateinit var gameCommandListener: GameCommandListener
 
-    lateinit var testKeys: ArrayList<Model>
+    private lateinit var testKeys: ArrayList<Model>
 
-    lateinit var navListener: NavListener
+    private lateinit var navListener: NavListener
 
     @Before
     fun setup() {
