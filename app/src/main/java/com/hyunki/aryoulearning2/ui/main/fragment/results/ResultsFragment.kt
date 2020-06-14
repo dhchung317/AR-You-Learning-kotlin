@@ -91,7 +91,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         progressBar = requireActivity().findViewById(R.id.progress_bar)
         initializeViews(view)
         setViews()
-        renderModelList(viewModel.getModelLiveData().value!!)
+//        renderModelList(viewModel.getModelLiveData().value!!)
     }
 
     private fun setViews() {

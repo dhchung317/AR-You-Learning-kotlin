@@ -1,29 +1,39 @@
 package com.hyunki.aryoulearning2
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.Observer
+import com.hyunki.aryoulearning2.data.ArState
 import com.hyunki.aryoulearning2.data.MainRepository
 import com.hyunki.aryoulearning2.data.MainState
 import com.hyunki.aryoulearning2.data.db.model.Category
 import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.data.db.model.ModelResponse
+import com.hyunki.aryoulearning2.rules.CoroutineTestRule
 import com.hyunki.aryoulearning2.rules.RxImmediateSchedulerRule
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import io.reactivex.Observable
 import io.reactivex.Single
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+import java.lang.Exception
 
 //TODO remake tests for coroutines
+@ExperimentalCoroutinesApi
 class MainViewModelTest {
 
-    @Rule
-    @JvmField
-    var testSchedulerRule = RxImmediateSchedulerRule()
+    @get:Rule
+    var coroutinesTestRule = CoroutineTestRule()
+
+//    @Rule
+//    @JvmField
+//    var testSchedulerRule = RxImmediateSchedulerRule()
 
     @Rule
     @JvmField
@@ -32,28 +42,38 @@ class MainViewModelTest {
     @Mock
     lateinit var repository: MainRepository
 
-    lateinit var model: MainViewModel
+    lateinit var viewModel: MainViewModel
 
     @Before
     fun setUp() {
         MockitoAnnotations.initMocks(this)
-        model = MainViewModel(repository)
+        viewModel = MainViewModel(repository, coroutinesTestRule.testDispatcherProvider)
     }
 
-//    @Test
-//    fun `assert loadResponses() sets modelResponseData to mainStateError on error`() {
-//        val expected = MainState.Error
-//
-//        whenever(repository.getModelResponses())
-//                .thenReturn(Observable.error(Throwable()))
-//
-//        model.loadModelResponses()
-//
-//        val actual = model.getModelResponsesData().value
-//
-//        assertNotNull(actual)
-//        assertEquals(expected, actual)
-//    }
+    private fun createObserver(): Observer<MainState> = spy(Observer { })
+
+    @Test(expected = Exception::class)
+    fun `assert loadModelResponses() emits mainStateError on error`()
+            = coroutinesTestRule.testDispatcher.runBlockingTest {
+
+        val observer = createObserver()
+        val exception = Exception("")
+
+        try{
+            whenever(repository.getModelResponses())
+                    .thenThrow(exception)
+        }finally {
+            viewModel.getModelResponses().observeForever(observer)
+            val inOrder = inOrder(observer)
+            inOrder.verify(observer).onChanged(MainState.Loading)
+            inOrder.verify(observer).onChanged(
+                    check{
+                        assertEquals(MainState.Error::class.java, it::class.java)
+                    }
+            )
+        }
+
+    }
 //
 //    @Test
 //    fun `assert loadResponses() sets modelResponseData to mainStateLoading on call`() {
