@@ -69,7 +69,7 @@ constructor(
         emit(ArState.Loading)
 
         try {
-            withContext(Dispatchers.Main) {
+            withContext(defaultDispatcher.main()) {
                 val wordList = async {
                     futureModelMapList.asFlow()
                             .map { it.keys }
@@ -98,7 +98,7 @@ constructor(
         val count = futureLetterMap.size
         emit(ArState.Loading)
         try {
-            withContext(Dispatchers.Default) {
+            withContext(defaultDispatcher.default()) {
                 val list = async {
                     futureLetterMap.entries.asFlow()
                             .map { it ->
@@ -121,19 +121,22 @@ constructor(
         val count = futureModelMapList.size
         emit(ArState.Loading)
         try {
-            withContext(Dispatchers.IO) {
+            withContext(defaultDispatcher.default()) {
                 val list = async {
                     futureModelMapList.asSequence().asIterable()
                             .map { it.entries }
                             .flatten()
                             .map { mutableMapOf(Pair(it.key, it.value.join())) }
                             .toList()
-                }
-                emit(ArState.Success.OnModelMapListLoaded(list.await()))
-                if (list.await().size == count) {
-                    Log.d(TAG, "getModelRenderables: " + list.await().size)
+                }.await()
+
+
+                if (list.size == count) {
+                    Log.d(TAG, "getModelRenderables: " + list.size)
                     isModelsLoaded = true
                 }
+
+                emit(ArState.Success.OnModelMapListLoaded(list))
             }
         } catch (exception: Exception) {
             emit(ArState.Error(exception.localizedMessage))

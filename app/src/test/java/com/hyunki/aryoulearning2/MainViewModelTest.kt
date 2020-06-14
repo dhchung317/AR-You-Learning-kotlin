@@ -31,9 +31,9 @@ class MainViewModelTest {
     @get:Rule
     var coroutinesTestRule = CoroutineTestRule()
 
-//    @Rule
-//    @JvmField
-//    var testSchedulerRule = RxImmediateSchedulerRule()
+    @Rule
+    @JvmField
+    var testSchedulerRule = RxImmediateSchedulerRule()
 
     @Rule
     @JvmField
