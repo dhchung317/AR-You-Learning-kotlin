@@ -36,8 +36,6 @@ import java.lang.NullPointerException
 import java.util.concurrent.CompletableFuture
 import kotlin.math.exp
 
-//TODO refactor tests
-//kotlinx.coroutines.test.TestCoroutineDispatcher.runBlockingTest
 @ExperimentalCoroutinesApi
 @LooperMode(LooperMode.Mode.PAUSED)
 @RunWith(AndroidJUnit4::class)

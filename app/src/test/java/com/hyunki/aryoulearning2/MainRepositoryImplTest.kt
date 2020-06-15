@@ -33,7 +33,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.lang.IllegalArgumentException
 
-//TODO remake tests for refactored database logic
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
 class MainRepositoryImplTest {
