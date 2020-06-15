@@ -40,7 +40,6 @@ constructor(
         }
     }
 
-    //TODO fix use of await
     @ExperimentalCoroutinesApi
     fun getListOfMapsOfFutureModels(modelList: List<Model>) = liveData(defaultDispatcher.io()) {
         emit(ArState.Loading)

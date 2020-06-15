@@ -25,7 +25,6 @@ import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import java.lang.Exception
 
-//TODO remake tests for coroutines
 @ExperimentalCoroutinesApi
 class MainViewModelTest {
 

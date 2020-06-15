@@ -107,8 +107,6 @@ class ArViewModelTest {
 
     }
 
-//TODO makesure tests run all their lines
-
     @Test
     fun `assert getListOfMapsOfFutureModels() emits arStateLoading on call before success`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val testCat = "testCategory"
