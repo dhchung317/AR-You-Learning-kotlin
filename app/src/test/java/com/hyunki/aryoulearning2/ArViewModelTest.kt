@@ -36,7 +36,7 @@ import java.lang.NullPointerException
 import java.util.concurrent.CompletableFuture
 import kotlin.math.exp
 
-//TODO remake tests for coroutines
+//TODO refactor tests
 //kotlinx.coroutines.test.TestCoroutineDispatcher.runBlockingTest
 @ExperimentalCoroutinesApi
 @LooperMode(LooperMode.Mode.PAUSED)
@@ -57,7 +57,7 @@ class ArViewModelTest {
     @Mock
     lateinit var repository: MainRepository
 
-    lateinit var model: ArViewModel
+    private lateinit var model: ArViewModel
 
     @Before
     fun setUp() {
@@ -84,8 +84,10 @@ class ArViewModelTest {
         shadowOf(Looper.getMainLooper()).idle()
 
         val inOrder = inOrder(spyObserver)
-        inOrder.verify(spyObserver).onChanged(ArState.Loading)
-        inOrder.verify(spyObserver).onChanged(ArState.Success.OnModelsLoaded(data))
+
+        async { inOrder.verify(spyObserver).onChanged(ArState.Loading) }.await()
+
+        async { inOrder.verify(spyObserver).onChanged(ArState.Success.OnModelsLoaded(data)) }.await()
 
     }
 
@@ -223,9 +225,7 @@ class ArViewModelTest {
 
         val spyObserver = createObserver()
 
-        async{
-            model.getLetterRenderables(map).observeForever(spyObserver)
-        }.await()
+        model.getLetterRenderables(map).observeForever(spyObserver)
 
         val inOrder = inOrder(spyObserver)
 
@@ -283,7 +283,6 @@ class ArViewModelTest {
 
         val spyObserver = createObserver()
 
-
         model.getModelRenderables(badList as List<Map<String, CompletableFuture<ModelRenderable>>>).observeForever(spyObserver)
 
         val inOrder = inOrder(spyObserver)
@@ -291,23 +290,5 @@ class ArViewModelTest {
         inOrder.verify(spyObserver).onChanged(check {
             assertEquals(ArState.Error::class.java, it::class.java)
         })
-
     }
-
-//    @Test
-//    fun `assert loadModelRenderables() sets modelMapListLiveData to arStateError on error`() {
-//        val expected = ArState.Error
-//
-//        val mockObserver = this.createObserver()
-//        model.getModelMapListLiveData().observeForever(mockObserver)
-//
-//        val inOrder = inOrder(mockObserver)
-//
-//        model.loadModelRenderables(Observable.error(Throwable()))
-//
-//        inOrder.verify(mockObserver).onChanged(ArState.Loading)
-//        inOrder.verify(mockObserver).onChanged(check {
-//            assertEquals(expected, it)
-//        })
-//    }
 }
