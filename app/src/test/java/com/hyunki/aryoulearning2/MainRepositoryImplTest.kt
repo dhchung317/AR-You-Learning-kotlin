@@ -31,6 +31,7 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.lang.IllegalArgumentException
 
 //TODO remake tests for refactored database logic
 @ExperimentalCoroutinesApi
@@ -49,12 +50,10 @@ class MainRepositoryImplTest {
     private lateinit var db: ModelDatabase
 
     private val testDispatcher = coroutinesTestRule.testDispatcher
-//    private val testScope = TestCoroutineScope(coroutinesTestRule.testDispatcher)
 
     @Before
     fun setup() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-
         db = Room.inMemoryDatabaseBuilder(context, ModelDatabase::class.java)
                 .setTransactionExecutor(testDispatcher.asExecutor())
                 .allowMainThreadQueries()
@@ -160,14 +159,13 @@ class MainRepositoryImplTest {
         val testCategory = "testCategory"
         val notTestCategory = "notTestCategory"
 
-        db.modelDao().insert(Model(testCategory, "testModel1", "image1"))
-        db.modelDao().insert(Model(testCategory, "testModel2", "image2"))
-        db.modelDao().insert(Model(notTestCategory, "testModel3", "image3"))
-
         val repo = MainRepositoryImpl(modelDao, catDao, api)
 
-        val expected = 2
+        db.modelDao().insert(Model(name ="testModel1", category = testCategory, image ="image1"))
+        db.modelDao().insert(Model(name ="testModel2", category = testCategory, image ="image2"))
+        db.modelDao().insert(Model(name ="testModel3", category = notTestCategory, image ="image3"))
 
+        val expected = 2
         val actual = repo.getModelsByCat(testCategory).size
 
         assertEquals(expected, actual)
@@ -259,21 +257,13 @@ class MainRepositoryImplTest {
         val repo = MainRepositoryImpl(modelDao, catDao, api)
 
         val testCategory = "category1"
+        db.modelDao().insert(Model("testModel1", testCategory, "image1"))
 
-
-            val modelInserted = async {
-                when (db.modelDao().insert(Model("testModel1", testCategory, "image1"))){
-                    (-1).toLong() -> false
-                    else -> true
-                }
-            }
-            db.catDao().insert(Category(testCategory, "image1"))
-
+        db.catDao().insert(Category(testCategory, "image1"))
 
         assertNotNull(db.modelDao().getModelsByCat(testCategory))
         assertNotNull(db.catDao().getAllCategories())
 
-        assertEquals(true, modelInserted.await())
         assertEquals(1, db.modelDao().getModelsByCat(testCategory).size)
         assertEquals(1, db.catDao().getAllCategories().size)
 
@@ -286,7 +276,6 @@ class MainRepositoryImplTest {
         assertEquals(expected, db.modelDao().getModelsByCat(testCategory).size)
         assertEquals(expected, db.catDao().getAllCategories().size)
     }
-
 
     @After
     fun teardown() {

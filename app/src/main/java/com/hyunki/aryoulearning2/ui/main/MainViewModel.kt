@@ -9,6 +9,8 @@ import com.hyunki.aryoulearning2.data.db.model.Category
 import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.data.db.model.ModelResponse
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
+import com.hyunki.aryoulearning2.util.DefaultDispatcherProvider
+import com.hyunki.aryoulearning2.util.DispatcherProvider
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
@@ -18,13 +20,11 @@ import javax.inject.Inject
 import kotlin.collections.ArrayList
 //TODO fix/improve data structures/datamodeling logic
 class MainViewModel @Inject
-internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel() {
-    private val modelResponsesData = MutableLiveData<MainState>()
-    private val modelLiveData = MutableLiveData<MainState>()
-    private val catLiveData = MutableLiveData<MainState>()
+constructor(private val mainRepositoryImpl: MainRepository, private val defaultDispatcher: DispatcherProvider) : ViewModel() {
+
     private var wordHistory: List<CurrentWord> = ArrayList()
 
-    fun getModelResponses() = liveData(Dispatchers.IO) {
+    fun getModelResponses() = liveData(defaultDispatcher.io()) {
         emit(MainState.Loading)
         try {
             val result = mainRepositoryImpl.getModelResponses()
@@ -34,7 +34,6 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
             }
         } catch (exception: Exception) {
             emit(MainState.Error(exception.localizedMessage))
-            Log.d(TAG, "getModelResponses: " + exception.cause)
         }
     }
 
@@ -43,7 +42,7 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
         saveCategories(getCategories(response))
     }
 
-    fun getModelsByCat(cat: String) = liveData(Dispatchers.IO) {
+    fun getModelsByCat(cat: String) = liveData(defaultDispatcher.io()) {
         emit(MainState.Loading)
         try {
             val result = mainRepositoryImpl.getModelsByCat(cat)
@@ -53,7 +52,7 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
         }
     }
 
-    fun getAllCats() = liveData(Dispatchers.IO) {
+    fun getAllCats() = liveData(defaultDispatcher.io()) {
         emit(MainState.Loading)
         try {
             val result = mainRepositoryImpl.getAllCats()
@@ -69,37 +68,6 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
 
     private fun getCategories(data: List<ModelResponse>): List<Category> {
         return parseCategoriesToSaveFromModelResponseData(data)
-    }
-
-    private suspend fun saveCategories(categories: List<Category>) {
-        for (i in categories.indices) {
-            mainRepositoryImpl.insertCat(categories[i])
-        }
-    }
-
-    private suspend fun saveModels(models: List<Model>): List<Long> {
-        return mainRepositoryImpl.insertAllModels(*models.toTypedArray())
-    }
-
-
-    fun getModelLiveData(): LiveData<MainState> {
-        return modelLiveData
-    }
-
-    fun getCatLiveData(): LiveData<MainState> {
-        return catLiveData
-    }
-
-    fun getModelResponsesData(): LiveData<MainState> {
-        return modelResponsesData
-    }
-
-    fun getWordHistory(): List<CurrentWord> {
-        return wordHistory
-    }
-
-    fun setWordHistory(wordHistory: List<CurrentWord>) {
-        this.wordHistory = wordHistory
     }
 
     private fun parseCategoriesToSaveFromModelResponseData(modelResponses: List<ModelResponse>): List<Category> {
@@ -119,6 +87,24 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
             models.addAll(modelResponses[i].list)
         }
         return models
+    }
+
+    private suspend fun saveCategories(categories: List<Category>) {
+        for (i in categories.indices) {
+            mainRepositoryImpl.insertCat(categories[i])
+        }
+    }
+
+    private suspend fun saveModels(models: List<Model>): List<Long> {
+        return mainRepositoryImpl.insertAllModels(*models.toTypedArray())
+    }
+
+    fun getWordHistory(): List<CurrentWord> {
+        return wordHistory
+    }
+
+    fun setWordHistory(wordHistory: List<CurrentWord>) {
+        this.wordHistory = wordHistory
     }
 
     fun clearEntireDatabase() {

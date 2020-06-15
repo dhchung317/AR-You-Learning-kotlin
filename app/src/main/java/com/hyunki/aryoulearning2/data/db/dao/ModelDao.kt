@@ -12,7 +12,7 @@ interface ModelDao {
     @Query("SELECT name, category, image FROM models WHERE category LIKE :category")
     suspend fun getModelsByCat(category: String): List<Model>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(model: Model): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
