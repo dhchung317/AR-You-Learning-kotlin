@@ -27,7 +27,7 @@ import com.hyunki.aryoulearning2.ui.main.fragment.hint.HintFragment
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 
 import javax.inject.Inject
-
+//TODO close button for categoryfragment
 class CategoryFragment @Inject
 constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
         Fragment(), FragmentListener {
@@ -39,7 +39,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
     private lateinit var progressBar: ProgressBar
 
     private lateinit var categoryAdapter: CategoryAdapter
-
 
     override fun onAttach(context: Context) {
         (activity?.application as BaseApplication).appComponent.inject(this)
@@ -75,7 +74,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
             is MainState.Success.OnCategoriesLoaded -> {
                 showProgressBar(false)
                 categoryAdapter.setLists(state.categories)
-                Log.d(TAG, "renderCategories: " + state.categories.size)
             }
         }
     }

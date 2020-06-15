@@ -2,7 +2,6 @@ package com.hyunki.aryoulearning2
 
 import android.app.Application
 import android.content.Context
-import android.view.Display
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
@@ -24,7 +23,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import java.util.concurrent.CompletableFuture
-import kotlin.math.exp
 
 @RunWith(AndroidJUnit4::class)
 class ArViewModelTest {
@@ -118,7 +116,7 @@ class ArViewModelTest {
 
         model.getFutureModelMapListLiveData().observeForever(mockObserver)
 
-        model.loadListofMapsOfFutureModels(Single.never())
+        model.loadListOfMapsOfFutureModels(Single.never())
 
         verify(mockObserver).onChanged(check {
             assertEquals(expected, it)
@@ -141,7 +139,7 @@ class ArViewModelTest {
 
         val inOrder = inOrder(mockObserver)
 
-        model.loadListofMapsOfFutureModels(Single.just(modelList))
+        model.loadListOfMapsOfFutureModels(Single.just(modelList))
 
         inOrder.verify(mockObserver).onChanged(ArState.Loading)
         inOrder.verify(mockObserver).onChanged(check {
@@ -159,7 +157,7 @@ class ArViewModelTest {
 
         val inOrder = inOrder(mockObserver)
 
-        model.loadListofMapsOfFutureModels(Single.error(Throwable()))
+        model.loadListOfMapsOfFutureModels(Single.error(Throwable()))
 
         inOrder.verify(mockObserver).onChanged(ArState.Loading)
         inOrder.verify(mockObserver).onChanged(check {
