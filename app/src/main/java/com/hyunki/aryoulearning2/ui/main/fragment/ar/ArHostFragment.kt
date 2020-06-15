@@ -164,7 +164,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     override fun startNextGame(modelKey: String) {
-        Log.d("startnextgame:arhostfragment", "startNextGame: condition hit")
         refreshModelResources()
         mainAnchor = mainHit.createAnchor()
         mainAnchorNode = AnchorNode(mainAnchor)
@@ -585,7 +584,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                         it, arrayOf(Manifest.permission.CAMERA), requestCode)
             }
         }
-
         const val REQUEST_KEY = "get-current-category"
         const val KEY_ID = "current-category"
     }

@@ -16,11 +16,9 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
-
+//TODO fix/improve data structures/datamodeling logic
 class MainViewModel @Inject
 internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel() {
-    private val compositeDisposable = CompositeDisposable()
-
     private val modelResponsesData = MutableLiveData<MainState>()
     private val modelLiveData = MutableLiveData<MainState>()
     private val catLiveData = MutableLiveData<MainState>()
@@ -28,7 +26,6 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
 
     fun getModelResponses() = liveData(Dispatchers.IO) {
         emit(MainState.Loading)
-
         try {
             val result = mainRepositoryImpl.getModelResponses()
             emit(MainState.Success.OnModelResponsesLoaded(result))
@@ -66,34 +63,13 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
         }
     }
 
-
     private fun getModelList(data: List<ModelResponse>): List<Model> {
-//        val cats = async { parseCategoriesToSaveFromModelResponseData(data) }
         return parseModelsToSaveFromModelResponseData(data)
-//        Log.d(TAG, "saveModelResponseData: " + models.await().size)
-
     }
 
     private fun getCategories(data: List<ModelResponse>): List<Category> {
         return parseCategoriesToSaveFromModelResponseData(data)
     }
-
-
-//    fun loadModelResponses() {
-//        modelResponsesData.value = MainState.Loading
-//        val modelResDisposable = mainRepositoryImpl.getModelResponses()
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribeBy(
-//                        onNext = { onModelResponsesLoaded(it) },
-//                        onError = { error ->
-//                            modelResponsesData.value = MainState.Error
-//                            onError(error)
-//                        }
-//                )
-//        compositeDisposable.add(modelResDisposable)
-//    }
-
 
     private suspend fun saveCategories(categories: List<Category>) {
         for (i in categories.indices) {
@@ -102,52 +78,9 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
     }
 
     private suspend fun saveModels(models: List<Model>): List<Long> {
-
         return mainRepositoryImpl.insertAllModels(*models.toTypedArray())
-
-//        for (i in models.indices) {
-//            val x = mainRepositoryImpl.insertModel(models[i])
-//            Log.d(TAG, "saveModels: " + x)
-//        }
-
     }
 
-//    fun getModelsByCat(cat: String): LiveData<List<Model>> {
-//        return mainRepositoryImpl.getModelsByCat(cat)
-//    }
-
-//        Log.d(TAG, "loadModelsByCat: " + cat)
-//
-//        modelLiveData.value = MainState.Loading
-//
-//        val modelDisposable = mainRepositoryImpl.getModelsByCat(cat)
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribeBy(
-//                        onSuccess = { onModelsFetched(it) },
-//                        onError = { error ->
-//                            modelLiveData.value = MainState.Error(error.localizedMessage)
-//                            Log.d(TAG, "loadModelsByCat: " + error.localizedMessage)
-////                            onError(error)
-//                        }
-//                )
-//        compositeDisposable.add(modelDisposable)
-//    }
-
-//    fun loadCategories() {
-//        catLiveData.value = MainState.Loading
-//        val catDisposable = mainRepositoryImpl.getAllCats()
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribeBy(
-//                        onSuccess = { this.onCatsFetched(it) },
-//                        onError = { error ->
-//                            catLiveData.value = MainState.Error(error.localizedMessage)
-////                            onError(error)
-//                        }
-//                )
-//        compositeDisposable.add(catDisposable)
-//    }
 
     fun getModelLiveData(): LiveData<MainState> {
         return modelLiveData
@@ -167,25 +100,6 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
 
     fun setWordHistory(wordHistory: List<CurrentWord>) {
         this.wordHistory = wordHistory
-    }
-
-//    private fun onError(throwable: Throwable) {
-////        Log.d("MainViewModel", throwable.message)
-//    }
-
-    private fun onModelsFetched(models: List<Model>) {
-        Log.d(TAG, "onModelsFetched: " + models.size)
-        modelLiveData.value = MainState.Success.OnModelsLoaded(models)
-    }
-
-    private fun onCatsFetched(categories: List<Category>) {
-        catLiveData.value = MainState.Success.OnCategoriesLoaded(categories)
-    }
-
-    private fun onModelResponsesLoaded() {
-//        modelResponsesData.value = MainState.Success.OnModelResponsesLoaded(modelResponses)
-//        saveModelResponseDataCategories(getCategoriesToSaveFromModelResponseData(modelResponses))
-//        saveModelResponseDataModels(getModelsToSaveFromModelResponseData(modelResponses))
     }
 
     private fun parseCategoriesToSaveFromModelResponseData(modelResponses: List<ModelResponse>): List<Category> {
@@ -213,7 +127,6 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
 
     override fun onCleared() {
         super.onCleared()
-        compositeDisposable.clear()
         //        clearEntireDatabase();
     }
 

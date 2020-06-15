@@ -3,31 +3,29 @@ package com.hyunki.aryoulearning2.ui.main.fragment.ar
 import android.app.Application
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.hyunki.aryoulearning2.data.ArState
 import com.hyunki.aryoulearning2.data.MainRepository
 import com.hyunki.aryoulearning2.data.db.model.Model
-import io.reactivex.disposables.CompositeDisposable
+import com.hyunki.aryoulearning2.util.DispatcherProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 
-class ArViewModel @Inject
-constructor(private val application: Application, private val mainRepositoryImpl: MainRepository) : ViewModel() {
-    private val compositeDisposable = CompositeDisposable()
-
-    private val modelLiveData = MutableLiveData<ArState>()
-    private val futureModelMapListLiveData = MutableLiveData<ArState>()
-    private val futureLetterMapLiveData = MutableLiveData<ArState>()
-    private val modelMapListLiveData = MutableLiveData<ArState>()
-    private val letterMapLiveData = MutableLiveData<ArState>()
+class ArViewModel
+@Inject
+constructor(
+        private val application: Application,
+        private val mainRepositoryImpl: MainRepository,
+        private val defaultDispatcher: DispatcherProvider) : ViewModel() {
 
     private var isModelsLoaded = false
     private var isLettersLoaded = false
@@ -42,27 +40,23 @@ constructor(private val application: Application, private val mainRepositoryImpl
         }
     }
 
-//TODO fix use of await
+    //TODO fix use of await
     @ExperimentalCoroutinesApi
-    fun getListOfMapsOfFutureModels(modelList: List<Model>) = liveData(Dispatchers.IO) {
+    fun getListOfMapsOfFutureModels(modelList: List<Model>) = liveData(defaultDispatcher.io()) {
         emit(ArState.Loading)
         try {
-            withContext(Dispatchers.Main) {
-                async {
-                    val listOfMaps = mutableListOf<MutableMap<String, CompletableFuture<ModelRenderable>>>()
+            withContext(defaultDispatcher.main()) {
+                val list = async {
                     modelList.asFlow()
-                            .transform<Model, MutableMap<String, CompletableFuture<ModelRenderable>>> { it ->
-                                val futureMap = mutableMapOf<String, CompletableFuture<ModelRenderable>>()
-
-                                futureMap[it.name] =
-                                        ModelRenderable.builder().setSource(
-                                                application, Uri.parse(it.name + ".sfb")).build()
-                                listOfMaps.add(futureMap)
-
-                            }.collect()
-                    Log.d(TAG, "getListOfMapsOfFutureModels listofmaps: " + listOfMaps.size)
-                    emit(ArState.Success.OnFutureModelMapListLoaded(listOfMaps))
+                            .map {
+                                mapOf(
+                                        Pair(it.name,
+                                        ModelRenderable.builder().setSource(application, Uri.parse(it.name + ".sfb")).build())
+                                )
+                            }.toList()
                 }.await()
+
+                emit(ArState.Success.OnFutureModelMapListLoaded(list))
             }
         } catch (exception: Exception) {
             emit(ArState.Error(exception.localizedMessage))
@@ -71,7 +65,7 @@ constructor(private val application: Application, private val mainRepositoryImpl
 
     //TODO refactor long chains
     @ExperimentalCoroutinesApi
-    fun getMapOfFutureLetters(futureModelMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>) = liveData(Dispatchers.IO) {
+    fun getMapOfFutureLetters(futureModelMapList: List<Map<String, CompletableFuture<ModelRenderable>>>) = liveData(defaultDispatcher.io()) {
         emit(ArState.Loading)
 
         try {
@@ -100,7 +94,7 @@ constructor(private val application: Application, private val mainRepositoryImpl
         }
     }
 
-    fun getLetterRenderables(futureLetterMap: Map<String, CompletableFuture<ModelRenderable>>) = liveData(Dispatchers.IO) {
+    fun getLetterRenderables(futureLetterMap: Map<String, CompletableFuture<ModelRenderable>>) = liveData(defaultDispatcher.io()) {
         val count = futureLetterMap.size
         emit(ArState.Loading)
         try {
@@ -123,7 +117,7 @@ constructor(private val application: Application, private val mainRepositoryImpl
         }
     }
 
-    fun getModelRenderables(futureModelMapList: List<MutableMap<String, CompletableFuture<ModelRenderable>>>) = liveData(Dispatchers.IO) {
+    fun getModelRenderables(futureModelMapList: List<Map<String, CompletableFuture<ModelRenderable>>>) = liveData(defaultDispatcher.io()) {
         val count = futureModelMapList.size
         emit(ArState.Loading)
         try {
@@ -144,26 +138,6 @@ constructor(private val application: Application, private val mainRepositoryImpl
         } catch (exception: Exception) {
             emit(ArState.Error(exception.localizedMessage))
         }
-    }
-
-    fun getModelLiveData(): MutableLiveData<ArState> {
-        return modelLiveData
-    }
-
-    fun getFutureModelMapListLiveData(): MutableLiveData<ArState> {
-        return futureModelMapListLiveData
-    }
-
-    fun getFutureLetterMapLiveData(): MutableLiveData<ArState> {
-        return futureLetterMapLiveData
-    }
-
-    fun getModelMapListLiveData(): MutableLiveData<ArState> {
-        return modelMapListLiveData
-    }
-
-    fun getLetterMapLiveData(): MutableLiveData<ArState> {
-        return letterMapLiveData
     }
 
     fun isModelsLoaded(): Boolean {
