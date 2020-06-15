@@ -121,24 +121,6 @@ class MainViewModelTest {
 //        assertTrue(stateVal[0].category == "category1")
 //    }
 
-    @Test(expected = Exception::class)
-    fun `assert getAllCats() emits mainStateError or error`() = coroutinesTestRule.testDispatcher.runBlockingTest {
-        val spyObserver = createObserver()
-        val exception = Exception("")
-
-        try{
-            whenever(repository.getAllCats()).thenThrow(exception)
-        } finally {
-            viewModel.getAllCats().observeForever(spyObserver)
-
-            val inOrder = inOrder(spyObserver)
-            inOrder.verify(spyObserver).onChanged(MainState.Loading)
-            inOrder.verify(spyObserver).onChanged(check {
-                assertEquals(MainState.Error::class.java, it::class.java)
-            })
-        }
-    }
-
     @Test
     fun `assert getAllCats() emits mainStateLoading on call before success`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val testList = listOf<Category>()
@@ -158,76 +140,61 @@ class MainViewModelTest {
         })
     }
 
-//    @Test
-//    fun `assert loadCategories() sets catLiveData to mainStateSuccess on complete`() {
-//        val testList = mutableListOf<Category>()
-//
-//        val expected = MainState.Success.OnCategoriesLoaded(testList)
-//
-//        whenever(repository.getAllCats())
-//                .thenReturn(Single.just(testList))
-//
-//        model.loadCategories()
-//
-//        val actual = model.getCatLiveData().value
-//
-//        assertNotNull(actual)
-//        assertEquals(expected, actual)
-//    }
-//
-//    @Test
-//    fun `assert loadModelsByCat() sets modelLiveData to mainStateLoading on call`() {
-//        val testCat = "testCat"
-//        val expected = MainState.Loading
-//
-//        whenever(repository.getModelsByCat(testCat))
-//                .thenReturn(Single.never())
-//
-//        model.getModelsByCat(testCat)
-//
-//        val actual = model.getModelLiveData().value
-//
-//        assertNotNull(actual)
-//        assertEquals(expected, actual)
-//    }
-//
-//    @Test
-//    fun `assert loadModelsByCat() sets modelLiveData to mainStateSuccess on complete`() {
-//        val testCat = "testCat"
-//        val testList = arrayListOf<Model>()
-//        testList.add(Model(testCat, "test1", "image1"))
-//
-//        val expected = MainState.Success.OnModelsLoaded(testList)
-//
-//        whenever(repository.getModelsByCat(testCat))
-//                .thenReturn(Single.just(testList))
-//
-//        model.getModelsByCat(testCat)
-//
-//        val actual = model.getModelLiveData().value
-//
-//        assertNotNull(actual)
-//        assertEquals(expected, actual)
-//
-//        val state = actual as MainState.Success.OnModelsLoaded
-//        val stateVal = state.models
-//
-//        assertTrue(stateVal[0].category == testCat)
-//    }
-//
-//    @Test
-//    fun `assert loadModelsByCat() sets modelLiveData to mainStateError on error`() {
-//        val testCat = "testCat"
-//        val expected = MainState.Error
-//
-//        whenever(repository.getModelsByCat(testCat))
-//                .thenReturn(Single.error(Throwable()))
-//
-//        model.getModelsByCat(testCat)
-//
-//        val actual = model.getModelLiveData().value
-//
-//        assertNotNull(actual)
-//        assertEquals(expected, actual)
-//    }
+    @Test(expected = Exception::class)
+    fun `assert getAllCats() emits mainStateError or error`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+        val spyObserver = createObserver()
+        val exception = Exception("")
+
+        try {
+            whenever(repository.getAllCats()).thenThrow(exception)
+        } finally {
+            viewModel.getAllCats().observeForever(spyObserver)
+
+            val inOrder = inOrder(spyObserver)
+            inOrder.verify(spyObserver).onChanged(MainState.Loading)
+            inOrder.verify(spyObserver).onChanged(check {
+                assertEquals(MainState.Error::class.java, it::class.java)
+            })
+        }
+    }
+
+    @Test
+    fun `assert getModelsByCat() emits mainStateLoading on call before success`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+        val testCategory = "testCategory"
+        val testList = arrayListOf<Model>()
+        testList.add(Model(name = "cat", category = testCategory, image = "testImage"))
+
+        whenever(repository.getModelsByCat(testCategory))
+                .thenReturn(testList)
+
+        val spyObserver = createObserver()
+        val inOrder = inOrder(spyObserver)
+
+        viewModel.getModelsByCat(testCategory).observeForever(spyObserver)
+
+        inOrder.verify(spyObserver).onChanged(MainState.Loading)
+
+        inOrder.verify(spyObserver).onChanged(check {
+            assertEquals(MainState.Success.OnModelsLoaded::class.java, it::class.java)
+        })
+    }
+
+    @Test(expected = Exception::class)
+    fun `assert getModelsByCat() emits mainStateError on error`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+        val testCategory = "testCategory"
+        val spyObserver = createObserver()
+        val exception = Exception("")
+
+        try {
+            whenever(repository.getModelsByCat(testCategory)).thenThrow(exception)
+        } finally {
+            viewModel.getModelsByCat(testCategory).observeForever(spyObserver)
+
+            val inOrder = inOrder(spyObserver)
+            inOrder.verify(spyObserver).onChanged(MainState.Loading)
+            inOrder.verify(spyObserver).onChanged(check {
+                assertEquals(MainState.Error::class.java, it::class.java)
+            })
+        }
+    }
 }
