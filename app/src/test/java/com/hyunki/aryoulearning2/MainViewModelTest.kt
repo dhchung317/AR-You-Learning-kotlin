@@ -196,4 +196,7 @@ class MainViewModelTest {
             })
         }
     }
+
+    //TODO get/set-wordHistory and clear database tests
+    //TODO check values being return in state
 }

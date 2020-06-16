@@ -287,4 +287,7 @@ class ArViewModelTest {
             assertEquals(ArState.Error::class.java, it::class.java)
         })
     }
+
+    //TODO is{resources}loaded methods tests
+    //TODO check values being return in state
 }

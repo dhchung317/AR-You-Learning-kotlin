@@ -276,6 +276,8 @@ class MainRepositoryImplTest {
         assertEquals(expected, db.catDao().getAllCategories().size)
     }
 
+    //TODO modeldao insertall method tests
+
     @After
     fun teardown() {
         db.close()
