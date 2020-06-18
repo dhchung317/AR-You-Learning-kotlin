@@ -28,12 +28,10 @@ constructor(private val mainRepositoryImpl: MainRepository, private val defaultD
         emit(MainState.Loading)
         try {
             val result = mainRepositoryImpl.getModelResponses()
+            saveResponseData(result)
             emit(MainState.Success.OnModelResponsesLoaded(result))
-            viewModelScope.launch(Dispatchers.Default) {
-                saveResponseData(result)
-            }
         } catch (exception: Exception) {
-            emit(MainState.Error(exception.localizedMessage))
+            emit(MainState.Error(exception.message.toString()))
         }
     }
 
