@@ -21,8 +21,12 @@ constructor(private val mainRepositoryImpl: MainRepository, private val defaultD
         emit(MainState.Loading)
         try {
             val result = mainRepositoryImpl.getModelResponses()
-            saveResponseData(result)
-            emit(MainState.Success.OnModelResponsesLoaded(result))
+            if(result.isEmpty()){
+                emit(MainState.Error("results returned empty, check network call"))
+            }else{
+                saveResponseData(result)
+                emit(MainState.Success.OnModelResponsesLoaded(result))
+            }
         } catch (exception: Exception) {
             emit(MainState.Error(exception.message.toString()))
         }

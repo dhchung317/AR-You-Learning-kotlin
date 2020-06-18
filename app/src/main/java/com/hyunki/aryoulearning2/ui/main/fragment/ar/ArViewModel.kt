@@ -32,7 +32,7 @@ constructor(
             val result = mainRepositoryImpl.getModelsByCat(category)
             emit(ArState.Success.OnModelsLoaded(result))
         } catch (exception: Exception) {
-            emit(ArState.Error(exception.localizedMessage))
+            emit(ArState.Error(exception.message.toString()))
         }
     }
 
@@ -54,7 +54,7 @@ constructor(
                 emit(ArState.Success.OnFutureModelMapListLoaded(list))
             }
         } catch (exception: Exception) {
-            emit(ArState.Error(exception.localizedMessage))
+            emit(ArState.Error(exception.message.toString()))
         }
     }
 
@@ -87,7 +87,7 @@ constructor(
             }
 
         } catch (exception: Exception) {
-            emit(ArState.Error(exception.localizedMessage))
+            emit(ArState.Error(exception.message.toString()))
         }
     }
 
@@ -106,13 +106,15 @@ constructor(
                             .toList()
                 }
                 val map = list.await().associateBy({ it.first }, { it.second })
-                if (map.size == count) {
+                if (count > 0 && map.size == count) {
                     isLettersLoaded = true
+                    emit(ArState.Success.OnLetterMapLoaded(map))
+                }else{
+                    emit(ArState.Error("map returned empty, check input"))
                 }
-                emit(ArState.Success.OnLetterMapLoaded(map))
             }
         } catch (exception: Exception) {
-            emit(ArState.Error(exception.localizedMessage))
+            emit(ArState.Error(exception.message.toString()))
         }
     }
 
@@ -129,7 +131,6 @@ constructor(
                             .toList()
                 }.await()
 
-
                 if (list.size == count) {
                     Log.d(TAG, "getModelRenderables: " + list.size)
                     isModelsLoaded = true
@@ -138,7 +139,7 @@ constructor(
                 emit(ArState.Success.OnModelMapListLoaded(list))
             }
         } catch (exception: Exception) {
-            emit(ArState.Error(exception.localizedMessage))
+            emit(ArState.Error(exception.message.toString()))
         }
     }
 
