@@ -1,23 +1,16 @@
 package com.hyunki.aryoulearning2.ui.main
 
-import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
 import com.hyunki.aryoulearning2.data.MainRepository
-import com.hyunki.aryoulearning2.data.MainRepositoryImpl
 import com.hyunki.aryoulearning2.data.MainState
 import com.hyunki.aryoulearning2.data.db.model.Category
 import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.data.db.model.ModelResponse
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
-import com.hyunki.aryoulearning2.util.DefaultDispatcherProvider
 import com.hyunki.aryoulearning2.util.DispatcherProvider
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.*
 import javax.inject.Inject
-import kotlin.collections.ArrayList
+
 //TODO fix/improve data structures/datamodeling logic
 class MainViewModel @Inject
 constructor(private val mainRepositoryImpl: MainRepository, private val defaultDispatcher: DispatcherProvider) : ViewModel() {

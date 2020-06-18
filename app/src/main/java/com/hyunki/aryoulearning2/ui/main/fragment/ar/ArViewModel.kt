@@ -10,13 +10,8 @@ import com.hyunki.aryoulearning2.data.ArState
 import com.hyunki.aryoulearning2.data.MainRepository
 import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.util.DispatcherProvider
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
