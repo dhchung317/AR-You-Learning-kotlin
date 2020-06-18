@@ -15,6 +15,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CompletableFuture
@@ -30,7 +31,7 @@ constructor(
     private var isModelsLoaded = false
     private var isLettersLoaded = false
 
-    fun getModelsFromRepositoryByCategory(category: String) = liveData(Dispatchers.IO) {
+    fun getModelsFromRepositoryByCategory(category: String) = liveData(defaultDispatcher.io()) {
         emit(ArState.Loading)
         try {
             val result = mainRepositoryImpl.getModelsByCat(category)
@@ -40,14 +41,13 @@ constructor(
         }
     }
 
-    //TODO fix use of await
     @ExperimentalCoroutinesApi
     fun getListOfMapsOfFutureModels(modelList: List<Model>) = liveData(defaultDispatcher.io()) {
         emit(ArState.Loading)
         try {
             withContext(defaultDispatcher.main()) {
                 val list = async {
-                    modelList.asFlow()
+                    modelList
                             .map {
                                 mapOf(
                                         Pair(it.name,
@@ -71,18 +71,20 @@ constructor(
         try {
             withContext(defaultDispatcher.main()) {
                 val wordList = async {
-                    futureModelMapList.asFlow()
+                    futureModelMapList
                             .map { it.keys }
                             .map { it.first().toList() }
                             .toList()
+
                 }.await()
 
                 val charList = async {
-                    wordList.flatten().asFlow()
+                    wordList.flatten()
                             .map { c ->
                                 Pair(c.toString(),
                                         ModelRenderable.builder().setSource(application, Uri.parse("${c}.sfb")).build())
-                            }.toList()
+                            }
+                            .toList()
                 }.await()
                 val map = charList.associateBy({ it.first }, { it.second })
 
@@ -95,22 +97,24 @@ constructor(
     }
 
     fun getLetterRenderables(futureLetterMap: Map<String, CompletableFuture<ModelRenderable>>) = liveData(defaultDispatcher.io()) {
-        val count = futureLetterMap.size
+
         emit(ArState.Loading)
+
+        val count = futureLetterMap.size
         try {
-            withContext(defaultDispatcher.default()) {
+            withContext(defaultDispatcher.io()) {
                 val list = async {
-                    futureLetterMap.entries.asFlow()
+                    futureLetterMap.entries
                             .map { it ->
                                 Pair(it.key, it.value.join())
                             }
                             .toList()
                 }
                 val map = list.await().associateBy({ it.first }, { it.second })
-                emit(ArState.Success.OnLetterMapLoaded(map))
                 if (map.size == count) {
                     isLettersLoaded = true
                 }
+                emit(ArState.Success.OnLetterMapLoaded(map))
             }
         } catch (exception: Exception) {
             emit(ArState.Error(exception.localizedMessage))
@@ -123,7 +127,7 @@ constructor(
         try {
             withContext(defaultDispatcher.default()) {
                 val list = async {
-                    futureModelMapList.asSequence().asIterable()
+                    futureModelMapList
                             .map { it.entries }
                             .flatten()
                             .map { mutableMapOf(Pair(it.key, it.value.join())) }

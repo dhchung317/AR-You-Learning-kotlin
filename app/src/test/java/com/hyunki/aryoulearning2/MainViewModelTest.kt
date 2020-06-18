@@ -25,7 +25,6 @@ import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import java.lang.Exception
 
-//TODO remake tests for coroutines
 @ExperimentalCoroutinesApi
 class MainViewModelTest {
 
@@ -197,4 +196,7 @@ class MainViewModelTest {
             })
         }
     }
+
+    //TODO get/set-wordHistory and clear database tests
+    //TODO check values being return in state
 }

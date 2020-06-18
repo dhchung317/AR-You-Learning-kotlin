@@ -54,6 +54,5 @@ class AppModule {
     fun provideDefaultDispatcher(): DispatcherProvider {
         return DefaultDispatcherProvider()
     }
-
 }
 
