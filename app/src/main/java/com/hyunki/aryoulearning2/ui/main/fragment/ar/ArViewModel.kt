@@ -10,13 +10,8 @@ import com.hyunki.aryoulearning2.data.ArState
 import com.hyunki.aryoulearning2.data.MainRepository
 import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.util.DispatcherProvider
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
@@ -37,7 +32,7 @@ constructor(
             val result = mainRepositoryImpl.getModelsByCat(category)
             emit(ArState.Success.OnModelsLoaded(result))
         } catch (exception: Exception) {
-            emit(ArState.Error(exception.localizedMessage))
+            emit(ArState.Error(exception.message.toString()))
         }
     }
 
@@ -59,7 +54,7 @@ constructor(
                 emit(ArState.Success.OnFutureModelMapListLoaded(list))
             }
         } catch (exception: Exception) {
-            emit(ArState.Error(exception.localizedMessage))
+            emit(ArState.Error(exception.message.toString()))
         }
     }
 
@@ -92,7 +87,7 @@ constructor(
             }
 
         } catch (exception: Exception) {
-            emit(ArState.Error(exception.localizedMessage))
+            emit(ArState.Error(exception.message.toString()))
         }
     }
 
@@ -111,13 +106,15 @@ constructor(
                             .toList()
                 }
                 val map = list.await().associateBy({ it.first }, { it.second })
-                if (map.size == count) {
+                if (count > 0 && map.size == count) {
                     isLettersLoaded = true
+                    emit(ArState.Success.OnLetterMapLoaded(map))
+                }else{
+                    emit(ArState.Error("map returned empty, check input"))
                 }
-                emit(ArState.Success.OnLetterMapLoaded(map))
             }
         } catch (exception: Exception) {
-            emit(ArState.Error(exception.localizedMessage))
+            emit(ArState.Error(exception.message.toString()))
         }
     }
 
@@ -134,7 +131,6 @@ constructor(
                             .toList()
                 }.await()
 
-
                 if (list.size == count) {
                     Log.d(TAG, "getModelRenderables: " + list.size)
                     isModelsLoaded = true
@@ -143,7 +139,7 @@ constructor(
                 emit(ArState.Success.OnModelMapListLoaded(list))
             }
         } catch (exception: Exception) {
-            emit(ArState.Error(exception.localizedMessage))
+            emit(ArState.Error(exception.message.toString()))
         }
     }
 

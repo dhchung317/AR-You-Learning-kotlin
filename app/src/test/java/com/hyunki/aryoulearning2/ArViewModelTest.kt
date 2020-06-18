@@ -46,8 +46,8 @@ class ArViewModelTest {
     @get:Rule
     var coroutinesTestRule = CoroutineTestRule()
 
-//    @get:Rule
-//    val collector = MockitoJUnit.collector()
+    @get:Rule
+    val collector = MockitoJUnit.collector()
 
 //    @Rule
 //    @JvmField
@@ -88,24 +88,16 @@ class ArViewModelTest {
 
         val inOrder = inOrder(spyObserver)
 
-//        async {
         inOrder.verify(spyObserver).onChanged(ArState.Loading)
-//        }.await()
-
-//        async {
         inOrder.verify(spyObserver).onChanged(ArState.Success.OnModelsLoaded(data))
-//        }.await()
-
     }
 
-    @Test(expected = Exception::class)
+    @Test
     fun `assert getModelsFromRepositoryByCategory() emits arStateError on error`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val testCat = "testCategory"
-        val error = Exception("")
 
         val spyObserver = createObserver()
 
-        whenever(repository.getModelsByCat(testCat)).thenThrow(error)
 
         model.getModelsFromRepositoryByCategory(testCat).observeForever(spyObserver)
         val inOrder = inOrder(spyObserver)
@@ -113,7 +105,6 @@ class ArViewModelTest {
         inOrder.verify(spyObserver).onChanged(check {
             assertEquals(ArState.Error::class.java, it::class.java)
         })
-
     }
 
     @Test
@@ -193,11 +184,8 @@ class ArViewModelTest {
         inOrder.verify(spyObserver).onChanged(
                 check { state ->
                     assertEquals(ArState.Success.OnFutureLetterMapLoaded::class.java, state.javaClass)
-
                     val mapState: ArState.Success.OnFutureLetterMapLoaded = state as ArState.Success.OnFutureLetterMapLoaded
-
                     val letterMap = mapState.futureLetterMap
-
                     assertTrue(expected.all {
                         letterMap.containsKey(it)
                     })
@@ -215,7 +203,6 @@ class ArViewModelTest {
         model.getMapOfFutureLetters(mapList as List<Map<String, CompletableFuture<ModelRenderable>>>).observeForever(spyObserver)
 
         val inOrder = inOrder(spyObserver)
-
         inOrder.verify(spyObserver).onChanged(ArState.Loading)
         inOrder.verify(spyObserver).onChanged(check {
             assertEquals(ArState.Error::class.java, it::class.java)
@@ -233,7 +220,6 @@ class ArViewModelTest {
         model.getLetterRenderables(map).observeForever(spyObserver)
 
         val inOrder = inOrder(spyObserver)
-
         inOrder.verify(spyObserver).onChanged(ArState.Loading)
         inOrder.verify(spyObserver).onChanged(check {
             assertEquals(ArState.Success.OnLetterMapLoaded::class.java, it::class.java)
@@ -242,34 +228,21 @@ class ArViewModelTest {
 
     //TODO test loadletterrenderables success case and test for correct/incorrect values
 
-//    @Suppress("UNCHECKED_CAST")
-//    @Test
-//    fun `assert getLetterRenderables() emits arStateError on error`() = coroutinesTestRule.testDispatcher.runBlockingTest {
-//        val badMap= spy( mutableMapOf<String, CompletableFuture<ModelRenderable>>())
-//        val mockFutureModel = spy(CompletableFuture<ModelRenderable>())
-//
-//
-////        val badMap: Map<String, CompletableFuture<ModelRenderable>> = mock()
-//        val exception = Exception("")
-//
-//
-////        badMap["a"] = mockFutureModel
-////        whenever(badMap.entries).doThrow(exception)
-//
-//        val spyObserver = createObserver()
-//
-//        try {
-//            whenever(badMap.entries).thenThrow(exception)
-//            model.getLetterRenderables(badMap).observeForever(spyObserver)
-//        } catch(exception: Exception) {
-//            val inOrder = inOrder(spyObserver)
-//            inOrder.verify(spyObserver).onChanged(ArState.Loading)
-//            inOrder.verify(spyObserver).onChanged(check {
-//                assertEquals(ArState.Error::class.java, it::class.java)
-//            })
-//        }
-//
-//    }
+    @Suppress("UNCHECKED_CAST")
+    @Test
+    fun `assert getLetterRenderables() emits arStateError on error`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+        val badMap = mutableMapOf<String, CompletableFuture<ModelRenderable>>()
+
+        val spyObserver = createObserver()
+
+        model.getLetterRenderables(badMap).observeForever(spyObserver)
+
+        val inOrder = inOrder(spyObserver)
+        inOrder.verify(spyObserver).onChanged(ArState.Loading)
+        inOrder.verify(spyObserver).onChanged(check {
+            assertEquals(ArState.Error::class.java, it::class.java)
+        })
+    }
 
     @Test
     fun `assert getModelRenderables() emits arStateLoading on call before success`() = coroutinesTestRule.testDispatcher.runBlockingTest {
@@ -281,15 +254,14 @@ class ArViewModelTest {
         mapList.add(map)
 
         val spyObserver = createObserver()
-//        try {
+
         model.getModelRenderables(mapList).observeForever(spyObserver)
-//        } finally {
+
         val inOrder = inOrder(spyObserver)
         inOrder.verify(spyObserver).onChanged(ArState.Loading)
         inOrder.verify(spyObserver).onChanged(check {
             assertEquals(ArState.Success.OnModelMapListLoaded::class.java, it::class.java)
         })
-//        }
     }
 
     @Suppress("UNCHECKED_CAST")

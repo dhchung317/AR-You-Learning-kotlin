@@ -75,50 +75,22 @@ class MainViewModelTest {
         })
     }
 
-    @Test(expected = Exception::class)
-    fun `assert getModelResponses() emits mainStateError on error`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+    @Test
+    fun `assert getModelResponses() emits mainStateError when results are empty`() = coroutinesTestRule.testDispatcher.runBlockingTest {
 
         val observer = createObserver()
-        val exception = Exception("")
 
-        try {
-            whenever(repository.getModelResponses())
-                    .thenThrow(exception)
-        } finally {
-            viewModel.getModelResponses().observeForever(observer)
-            val inOrder = inOrder(observer)
-            inOrder.verify(observer).onChanged(MainState.Loading)
-            inOrder.verify(observer).onChanged(
-                    check {
-                        assertEquals(MainState.Error::class.java, it::class.java)
-                    }
-            )
-        }
+        whenever(repository.getModelResponses())
+                .thenReturn(listOf())
 
+        viewModel.getModelResponses().observeForever(observer)
+        val inOrder = inOrder(observer)
+        inOrder.verify(observer).onChanged(MainState.Loading)
+        inOrder.verify(observer).onChanged(check {
+            assertEquals(MainState.Error::class.java, it::class.java)
+        })
     }
 
-//    @Test
-//    fun `assert loadResponses() sets modelResponseData to mainStateSuccess on complete`() = coroutinesTestRule.testDispatcher.runBlockingTest {
-//        val testResponse = arrayListOf<ModelResponse>()
-//        testResponse.add(ModelResponse(arrayListOf(), "category1", "backgroundImage1"))
-//        testResponse.add(ModelResponse(arrayListOf(), "category2", "backgroundImage2"))
-//        val expected = MainState.Success.OnModelResponsesLoaded(testResponse)
-//
-//        whenever(repository.getModelResponses())
-//                .thenReturn(Observable.just(testResponse))
-//
-//        model.loadModelResponses()
-//
-//        val actual = model.getModelResponsesData().value
-//
-//        assertNotNull(actual)
-//        assertEquals(expected, actual)
-//
-//        val state = actual as MainState.Success.OnModelResponsesLoaded
-//        val stateVal = state.responses
-//
-//        assertTrue(stateVal[0].category == "category1")
-//    }
 
     @Test
     fun `assert getAllCats() emits mainStateLoading on call before success`() = coroutinesTestRule.testDispatcher.runBlockingTest {
@@ -139,22 +111,18 @@ class MainViewModelTest {
         })
     }
 
-    @Test(expected = Exception::class)
-    fun `assert getAllCats() emits mainStateError or error`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+    @Test
+    fun `assert getAllCats() emits mainStateError when repository returns null`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val spyObserver = createObserver()
-        val exception = Exception("")
 
-        try {
-            whenever(repository.getAllCats()).thenThrow(exception)
-        } finally {
-            viewModel.getAllCats().observeForever(spyObserver)
+        viewModel.getAllCats().observeForever(spyObserver)
 
-            val inOrder = inOrder(spyObserver)
-            inOrder.verify(spyObserver).onChanged(MainState.Loading)
-            inOrder.verify(spyObserver).onChanged(check {
-                assertEquals(MainState.Error::class.java, it::class.java)
-            })
-        }
+        val inOrder = inOrder(spyObserver)
+        inOrder.verify(spyObserver).onChanged(MainState.Loading)
+        inOrder.verify(spyObserver).onChanged(check {
+            assertEquals(MainState.Error::class.java, it::class.java)
+        })
+
     }
 
     @Test
@@ -178,23 +146,19 @@ class MainViewModelTest {
         })
     }
 
-    @Test(expected = Exception::class)
-    fun `assert getModelsByCat() emits mainStateError on error`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+    @Test
+    fun `assert getModelsByCat() emits mainStateError when repository returns null`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val testCategory = "testCategory"
         val spyObserver = createObserver()
-        val exception = Exception("")
 
-        try {
-            whenever(repository.getModelsByCat(testCategory)).thenThrow(exception)
-        } finally {
-            viewModel.getModelsByCat(testCategory).observeForever(spyObserver)
+        viewModel.getModelsByCat(testCategory).observeForever(spyObserver)
 
-            val inOrder = inOrder(spyObserver)
-            inOrder.verify(spyObserver).onChanged(MainState.Loading)
-            inOrder.verify(spyObserver).onChanged(check {
-                assertEquals(MainState.Error::class.java, it::class.java)
-            })
-        }
+        val inOrder = inOrder(spyObserver)
+        inOrder.verify(spyObserver).onChanged(MainState.Loading)
+        inOrder.verify(spyObserver).onChanged(check {
+            assertEquals(MainState.Error::class.java, it::class.java)
+        })
+
     }
 
     //TODO get/set-wordHistory and clear database tests
