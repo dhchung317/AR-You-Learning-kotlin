@@ -7,6 +7,7 @@ import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Before
@@ -156,13 +157,16 @@ class GameManagerTest {
 
         gameManager = GameManager(testKeys, gameCommandListener, navListener)
 
-        val expected = gameManager.keyStack.peek()
+        val expected = gameManager.keyStack.peek().name
 
         val answer = gameManager.getCurrentWordAnswer()
 
         gameManager.addTappedLetterToCurrentWordAttempt(answer[0].toString())
         gameManager.addTappedLetterToCurrentWordAttempt(answer[1].toString())
         gameManager.addTappedLetterToCurrentWordAttempt(answer[2].toString())
+
+        gameManager.onWordAnswered()
+        gameManager.onHidingCard(true)
 
         val actual = gameManager.getCurrentWordAnswer()
 
@@ -182,6 +186,9 @@ class GameManagerTest {
         gameManager.addTappedLetterToCurrentWordAttempt(answer[0].toString())
         gameManager.addTappedLetterToCurrentWordAttempt(answer[1].toString())
         gameManager.addTappedLetterToCurrentWordAttempt(answer[2].toString())
+
+        gameManager.onWordAnswered()
+        gameManager.onHidingCard(true)
 //        gameManager.onWordAnswered()
 
         val actual = answer == gameManager.getCurrentWordAnswer()
@@ -200,6 +207,9 @@ class GameManagerTest {
         gameManager.addTappedLetterToCurrentWordAttempt(initialAnswer[0].toString())
         gameManager.addTappedLetterToCurrentWordAttempt(initialAnswer[1].toString())
         gameManager.addTappedLetterToCurrentWordAttempt(initialAnswer[2].toString())
+
+        gameManager.onWordAnswered()
+        gameManager.onHidingCard(true)
 
         assertFalse(initialAnswer == gameManager.currentWord.answer)
 
@@ -220,6 +230,9 @@ class GameManagerTest {
         gameManager.addTappedLetterToCurrentWordAttempt("a")
         gameManager.addTappedLetterToCurrentWordAttempt("t")
 
+        gameManager.onWordAnswered()
+        gameManager.onHidingCard(true)
+
         val actual = gameManager.wordHistoryList[0].answer
 
         assertEquals(expected, actual)
@@ -234,6 +247,9 @@ class GameManagerTest {
         gameManager.addTappedLetterToCurrentWordAttempt("a")
         gameManager.addTappedLetterToCurrentWordAttempt("t")
 
+        gameManager.onWordAnswered()
+        gameManager.onHidingCard(true)
+
         verify(navListener).moveToReplayFragment()
     }
 
@@ -246,11 +262,12 @@ class GameManagerTest {
         gameManager.addTappedLetterToCurrentWordAttempt("a")
         gameManager.addTappedLetterToCurrentWordAttempt("t")
 
-        val expected = gameManager.wordHistoryList
+        gameManager.onWordAnswered()
+        gameManager.onHidingCard(true)
 
         verify(navListener).saveWordHistoryFromGameFragment(
                 argThat{
-                    expected == this
+                    this == gameManager.wordHistoryList
                 }
         )
     }
