@@ -1,7 +1,7 @@
 # AR you learning 2 - kotlin
 kotlin refactor of original project
 
-Goals will be to learn and apply kotlin, unit testing, rx and di while refactoring code and playing around with architecture
+Goals will be to learn and apply kotlin, unit testing, rx and di while refactoring code and playing around with architecture and libraries
 
 ## Current Libraries:
 * Androidx
@@ -14,6 +14,7 @@ Goals will be to learn and apply kotlin, unit testing, rx and di while refactori
 * Sceneform
 * Lottie
 * Mockito
+* Coroutines (separate branch)
 
 Original description below:
 
