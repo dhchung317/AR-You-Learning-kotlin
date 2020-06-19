@@ -218,7 +218,6 @@ constructor(private val application: Application, private val mainRepositoryImpl
     }
 
     private fun onError(throwable: Throwable) {
-//        Log.d(TAG, throwable.message)
     }
 
     companion object {
