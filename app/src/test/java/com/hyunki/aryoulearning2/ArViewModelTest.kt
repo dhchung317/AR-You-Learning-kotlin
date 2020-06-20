@@ -276,7 +276,6 @@ class ArViewModelTest {
         })
     }
 
-    //TODO is{resources}loaded methods tests
     //TODO check values being return in state
 
     @Test
