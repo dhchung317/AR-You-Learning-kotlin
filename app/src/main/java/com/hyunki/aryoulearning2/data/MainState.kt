@@ -8,7 +8,7 @@ sealed class MainState {
 
     object Loading : MainState()
 
-    object Error : MainState()
+    data class Error(val e: String) : MainState()
 
     sealed class Success : MainState() {
 
@@ -24,8 +24,5 @@ sealed class MainState {
                 val categories: List<Category>
         ) : Success()
 
-        data class OnCurrentCategoryStringLoaded(
-                val currentCategoryString: String
-        ) : Success()
     }
 }

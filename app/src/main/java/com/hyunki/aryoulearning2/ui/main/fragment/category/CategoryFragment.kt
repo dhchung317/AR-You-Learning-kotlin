@@ -10,6 +10,7 @@ import android.widget.ProgressBar
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,13 +19,15 @@ import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
 import com.hyunki.aryoulearning2.data.MainState
+import com.hyunki.aryoulearning2.data.db.model.Category
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArHostFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.FragmentListener
 import com.hyunki.aryoulearning2.ui.main.fragment.category.rv.CategoryAdapter
+import com.hyunki.aryoulearning2.ui.main.fragment.hint.HintFragment
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 
 import javax.inject.Inject
-
+//TODO close button for categoryfragment
 class CategoryFragment @Inject
 constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
         Fragment(), FragmentListener {
@@ -36,7 +39,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
     private lateinit var progressBar: ProgressBar
 
     private lateinit var categoryAdapter: CategoryAdapter
-
 
     override fun onAttach(context: Context) {
         (activity?.application as BaseApplication).appComponent.inject(this)
@@ -50,15 +52,10 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         progressBar = requireActivity().findViewById(R.id.progress_bar)
         recyclerView = view.findViewById(R.id.category_rv)
-        mainViewModel = ViewModelProviders.of(requireActivity(), viewModelProviderFactory).get(MainViewModel::class.java)
-        mainViewModel.loadCategories()
-
-        mainViewModel.getCatLiveData().observe(viewLifecycleOwner, Observer { categories ->
-            renderCategories(categories)
-        })
+        mainViewModel = ViewModelProvider(requireActivity(), viewModelProviderFactory).get(MainViewModel::class.java)
+        mainViewModel.getAllCats().observe(viewLifecycleOwner, Observer { renderCategories(it) })
         initRecyclerView()
     }
-
 
     private fun initRecyclerView() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext(),
@@ -91,13 +88,12 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
 
     override fun setCurrentCategoryFromFragment(category: String) {
         parentFragmentManager.setFragmentResult(
-                ArHostFragment.REQUEST_KEY,
-                bundleOf(ArHostFragment.KEY_ID to category)
+                HintFragment.REQUEST_KEY,
+                bundleOf(HintFragment.KEY_ID to category)
         )
     }
 
     companion object {
         const val TAG = "ListFragmentX"
-
     }
 }

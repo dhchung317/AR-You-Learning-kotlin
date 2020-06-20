@@ -23,15 +23,15 @@ class GameManagerTest {
 
     lateinit var testKeys: List<Model>
 
-    lateinit var navListener: NavListener
+    private lateinit var navListener: NavListener
 
     @Before
     fun setup() {
         gameCommandListener = mock()
         navListener = mock()
-        testKeys = listOf(Model("testCategory","cat","testImage"),
-                Model("testCategory","rat","testImage"),
-                Model("testCategory","bat","testImage"))
+        testKeys = listOf(Model("testCategory", "cat", "testImage"),
+                Model("testCategory", "rat", "testImage"),
+                Model("testCategory", "bat", "testImage"))
     }
 
     @Test
@@ -47,8 +47,10 @@ class GameManagerTest {
 
     @Test
     fun `assert that gameManager still inits when key size is less than round limit (3)`() {
-        val keys = listOf(Model("testCategory","cat","testImage"),
-                Model("testCategory","rat","testImage"))
+
+        val keys = listOf(Model("testCategory", "cat", "testImage"),
+                Model("testCategory", "rat", "testImage"))
+
         gameManager = GameManager(keys, gameCommandListener, navListener)
 
         val expected = 1
@@ -128,6 +130,9 @@ class GameManagerTest {
         gameManager.addTappedLetterToCurrentWordAttempt("y")
         gameManager.addTappedLetterToCurrentWordAttempt("z")
 
+        gameManager.onWordAnswered()
+        gameManager.onHidingCard(false)
+
         val wrongAnswers = gameManager.currentWord.getAttempts()
 
         for (wrongAnswer in wrongAnswers) {
@@ -138,7 +143,8 @@ class GameManagerTest {
     @Test
     fun `assert that addTappedLetterToCurrentWordAttempt() starts a new game with the same word when attempt is incorrect`() {
 
-        val keys = listOf(Model("testCategory","cat","testImage"))
+        val keys = listOf(Model(name = "cat", category = "testCategory", image = "testImage"))
+
         gameManager = GameManager(keys, gameCommandListener, navListener)
 
         val expected = "cat"
@@ -147,9 +153,12 @@ class GameManagerTest {
         gameManager.addTappedLetterToCurrentWordAttempt("y")
         gameManager.addTappedLetterToCurrentWordAttempt("z")
 
+        gameManager.onWordAnswered()
+        gameManager.onHidingCard(false)
+
         val actual = gameManager.currentWord.answer
 
-        assertEquals(expected,actual)
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -170,13 +179,15 @@ class GameManagerTest {
 
         val actual = gameManager.getCurrentWordAnswer()
 
-        assertEquals(expected,actual)
+        assertEquals(expected, actual)
     }
 
     @Test
     fun `assert that addTappedLetterToCurrentWordAttempt() loads a new word when answer is correct and games are left`() {
-        val keys = listOf(Model("testCategory","cat","testImage"),
-                Model("testCategory","rat","testImage"))
+        val keys = listOf(
+                Model(name = "cat", category = "testCategory", image = "testImage"),
+                Model(name = "bat", category = "testCategory", image = "testImage")
+        )
         gameManager = GameManager(keys, gameCommandListener, navListener)
 
         val answer = gameManager.getCurrentWordAnswer()
@@ -189,7 +200,7 @@ class GameManagerTest {
 
         gameManager.onWordAnswered()
         gameManager.onHidingCard(true)
-//        gameManager.onWordAnswered()
+
 
         val actual = answer == gameManager.getCurrentWordAnswer()
 
@@ -198,8 +209,12 @@ class GameManagerTest {
 
     @Test
     fun `assert that when addTappedLetterToCurrentWordAttempt() loads a new word attempt is empty`() {
-        val keys = listOf(Model("testCategory","cat","testImage"),
-                Model("testCategory","rat","testImage"))
+
+        val keys = listOf(
+                Model(name = "cat", category = "testCategory", image = "testImage"),
+                Model(name = "bat", category = "testCategory", image = "testImage")
+        )
+
         gameManager = GameManager(keys, gameCommandListener, navListener)
 
         val initialAnswer = gameManager.getCurrentWordAnswer()
@@ -221,7 +236,9 @@ class GameManagerTest {
 
     @Test
     fun `assert that addTappedLetterToCurrentWordAttempt() adds word to wordHistory when answer is correct`() {
-        val keys = listOf(Model("testCategory","cat","testImage"))
+
+        val keys = listOf(Model(name = "cat", category = "testCategory", image = "testImage"))
+
         gameManager = GameManager(keys, gameCommandListener, navListener)
 
         val expected = "cat"
@@ -240,12 +257,16 @@ class GameManagerTest {
 
     @Test
     fun `verify that addTappedLetterToCurrentWordAttempt() calls method to move to replayFragment when no games are left`() {
-        val keys = listOf(Model("testCategory","cat","testImage"))
+
+        val keys = listOf(Model("test", "cat", "testImage"))
+
         gameManager = GameManager(keys, gameCommandListener, navListener)
 
         gameManager.addTappedLetterToCurrentWordAttempt("c")
         gameManager.addTappedLetterToCurrentWordAttempt("a")
         gameManager.addTappedLetterToCurrentWordAttempt("t")
+        gameManager.onWordAnswered()
+        gameManager.onHidingCard(true)
 
         gameManager.onWordAnswered()
         gameManager.onHidingCard(true)
@@ -255,18 +276,22 @@ class GameManagerTest {
 
     @Test
     fun `verify that addTappedLetterToCurrentWordAttempt() saves correct history when no games are left`() {
-        val keys = listOf(Model("testCategory","cat","testImage"))
+        val keys = listOf(Model("test", "cat", "testImage"))
+
         gameManager = GameManager(keys, gameCommandListener, navListener)
 
         gameManager.addTappedLetterToCurrentWordAttempt("c")
         gameManager.addTappedLetterToCurrentWordAttempt("a")
         gameManager.addTappedLetterToCurrentWordAttempt("t")
+        gameManager.onWordAnswered()
+        gameManager.onHidingCard(true)
 
         gameManager.onWordAnswered()
         gameManager.onHidingCard(true)
 
         verify(navListener).saveWordHistoryFromGameFragment(
-                argThat{
+
+                argThat {
                     this == gameManager.wordHistoryList
                 }
         )

@@ -8,7 +8,9 @@ import java.util.*
 
 class GameManager(modelList: List<Model>, private val gameCommands: GameCommandListener, private val navListener: NavListener) {
     private val roundLimit = 3
+
     val keyStack = Stack<Model>()
+
     var modelUtil: ModelUtil = ModelUtil()
 
     var wordHistoryList = ArrayList<CurrentWord>()
@@ -23,7 +25,6 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
     init {
         while (keyStack.size < roundLimit && keyStack.size < modelList.size) {
             val ran = getRandom(modelList.size, 0)
-
             if (!keyStack.contains(modelList[ran])) {
                 keyStack.add(modelList[ran])
             }
@@ -33,28 +34,20 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
 
     fun addTappedLetterToCurrentWordAttempt(letter: String): Boolean {
         addLetterToAttempt(letter)
-        val isCorrect = checkIfTappedLetterIsCorrect(letter)
-//        onWordAnswered()
-        return isCorrect
+        return checkIfTappedLetterIsCorrect(letter)
     }
 
     fun onWordAnswered() {
         if (isWordAnswered()) {
             when (isCorrectAnswer()) {
-                true -> {
-//                    onAnswerCorrect()
-                    showCard(isCorrect = true)
-                    //showCard() with correct validators
-                }
+                true -> showCard(isCorrect = true)
                 else -> {
-//                    onAnswerIncorrect()
                     showCard(isCorrect = false)
-                    //showCard() with incorrect validators
+                    recordWrongAnswer(attempt)
                 }
             }
         }
     }
-
 
     private fun isWordAnswered(): Boolean {
         return attempt.length == currentWord.answer.length
@@ -62,26 +55,24 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
 
     private fun isCorrectAnswer(): Boolean {
         return attempt == getCurrentWordAnswer()
-
     }
 
-    fun onHidingCard(wasAnswerCorrect: Boolean){
+    fun onHidingCard(wasAnswerCorrect: Boolean) {
         when (wasAnswerCorrect) {
-            //listener from fragment will inform manager which course of action to take
             true -> onAnswerWasCorrect()
-
             else -> onAnswerWasIncorrect()
         }
     }
+
     private fun onAnswerWasIncorrect() {
-        recordWrongAnswer(attempt)
         startNextGame(currentWord.answerModel)
     }
 
     private fun onAnswerWasCorrect() {
+        wordHistoryList.add(currentWord)
         when (areGamesLeft()) {
-            true -> whenGamesLeft()
-            else -> whenGamesOver()
+            true -> onGamesLeft()
+            else -> onGamesOver()
         }
     }
 
@@ -89,13 +80,11 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
         return keyStack.size > 0
     }
 
-    private fun whenGamesLeft() {
-        wordHistoryList.add(currentWord)
+    private fun onGamesLeft() {
         startNextGame(keyStack.pop())
     }
 
-    private fun whenGamesOver() {
-        wordHistoryList.add(currentWord)
+    private fun onGamesOver() {
         navListener.saveWordHistoryFromGameFragment(wordHistoryList)
         navListener.moveToReplayFragment()
     }
@@ -137,7 +126,6 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
     }
 
     private fun showCard(isCorrect: Boolean) {
-        //pass along data for fragment to show
         gameCommands.showCard(isCorrect)
     }
 

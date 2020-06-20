@@ -7,7 +7,7 @@ import com.hyunki.aryoulearning2.data.db.dao.ModelDao
 import com.hyunki.aryoulearning2.data.db.model.Category
 import com.hyunki.aryoulearning2.data.db.model.Model
 
-@Database(entities = [Model::class, Category::class], version = 1, exportSchema = false)
+@Database(version = 3, entities = [Model::class, Category::class], exportSchema = false)
 abstract class ModelDatabase : RoomDatabase() {
 
     abstract fun modelDao(): ModelDao

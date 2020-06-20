@@ -7,6 +7,8 @@ import com.hyunki.aryoulearning2.data.db.dao.CategoryDao
 import com.hyunki.aryoulearning2.data.db.dao.ModelDao
 import com.hyunki.aryoulearning2.data.network.main.MainApi
 import com.hyunki.aryoulearning2.util.Constants
+import com.hyunki.aryoulearning2.util.DefaultDispatcherProvider
+import com.hyunki.aryoulearning2.util.DispatcherProvider
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 
 import javax.inject.Singleton
@@ -23,9 +25,10 @@ class AppModule {
     @Provides
     @Singleton
     fun provideRetrofit(): Retrofit {
-        return Retrofit.Builder().baseUrl(Constants.BASE_URL)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create()).build()
+        return Retrofit.Builder()
+                .baseUrl(Constants.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
     }
 
     @Provides
@@ -46,5 +49,10 @@ class AppModule {
         return MainRepositoryImpl(modelDao, categoryDao, mainApi)
     }
 
+    @Provides
+    @Singleton
+    fun provideDefaultDispatcher(): DispatcherProvider {
+        return DefaultDispatcherProvider()
+    }
 }
 

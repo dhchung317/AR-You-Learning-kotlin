@@ -1,25 +1,35 @@
 package com.hyunki.aryoulearning2
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.Observer
+import com.hyunki.aryoulearning2.data.ArState
 import com.hyunki.aryoulearning2.data.MainRepository
 import com.hyunki.aryoulearning2.data.MainState
 import com.hyunki.aryoulearning2.data.db.model.Category
 import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.data.db.model.ModelResponse
+import com.hyunki.aryoulearning2.rules.CoroutineTestRule
 import com.hyunki.aryoulearning2.rules.RxImmediateSchedulerRule
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import io.reactivex.Observable
 import io.reactivex.Single
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runBlockingTest
+import org.apache.tools.ant.Main
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+import java.lang.Exception
 
-
+@ExperimentalCoroutinesApi
 class MainViewModelTest {
+
+    @get:Rule
+    var coroutinesTestRule = CoroutineTestRule()
 
     @Rule
     @JvmField
@@ -32,176 +42,125 @@ class MainViewModelTest {
     @Mock
     lateinit var repository: MainRepository
 
-    lateinit var model: MainViewModel
+    private lateinit var viewModel: MainViewModel
 
     @Before
     fun setUp() {
         MockitoAnnotations.initMocks(this)
-        model = MainViewModel(repository)
+        viewModel = MainViewModel(repository, coroutinesTestRule.testDispatcherProvider)
     }
 
-    @Test
-    fun `assert loadResponses() sets modelResponseData to mainStateError on error`() {
+    private fun createObserver(): Observer<MainState> = spy(Observer { })
 
-        val expected = MainState.Error
+    @Test
+    fun `assert getModelResponses() emits mainStateLoading on call before success`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+        val testList = listOf(
+                ModelResponse(
+                        arrayListOf(Model("test", "testCategory", "testImage")),
+                        "testCategory",
+                        "testImage"))
 
         whenever(repository.getModelResponses())
-                .thenReturn(Observable.error(Throwable()))
+                .thenReturn(testList)
 
-        model.loadModelResponses()
+        val spyObserver = createObserver()
+        val inOrder = inOrder(spyObserver)
 
-        val actual = model.getModelResponsesData().value
+        viewModel.getModelResponses().observeForever(spyObserver)
 
-        assertNotNull(actual)
-        assertEquals(expected, actual)
+        inOrder.verify(spyObserver).onChanged(MainState.Loading)
+
+        inOrder.verify(spyObserver).onChanged(check {
+            assertEquals(MainState.Success.OnModelResponsesLoaded::class.java, it::class.java)
+        })
     }
 
     @Test
-    fun `assert loadResponses() sets modelResponseData to mainStateLoading on call`() {
+    fun `assert getModelResponses() emits mainStateError when results are empty`() = coroutinesTestRule.testDispatcher.runBlockingTest {
 
-        val expected = MainState.Loading
+        val observer = createObserver()
 
         whenever(repository.getModelResponses())
-                .thenReturn(Observable.never())
+                .thenReturn(listOf())
 
-        model.loadModelResponses()
-
-        val actual = model.getModelResponsesData().value
-
-        assertNotNull(actual)
-        assertEquals(expected, actual)
+        viewModel.getModelResponses().observeForever(observer)
+        val inOrder = inOrder(observer)
+        inOrder.verify(observer).onChanged(MainState.Loading)
+        inOrder.verify(observer).onChanged(check {
+            assertEquals(MainState.Error::class.java, it::class.java)
+        })
     }
 
-    @Test
-    fun `assert loadResponses() sets modelResponseData to mainStateSuccess on complete`() {
-
-        val testResponse = arrayListOf<ModelResponse>()
-        testResponse.add(ModelResponse(arrayListOf(), "category1", "backgroundImage1"))
-        testResponse.add(ModelResponse(arrayListOf(), "category2", "backgroundImage2"))
-        val expected = MainState.Success.OnModelResponsesLoaded(testResponse)
-
-        whenever(repository.getModelResponses())
-                .thenReturn(Observable.just(testResponse))
-
-        model.loadModelResponses()
-
-        val actual = model.getModelResponsesData().value
-
-        assertNotNull(actual)
-        assertEquals(expected, actual)
-
-        val state = actual as MainState.Success.OnModelResponsesLoaded
-        val stateVal = state.responses
-
-        assertTrue(stateVal[0].category == "category1")
-    }
 
     @Test
-    fun `assert loadCategories() sets catLiveData to mainStateLoading on call`() {
-
-        val expected = MainState.Loading
+    fun `assert getAllCats() emits mainStateLoading on call before success`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+        val testList = listOf<Category>()
 
         whenever(repository.getAllCats())
-                .thenReturn(Single.never())
+                .thenReturn(testList)
 
-        model.loadCategories()
+        val spyObserver = createObserver()
+        val inOrder = inOrder(spyObserver)
 
-        val actual = model.getCatLiveData().value
+        viewModel.getAllCats().observeForever(spyObserver)
 
-        assertNotNull(actual)
-        assertEquals(expected, actual)
+        inOrder.verify(spyObserver).onChanged(MainState.Loading)
+
+        inOrder.verify(spyObserver).onChanged(check {
+            assertEquals(MainState.Success.OnCategoriesLoaded::class.java, it::class.java)
+        })
     }
 
     @Test
-    fun `assert loadCategories() sets catLiveData to mainStateError on error`() {
+    fun `assert getAllCats() emits mainStateError when repository returns null`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+        val spyObserver = createObserver()
 
-        val expected = MainState.Error
+        viewModel.getAllCats().observeForever(spyObserver)
 
-        whenever(repository.getAllCats())
-                .thenReturn(Single.error(Throwable()))
+        val inOrder = inOrder(spyObserver)
+        inOrder.verify(spyObserver).onChanged(MainState.Loading)
+        inOrder.verify(spyObserver).onChanged(check {
+            assertEquals(MainState.Error::class.java, it::class.java)
+        })
 
-        model.loadCategories()
-
-        val actual = model.getCatLiveData().value
-
-        assertNotNull(actual)
-        assertEquals(expected, actual)
     }
 
     @Test
-    fun `assert loadCategories() sets catLiveData to mainStateSuccess on complete`() {
-
-        val testList = mutableListOf<Category>()
-
-        val expected = MainState.Success.OnCategoriesLoaded(testList)
-
-        whenever(repository.getAllCats())
-                .thenReturn(Single.just(testList))
-
-        model.loadCategories()
-
-        val actual = model.getCatLiveData().value
-
-        assertNotNull(actual)
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun `assert loadModelsByCat() sets modelLiveData to mainStateLoading on call`() {
-
-        val testCat = "testCat"
-        val expected = MainState.Loading
-
-        whenever(repository.getModelsByCat(testCat))
-                .thenReturn(Single.never())
-
-        model.loadModelsByCat(testCat)
-
-        val actual = model.getModelLiveData().value
-
-        assertNotNull(actual)
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun `assert loadModelsByCat() sets modelLiveData to mainStateSuccess on complete`() {
-        val testCat = "testCat"
+    fun `assert getModelsByCat() emits mainStateLoading on call before success`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+        val testCategory = "testCategory"
         val testList = arrayListOf<Model>()
-        testList.add(Model(testCat, "test1", "image1"))
+        testList.add(Model(name = "cat", category = testCategory, image = "testImage"))
 
-        val expected = MainState.Success.OnModelsLoaded(testList)
+        whenever(repository.getModelsByCat(testCategory))
+                .thenReturn(testList)
 
-        whenever(repository.getModelsByCat(testCat))
-                .thenReturn(Single.just(testList))
+        val spyObserver = createObserver()
+        val inOrder = inOrder(spyObserver)
 
-        model.loadModelsByCat(testCat)
+        viewModel.getModelsByCat(testCategory).observeForever(spyObserver)
 
-        val actual = model.getModelLiveData().value
+        inOrder.verify(spyObserver).onChanged(MainState.Loading)
 
-        assertNotNull(actual)
-        assertEquals(expected, actual)
-
-        val state = actual as MainState.Success.OnModelsLoaded
-        val stateVal = state.models
-
-        assertTrue(stateVal[0].category == testCat)
+        inOrder.verify(spyObserver).onChanged(check {
+            assertEquals(MainState.Success.OnModelsLoaded::class.java, it::class.java)
+        })
     }
 
     @Test
-    fun `assert loadModelsByCat() sets modelLiveData to mainStateError on error`() {
+    fun `assert getModelsByCat() emits mainStateError when repository returns null`() = coroutinesTestRule.testDispatcher.runBlockingTest {
+        val testCategory = "testCategory"
+        val spyObserver = createObserver()
 
-        val testCat = "testCat"
-        val expected = MainState.Error
+        viewModel.getModelsByCat(testCategory).observeForever(spyObserver)
 
-        whenever(repository.getModelsByCat(testCat))
-                .thenReturn(Single.error(Throwable()))
+        val inOrder = inOrder(spyObserver)
+        inOrder.verify(spyObserver).onChanged(MainState.Loading)
+        inOrder.verify(spyObserver).onChanged(check {
+            assertEquals(MainState.Error::class.java, it::class.java)
+        })
 
-        model.loadModelsByCat(testCat)
-
-        val actual = model.getModelLiveData().value
-
-        assertNotNull(actual)
-        assertEquals(expected, actual)
     }
 
+    //TODO get/set-wordHistory and clear database tests
+    //TODO check values being return in state
 }
