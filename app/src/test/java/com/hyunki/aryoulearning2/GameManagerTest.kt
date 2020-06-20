@@ -21,7 +21,7 @@ class GameManagerTest {
 
     private lateinit var gameCommandListener: GameCommandListener
 
-    lateinit var testKeys: List<Model>
+    private lateinit var testKeys: List<Model>
 
     private lateinit var navListener: NavListener
 
@@ -29,9 +29,9 @@ class GameManagerTest {
     fun setup() {
         gameCommandListener = mock()
         navListener = mock()
-        testKeys = listOf(Model("testCategory", "cat", "testImage"),
-                Model("testCategory", "rat", "testImage"),
-                Model("testCategory", "bat", "testImage"))
+        testKeys = listOf(Model(name = "cat", category = "testCategory", image = "testImage"),
+                Model(name = "rat", category = "testCategory", image = "testImage"),
+                Model(name = "bat", category = "testCategory", image = "testImage"))
     }
 
     @Test
@@ -48,8 +48,8 @@ class GameManagerTest {
     @Test
     fun `assert that gameManager still inits when key size is less than round limit (3)`() {
 
-        val keys = listOf(Model("testCategory", "cat", "testImage"),
-                Model("testCategory", "rat", "testImage"))
+        val keys = listOf(Model(name = "cat", category = "testCategory", image = "testImage"),
+                Model(name = "rat", category = "testCategory", image = "testImage"))
 
         gameManager = GameManager(keys, gameCommandListener, navListener)
 
@@ -258,15 +258,13 @@ class GameManagerTest {
     @Test
     fun `verify that addTappedLetterToCurrentWordAttempt() calls method to move to replayFragment when no games are left`() {
 
-        val keys = listOf(Model("test", "cat", "testImage"))
+        val keys = listOf(Model(name = "cat", category = "testCategory", image = "testImage"))
 
         gameManager = GameManager(keys, gameCommandListener, navListener)
 
         gameManager.addTappedLetterToCurrentWordAttempt("c")
         gameManager.addTappedLetterToCurrentWordAttempt("a")
         gameManager.addTappedLetterToCurrentWordAttempt("t")
-        gameManager.onWordAnswered()
-        gameManager.onHidingCard(true)
 
         gameManager.onWordAnswered()
         gameManager.onHidingCard(true)
@@ -276,15 +274,13 @@ class GameManagerTest {
 
     @Test
     fun `verify that addTappedLetterToCurrentWordAttempt() saves correct history when no games are left`() {
-        val keys = listOf(Model("test", "cat", "testImage"))
+        val keys = listOf(Model(name = "cat", category = "testCategory", image = "testImage"))
 
         gameManager = GameManager(keys, gameCommandListener, navListener)
 
         gameManager.addTappedLetterToCurrentWordAttempt("c")
         gameManager.addTappedLetterToCurrentWordAttempt("a")
         gameManager.addTappedLetterToCurrentWordAttempt("t")
-        gameManager.onWordAnswered()
-        gameManager.onHidingCard(true)
 
         gameManager.onWordAnswered()
         gameManager.onHidingCard(true)
