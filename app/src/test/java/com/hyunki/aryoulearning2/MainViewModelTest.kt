@@ -33,10 +33,6 @@ class MainViewModelTest {
 
     @Rule
     @JvmField
-    var testSchedulerRule = RxImmediateSchedulerRule()
-
-    @Rule
-    @JvmField
     val ruleForLivaData = InstantTaskExecutorRule()
 
     @Mock

@@ -49,10 +49,6 @@ class ArViewModelTest {
     @get:Rule
     val collector = MockitoJUnit.collector()
 
-//    @Rule
-//    @JvmField
-//    var testSchedulerRule = RxImmediateSchedulerRule()
-
     @Rule
     @JvmField
     val ruleForLivaData = InstantTaskExecutorRule()
@@ -312,14 +308,14 @@ class ArViewModelTest {
 
         val expected = true
 
-        val observer = createObserver()
-        model.getModelRenderables(mapList).observeForever(observer)
+        val spyObserver = createObserver()
+        model.getModelRenderables(mapList).observeForever(spyObserver)
 
-        val inOrder = inOrder(observer)
+        val inOrder = inOrder(spyObserver)
 
-        inOrder.verify(observer).onChanged(ArState.Loading)
+        inOrder.verify(spyObserver).onChanged(ArState.Loading)
 
-        inOrder.verify(observer).onChanged(check {
+        inOrder.verify(spyObserver).onChanged(check {
             assertEquals(ArState.Success.OnModelMapListLoaded::class.java, it::class.java)
             val actual = model.isModelsLoaded()
             assertEquals(expected, actual)
@@ -333,14 +329,14 @@ class ArViewModelTest {
 
         val expected = false
 
-        val observer = createObserver()
+        val spyObserver = createObserver()
 
-        model.getModelRenderables(badList as List<Map<String, CompletableFuture<ModelRenderable>>>).observeForever(observer)
+        model.getModelRenderables(badList as List<Map<String, CompletableFuture<ModelRenderable>>>).observeForever(spyObserver)
 
-        val inOrder = inOrder(observer)
+        val inOrder = inOrder(spyObserver)
 
-        inOrder.verify(observer).onChanged(ArState.Loading)
-        inOrder.verify(observer).onChanged(check {
+        inOrder.verify(spyObserver).onChanged(ArState.Loading)
+        inOrder.verify(spyObserver).onChanged(check {
             assertEquals(ArState.Error::class.java, it::class.java)
             val actual = model.isModelsLoaded()
             assertEquals(expected, actual)
@@ -349,11 +345,44 @@ class ArViewModelTest {
 
     @Test
     fun `assert isLettersLoaded returns true when getModelRenderables completes successfully`() {
+        val map = mutableMapOf<String, CompletableFuture<ModelRenderable>>()
+        val mockFutureModel = mock<CompletableFuture<ModelRenderable>>()
 
+        map["abc"] = mockFutureModel
+
+        val expected = true
+
+        val spyObserver = createObserver()
+        model.getLetterRenderables(map).observeForever(spyObserver)
+
+        val inOrder = inOrder(spyObserver)
+
+        inOrder.verify(spyObserver).onChanged(ArState.Loading)
+
+        inOrder.verify(spyObserver).onChanged(check {
+            assertEquals(ArState.Success.OnLetterMapLoaded::class.java, it::class.java)
+            val actual = model.isLettersLoaded()
+            assertEquals(expected, actual)
+        })
     }
 
     @Test
     fun `assert isLettersLoaded returns false when getModelRenderables has error`() {
+        val badMap = mutableMapOf<String, CompletableFuture<ModelRenderable>>()
 
+        val expected = false
+
+        val spyObserver = createObserver()
+
+        model.getLetterRenderables(badMap).observeForever(spyObserver)
+
+        val inOrder = inOrder(spyObserver)
+
+        inOrder.verify(spyObserver).onChanged(ArState.Loading)
+        inOrder.verify(spyObserver).onChanged(check {
+            assertEquals(ArState.Error::class.java, it::class.java)
+            val actual = model.isLettersLoaded()
+            assertEquals(expected, actual)
+        })
     }
 }
