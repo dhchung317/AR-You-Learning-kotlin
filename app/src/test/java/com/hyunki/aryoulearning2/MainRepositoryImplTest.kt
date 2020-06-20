@@ -254,8 +254,6 @@ class MainRepositoryImplTest {
         assertEquals(expected, actual)
     }
 
-    //TODO modeldao insertall method tests
-
     @Test
     fun `verify clearEntireDatabase() runs dao deleteAll()`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val modelDao = spy(db.modelDao())

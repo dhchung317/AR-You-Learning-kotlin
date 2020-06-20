@@ -39,7 +39,6 @@ import java.util.concurrent.CompletableFuture
 import kotlin.math.exp
 
 @ExperimentalCoroutinesApi
-@LooperMode(LooperMode.Mode.PAUSED)
 @RunWith(AndroidJUnit4::class)
 class ArViewModelTest {
 
@@ -79,8 +78,6 @@ class ArViewModelTest {
         val spyObserver = createObserver()
 
         model.getModelsFromRepositoryByCategory(testCat).observeForever(spyObserver)
-
-        shadowOf(Looper.getMainLooper()).idle()
 
         val inOrder = inOrder(spyObserver)
 

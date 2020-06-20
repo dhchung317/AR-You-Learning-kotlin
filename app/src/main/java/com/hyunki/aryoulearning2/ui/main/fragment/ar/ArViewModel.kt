@@ -2,7 +2,6 @@ package com.hyunki.aryoulearning2.ui.main.fragment.ar
 
 import android.app.Application
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.google.ar.sceneform.rendering.ModelRenderable
@@ -49,9 +48,9 @@ constructor(
                                         ModelRenderable.builder().setSource(application, Uri.parse(it.name + ".sfb")).build())
                                 )
                             }.toList()
-                }.await()
+                }
 
-                emit(ArState.Success.OnFutureModelMapListLoaded(list))
+                emit(ArState.Success.OnFutureModelMapListLoaded(list.await()))
             }
         } catch (exception: Exception) {
             emit(ArState.Error(exception.message.toString()))
@@ -71,17 +70,17 @@ constructor(
                             .map { it.first().toList() }
                             .toList()
 
-                }.await()
+                }
 
                 val charList = async {
-                    wordList.flatten()
+                    wordList.await().flatten()
                             .map { c ->
                                 Pair(c.toString(),
                                         ModelRenderable.builder().setSource(application, Uri.parse("${c}.sfb")).build())
                             }
                             .toList()
-                }.await()
-                val map = charList.associateBy({ it.first }, { it.second })
+                }
+                val map = charList.await().associateBy({ it.first }, { it.second })
 
                 emit(ArState.Success.OnFutureLetterMapLoaded(map))
             }
@@ -97,7 +96,7 @@ constructor(
 
         val count = futureLetterMap.size
         try {
-            withContext(defaultDispatcher.io()) {
+            withContext(defaultDispatcher.default()) {
                 val list = async {
                     futureLetterMap.entries
                             .map { it ->
@@ -125,18 +124,16 @@ constructor(
             withContext(defaultDispatcher.default()) {
                 val list = async {
                     futureModelMapList
-                            .map { it.entries }
-                            .flatten()
-                            .map { mutableMapOf(Pair(it.key, it.value.join())) }
-                            .toList()
+                            .map { it.entries }.flatten()
+                            .map { mutableMapOf(Pair(it.key, it.value.join())) }.toList()
                 }.await()
 
-                if (list.size == count) {
-                    Log.d(TAG, "getModelRenderables: " + list.size)
+                if (count > 0 && list.size == count) {
                     isModelsLoaded = true
+                    emit(ArState.Success.OnModelMapListLoaded(list))
+                } else {
+                    emit(ArState.Error("list returned empty, check input"))
                 }
-
-                emit(ArState.Success.OnModelMapListLoaded(list))
             }
         } catch (exception: Exception) {
             emit(ArState.Error(exception.message.toString()))
