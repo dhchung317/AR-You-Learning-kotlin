@@ -47,6 +47,4 @@ class LottieHelperTest {
 
         assertEquals(expected, actual)
     }
-
-    //TODO get animation methods tests?
 }

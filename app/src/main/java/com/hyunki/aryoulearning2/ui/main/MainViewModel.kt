@@ -106,11 +106,6 @@ constructor(private val mainRepositoryImpl: MainRepository, private val defaultD
         mainRepositoryImpl.clearEntireDatabase()
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        //        clearEntireDatabase();
-    }
-
     companion object {
         const val TAG = "mainviewmodel"
     }

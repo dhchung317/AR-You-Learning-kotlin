@@ -48,19 +48,17 @@ class MainRepositoryImplTest {
 
     private lateinit var db: ModelDatabase
 
-    private val testDispatcher = coroutinesTestRule.testDispatcher
-
     @Before
     fun setup() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(context, ModelDatabase::class.java)
-                .setTransactionExecutor(testDispatcher.asExecutor())
+                .setTransactionExecutor(coroutinesTestRule.testDispatcher.asExecutor())
                 .allowMainThreadQueries()
                 .build()
     }
 
     @Test
-    fun `assert getAllCats() returns size zero when empty`() = testDispatcher.runBlockingTest {
+    fun `assert getAllCats() returns size zero when empty`() = coroutinesTestRule.testDispatcher.runBlockingTest {
 
         val modelDao = mock<ModelDao>()
         val catDao = spy(db.catDao())
@@ -75,7 +73,7 @@ class MainRepositoryImplTest {
     }
 
     @Test
-    fun `assert getAllCats() returns list of 3 categories when 3 categories populated`() = testDispatcher.runBlockingTest {
+    fun `assert getAllCats() returns list of 3 categories when 3 categories populated`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val modelDao = mock<ModelDao>()
         val catDao = spy(db.catDao())
         val api = mock<MainApi>()
@@ -94,7 +92,7 @@ class MainRepositoryImplTest {
     }
 
     @Test
-    fun `assert getModelResponses() returns size 2 when returned list has 2 items`() = testDispatcher.runBlockingTest {
+    fun `assert getModelResponses() returns size 2 when returned list has 2 items`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val modelDao = mock<ModelDao>()
         val catDao = mock<CategoryDao>()
         val api = mock<MainApi>()
@@ -116,7 +114,7 @@ class MainRepositoryImplTest {
     }
 
     @Test
-    fun `assert getModelResponses() returns size zero when empty`() = testDispatcher.runBlockingTest {
+    fun `assert getModelResponses() returns size zero when empty`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val modelDao = mock<ModelDao>()
         val catDao = mock<CategoryDao>()
         val api = mock<MainApi>()
@@ -136,7 +134,7 @@ class MainRepositoryImplTest {
     }
 
     @Test
-    fun `assert getModelsByCat() returns size zero when empty`() = testDispatcher.runBlockingTest {
+    fun `assert getModelsByCat() returns size zero when empty`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val modelDao = mock<ModelDao>()
         val catDao = spy(db.catDao())
         val api = mock<MainApi>()
@@ -150,7 +148,7 @@ class MainRepositoryImplTest {
     }
 
     @Test
-    fun `assert getModelsByCat() returns list of 2 models when 2 models of matching model-category is populated`() = testDispatcher.runBlockingTest {
+    fun `assert getModelsByCat() returns list of 2 models when 2 models of matching model-category is populated`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val modelDao = spy(db.modelDao())
         val catDao = mock<CategoryDao>()
         val api = mock<MainApi>()
@@ -160,9 +158,9 @@ class MainRepositoryImplTest {
 
         val repo = MainRepositoryImpl(modelDao, catDao, api)
 
-        db.modelDao().insert(Model(name ="testModel1", category = testCategory, image ="image1"))
-        db.modelDao().insert(Model(name ="testModel2", category = testCategory, image ="image2"))
-        db.modelDao().insert(Model(name ="testModel3", category = notTestCategory, image ="image3"))
+        db.modelDao().insert(Model(name = "testModel1", category = testCategory, image = "image1"))
+        db.modelDao().insert(Model(name = "testModel2", category = testCategory, image = "image2"))
+        db.modelDao().insert(Model(name = "testModel3", category = notTestCategory, image = "image3"))
 
         val expected = 2
         val actual = repo.getModelsByCat(testCategory).size
@@ -171,7 +169,7 @@ class MainRepositoryImplTest {
     }
 
     @Test
-    fun `assert getModelsByCat() returns list of expected category items`() = testDispatcher.runBlockingTest {
+    fun `assert getModelsByCat() returns list of expected category items`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val modelDao = spy(db.modelDao())
         val catDao = mock<CategoryDao>()
         val api = mock<MainApi>()
@@ -196,7 +194,7 @@ class MainRepositoryImplTest {
     }
 
     @Test
-    fun `verify insertCat() inserts expected item`() = testDispatcher.runBlockingTest {
+    fun `verify insertCat() inserts expected item`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val modelDao = mock<ModelDao>()
         val catDao = mock<CategoryDao>()
         val api = mock<MainApi>()
@@ -215,12 +213,12 @@ class MainRepositoryImplTest {
     }
 
     @Test
-    fun `verify insertModel() inserts expected item`() = testDispatcher.runBlockingTest {
+    fun `verify insertModel() inserts expected item`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val modelDao = mock<ModelDao>()
         val catDao = mock<CategoryDao>()
         val api = mock<MainApi>()
 
-        val expected = Model("category1", "testModel1", "image1")
+        val expected = Model(name = "testModel1", category = "testCategory", image = "testImage")
 
         val repo = MainRepositoryImpl(modelDao, catDao, api)
 
@@ -234,7 +232,30 @@ class MainRepositoryImplTest {
     }
 
     @Test
-    fun `verify clearEntireDatabase() runs dao deleteAll()`() = testDispatcher.runBlockingTest {
+    fun `assert insertAllModels() inserts all models in list`() = coroutinesTestRule.testDispatcher.runBlockingTest{
+        val modelDao = spy(db.modelDao())
+        val catDao = mock<CategoryDao>()
+        val api = mock<MainApi>()
+
+        val testCategory = "testCategory"
+
+        val expected = 3
+
+        val repo = MainRepositoryImpl(modelDao, catDao, api)
+
+        val list = listOf(Model(name = "testModel1", category = testCategory, image = "testImage"),
+                Model(name = "testModel2", category = testCategory, image = "testImage"),
+                Model(name = "testModel3", category = testCategory, image = "testImage"))
+
+        repo.insertAllModels(*list.toTypedArray())
+
+        val actual = repo.getModelsByCat(testCategory).size
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `verify clearEntireDatabase() runs dao deleteAll()`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val modelDao = spy(db.modelDao())
         val catDao = spy(db.catDao())
         val api = mock<MainApi>()
@@ -248,7 +269,7 @@ class MainRepositoryImplTest {
     }
 
     @Test
-    fun `verify db is empty after adding items and calling clearEntireDatabase()`() = testDispatcher.runBlockingTest {
+    fun `verify db is empty after adding items and calling clearEntireDatabase()`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val modelDao = spy(db.modelDao())
         val catDao = spy(db.catDao())
         val api = mock<MainApi>()
@@ -275,8 +296,6 @@ class MainRepositoryImplTest {
         assertEquals(expected, db.modelDao().getModelsByCat(testCategory).size)
         assertEquals(expected, db.catDao().getAllCategories().size)
     }
-
-    //TODO modeldao insertall method tests
 
     @After
     fun teardown() {

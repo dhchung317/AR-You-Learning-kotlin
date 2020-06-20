@@ -33,10 +33,6 @@ class MainViewModelTest {
 
     @Rule
     @JvmField
-    var testSchedulerRule = RxImmediateSchedulerRule()
-
-    @Rule
-    @JvmField
     val ruleForLivaData = InstantTaskExecutorRule()
 
     @Mock
@@ -78,15 +74,15 @@ class MainViewModelTest {
     @Test
     fun `assert getModelResponses() emits mainStateError when results are empty`() = coroutinesTestRule.testDispatcher.runBlockingTest {
 
-        val observer = createObserver()
+        val spyObserver = createObserver()
 
         whenever(repository.getModelResponses())
                 .thenReturn(listOf())
 
-        viewModel.getModelResponses().observeForever(observer)
-        val inOrder = inOrder(observer)
-        inOrder.verify(observer).onChanged(MainState.Loading)
-        inOrder.verify(observer).onChanged(check {
+        viewModel.getModelResponses().observeForever(spyObserver)
+        val inOrder = inOrder(spyObserver)
+        inOrder.verify(spyObserver).onChanged(MainState.Loading)
+        inOrder.verify(spyObserver).onChanged(check {
             assertEquals(MainState.Error::class.java, it::class.java)
         })
     }
@@ -161,6 +157,5 @@ class MainViewModelTest {
 
     }
 
-    //TODO get/set-wordHistory and clear database tests
     //TODO check values being return in state
 }
