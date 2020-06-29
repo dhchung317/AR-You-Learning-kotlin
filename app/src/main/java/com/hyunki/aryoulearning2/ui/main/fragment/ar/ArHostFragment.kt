@@ -230,14 +230,14 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         wordContainer = view.findViewById(R.id.word_container)
 
         wordValidatorLayout = layoutInflater.inflate(R.layout.validator_card, frameLayout, false)
-        validatorCv = wordValidatorLayout.findViewById(R.id.word_validator_cv);
-        wordValidator = wordValidatorLayout.findViewById(R.id.word_validator)
-        validatorImage = wordValidatorLayout.findViewById(R.id.validator_imageView)
-        validatorBackgroundImage = wordValidatorLayout.findViewById(R.id.correct_star_imageView)
-        validatorWord = wordValidatorLayout.findViewById(R.id.validator_word)
-        validatorWrongPrompt = wordValidatorLayout.findViewById(R.id.validator_incorrect_prompt)
-        validatorWrongWord = wordValidatorLayout.findViewById(R.id.validator_wrong_word)
-        validatorOkButton = wordValidatorLayout.findViewById(R.id.button_validator_ok)
+        validatorCv = wordValidatorLayout.findViewById(R.id.validator_card);
+        wordValidator = wordValidatorLayout.findViewById(R.id.validator_header)
+        validatorImage = wordValidatorLayout.findViewById(R.id.answer_imageView)
+        validatorBackgroundImage = wordValidatorLayout.findViewById(R.id.validator_background_imageView)
+        validatorWord = wordValidatorLayout.findViewById(R.id.answer)
+        validatorWrongPrompt = wordValidatorLayout.findViewById(R.id.validator_incorrect_answer_prompt)
+        validatorWrongWord = wordValidatorLayout.findViewById(R.id.wrong_answer)
+        validatorOkButton = wordValidatorLayout.findViewById(R.id.validator_ok_button)
         exitMenu = layoutInflater.inflate(R.layout.exit_menu_card, frameLayout, false)
         exit = view.findViewById(R.id.exit_imageButton)
         exitYes = exitMenu.findViewById(R.id.exit_button_yes)
