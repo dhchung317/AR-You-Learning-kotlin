@@ -7,6 +7,7 @@ import android.animation.ObjectAnimator
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
@@ -137,13 +138,14 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if(!checkPermission()){
+            requestCameraPermission(requireActivity(), RC_PERMISSIONS)
+        }
+
         progressBar = requireActivity().findViewById(R.id.progress_bar)
         frameLayout = view.findViewById(R.id.frame_layout)
-
         setUpViews(view)
-
         gestureDetector = getGestureDetector()
-        requestCameraPermission(activity, RC_PERMISSIONS)
         arViewModel = ViewModelProvider(this, viewModelProviderFactory).get(ArViewModel::class.java)
         setUpARScene(arFragment)
     }
@@ -157,12 +159,18 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     //TODO implement audio effects shutdown
     override fun onDestroy() {
         super.onDestroy()
+
 //        textToSpeech.shutdown()
         pronunciationUtil = null
         //        playBalloonPop.reset();
         //        playBalloonPop.release();
+
     }
 
+    private fun checkPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+    }
     override fun startNextGame(modelKey: String) {
         refreshModelResources()
         mainAnchor = mainHit.createAnchor()
@@ -228,13 +236,11 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         validatorWrongPrompt = wordValidatorLayout.findViewById(R.id.validator_incorrect_prompt)
         validatorWrongWord = wordValidatorLayout.findViewById(R.id.validator_wrong_word)
         validatorOkButton = wordValidatorLayout.findViewById(R.id.button_validator_ok)
-
         exitMenu = layoutInflater.inflate(R.layout.exit_menu_card, frameLayout, false)
         exit = view.findViewById(R.id.exit_imageButton)
         exitYes = exitMenu.findViewById(R.id.exit_button_yes)
         exitNo = exitMenu.findViewById(R.id.exit_button_no)
         undo = view.findViewById(R.id.button_undo)
-
         wordValidatorCv.visibility = View.INVISIBLE;
     }
 
@@ -301,7 +307,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun onSingleTap(tap: MotionEvent) {
-
         if (!arViewModel.isLettersLoaded() || !arViewModel.isModelsLoaded()) {
             // We can't do anything yet.
             return
@@ -385,7 +390,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             }
             is ArState.Success.OnFutureModelMapListLoaded -> {
                 showProgressBar(false)
-
                 arViewModel.getMapOfFutureLetters(state.futureModelMapList).observe(viewLifecycleOwner, Observer {
                     processFutureLetterMap(it)
                 })
@@ -436,7 +440,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             }
         }
     }
-
     //TODO - refactor animations to separate class
     private fun setAnimations() {
         fadeIn = Animations.Normal().setCardFadeInAnimator(wordValidatorCv)
@@ -473,10 +476,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun addLetterToWordContainer(letter: String) {
-        val ballonTF = ResourcesCompat.getFont(requireActivity(), R.font.balloon)
+        val balloonTF = ResourcesCompat.getFont(requireActivity(), R.font.balloon)
         val t = TextView(activity)
         t.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        t.typeface = ballonTF
+        t.typeface = balloonTF
         t.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorWhite))
         t.textSize = 100f
         t.text = letter
@@ -576,7 +579,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     companion object {
-        private const val TAG = "arvhostfragment"
+        private const val TAG = "arhostfragment"
         private const val RC_PERMISSIONS = 0x123
         fun requestCameraPermission(activity: Activity?, requestCode: Int) {
             activity?.let {
@@ -587,4 +590,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         const val REQUEST_KEY = "get-current-category"
         const val KEY_ID = "current-category"
     }
+
+
 }

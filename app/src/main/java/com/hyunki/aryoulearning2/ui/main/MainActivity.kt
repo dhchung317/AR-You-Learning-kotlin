@@ -6,6 +6,7 @@ import android.preference.PreferenceManager
 import android.view.View
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.hyunki.aryoulearning2.BaseApplication
@@ -23,11 +24,13 @@ import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity(), NavListener {
+class MainActivity : FragmentActivity(), NavListener {
     private lateinit var viewModel: MainViewModel
     private lateinit var progressBar: ProgressBar
     private lateinit var prefs: SharedPreferences
 
+    @Inject
+    lateinit var providerFactory: ViewModelProviderFactory
     @Inject
     lateinit var pronunciationUtil: PronunciationUtil
     @Inject
@@ -45,8 +48,6 @@ class MainActivity : AppCompatActivity(), NavListener {
     @JvmField
     @Inject
     var resId: Int = 0
-    @Inject
-    lateinit var providerFactory: ViewModelProviderFactory
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
