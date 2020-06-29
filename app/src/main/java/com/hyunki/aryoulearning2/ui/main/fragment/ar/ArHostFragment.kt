@@ -36,6 +36,7 @@ import com.hyunki.aryoulearning2.data.ArState
 import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameCommandListener
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameManager
+import com.hyunki.aryoulearning2.ui.main.fragment.ar.customview.ValidatorCardView
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ModelUtil
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
@@ -72,9 +73,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private lateinit var frameLayout: FrameLayout
 
     private lateinit var wordContainer: LinearLayout
-    private lateinit var wordValidatorLayout: View
-    private lateinit var wordCardView: CardView
-    private lateinit var wordValidatorCv: CardView
+    private lateinit var undo: ImageButton
+    private lateinit var wordContainerCardView: CardView
+
+    private lateinit var validatorCv: ValidatorCardView
     private lateinit var wordValidator: TextView
     private lateinit var validatorWord: TextView
     private lateinit var validatorWrongWord: TextView
@@ -82,7 +84,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private lateinit var validatorImage: ImageView
     private lateinit var validatorBackgroundImage: ImageView
     private lateinit var validatorOkButton: Button
-    private lateinit var undo: ImageButton
 
     private lateinit var exitMenu: View
     private lateinit var exit: ImageButton
@@ -225,10 +226,11 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun initViews(view: View) {
-        wordCardView = view.findViewById(R.id.card_wordContainer)
+        wordContainerCardView = view.findViewById(R.id.card_wordContainer)
         wordContainer = view.findViewById(R.id.word_container)
+
         wordValidatorLayout = layoutInflater.inflate(R.layout.validator_card, frameLayout, false)
-        wordValidatorCv = wordValidatorLayout.findViewById(R.id.word_validator_cv);
+        validatorCv = wordValidatorLayout.findViewById(R.id.word_validator_cv);
         wordValidator = wordValidatorLayout.findViewById(R.id.word_validator)
         validatorImage = wordValidatorLayout.findViewById(R.id.validator_imageView)
         validatorBackgroundImage = wordValidatorLayout.findViewById(R.id.correct_star_imageView)
@@ -241,7 +243,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         exitYes = exitMenu.findViewById(R.id.exit_button_yes)
         exitNo = exitMenu.findViewById(R.id.exit_button_no)
         undo = view.findViewById(R.id.button_undo)
-        wordValidatorCv.visibility = View.INVISIBLE;
+        validatorCv.visibility = View.INVISIBLE;
     }
 
     private fun setListeners() {
@@ -339,7 +341,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
                 val modelKey = gameManager.getCurrentWordAnswer()
 
-                wordCardView.visibility = View.VISIBLE
+                wordContainerCardView.visibility = View.VISIBLE
 
                 for (i in modelMapList.indices) {
                     for ((key, value) in modelMapList[i]) {
@@ -442,7 +444,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
     //TODO - refactor animations to separate class
     private fun setAnimations() {
-        fadeIn = Animations.Normal().setCardFadeInAnimator(wordValidatorCv)
+        fadeIn = Animations.Normal().setCardFadeInAnimator(validatorCv)
         fadeIn.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationStart(animation: Animator) {
                 frameLayout.addView(wordValidatorLayout)
@@ -455,7 +457,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             }
         })
 
-        fadeOut = Animations.Normal().setCardFadeOutAnimator(wordValidatorCv)
+        fadeOut = Animations.Normal().setCardFadeOutAnimator(validatorCv)
         fadeOut.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
                 super.onAnimationEnd(animation)
@@ -590,6 +592,4 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         const val REQUEST_KEY = "get-current-category"
         const val KEY_ID = "current-category"
     }
-
-
 }
