@@ -15,7 +15,8 @@ import javax.inject.Inject
 class MainViewModel @Inject
 constructor(private val mainRepositoryImpl: MainRepository, private val defaultDispatcher: DispatcherProvider) : ViewModel() {
 
-    private var wordHistory: List<CurrentWord> = ArrayList()
+    private lateinit var wordHistory: List<CurrentWord>
+
 
     fun getModelResponses() = liveData(defaultDispatcher.io()) {
         emit(MainState.Loading)
@@ -33,8 +34,8 @@ constructor(private val mainRepositoryImpl: MainRepository, private val defaultD
     }
 
     private suspend fun saveResponseData(response: List<ArModelResponse>) {
-        saveModels(getModelList(response))
-        saveCategories(getCategories(response))
+        saveModels(getParsedModelList(response))
+        saveCategories(getParsedCategories(response))
     }
 
     fun getModelsByCat(cat: String) = liveData(defaultDispatcher.io()) {
@@ -57,11 +58,11 @@ constructor(private val mainRepositoryImpl: MainRepository, private val defaultD
         }
     }
 
-    private fun getModelList(data: List<ArModelResponse>): List<ArModel> {
+    private fun getParsedModelList(data: List<ArModelResponse>): List<ArModel> {
         return parseModelsToSaveFromModelResponseData(data)
     }
 
-    private fun getCategories(data: List<ArModelResponse>): List<Category> {
+    private fun getParsedCategories(data: List<ArModelResponse>): List<Category> {
         return parseCategoriesToSaveFromModelResponseData(data)
     }
 

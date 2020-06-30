@@ -47,7 +47,6 @@ class ResultsFragment @Inject
 constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fragment() {
     private lateinit var rainbowRatingBar: RatingBar
     private lateinit var categoryTextView: TextView
-    private val modelMap = HashMap<String, ArModel>()
     private lateinit var shareFAB: FloatingActionButton
     private lateinit var backFAB: FloatingActionButton
     private lateinit var resultRV: RecyclerView
@@ -91,6 +90,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         progressBar = requireActivity().findViewById(R.id.progress_bar)
         initializeViews(view)
         setViews()
+
 //        renderModelList(viewModel.getModelLiveData().value!!)
     }
 
@@ -100,10 +100,12 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         shareFAB.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.share_button_color))
         backFABClick()
         shareFABClick()
+        setResultRV()
+
     }
 
     private fun setResultRV() {
-        resultRV.adapter = ResultsAdapter(viewModel.getWordHistory(), modelMap, pronunciationUtil, textToSpeech)
+        resultRV.adapter = ResultsAdapter(viewModel.getWordHistory(), pronunciationUtil)
         resultRV.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
     }
@@ -122,7 +124,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     private fun backFABClick() {
         backFAB.setOnClickListener { v -> navListener.moveToListFragment() }
-
     }
 
     private fun allowOnFileUriExposed() {
@@ -192,25 +193,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         rainbowRatingBar.setIsIndicator(true)
     }
 
-    private fun renderModelList(state: MainState) {
-        Log.d("results", "renderModelList: " + state.javaClass)
-        when (state) {
-
-            is MainState.Loading -> showProgressBar(true)
-
-            is MainState.Error -> showProgressBar(false)
-
-            is MainState.Success.OnModelsLoaded -> {
-                showProgressBar(false)
-                val (models) = state
-                for (i in models.indices) {
-                    modelMap[models[i].name] = models[i]
-                }
-                Log.d("resultsAdapter", "renderModelList: " + models.size)
-                setResultRV()
-            }
-        }
-    }
 
     private fun showProgressBar(isVisible: Boolean) {
         if (isVisible) {

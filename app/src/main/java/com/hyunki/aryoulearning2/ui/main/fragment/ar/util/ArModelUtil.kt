@@ -16,7 +16,7 @@ import java.util.HashSet
 import java.util.Random
 
 class ArModelUtil {
-    companion object Factory {
+    companion object {
         const val xRange = 3
         const val yRange = 3
         const val zRange = 2
