@@ -49,7 +49,7 @@ class ResultsAdapter(private val wordHistory: List<CurrentWord>, private val arM
             Log.d("resultsadapter", "onBind currentword: " + currentWord.answer)
             Log.d("resultsadapter", "onBind model: " + arModel.name)
             var wrong = ""
-            for (s in currentWord.attempts) {
+            for (s in currentWord.getAttempts()) {
                 wrong += "$s, "
             }
 
@@ -60,7 +60,7 @@ class ResultsAdapter(private val wordHistory: List<CurrentWord>, private val arM
 
             Picasso.get().load(arModel.image).into(modelImageView)
 
-            if (currentWord.attempts.isEmpty()) {
+            if (currentWord.getAttempts().isEmpty()) {
                 resultImage.setImageResource(R.drawable.star)
                 modelAnswer.text = correct
                 promptText.visibility = View.INVISIBLE

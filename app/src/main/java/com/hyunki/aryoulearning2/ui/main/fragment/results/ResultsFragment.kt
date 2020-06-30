@@ -229,7 +229,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         var count = 0
 
         for (i in wordHistory.indices) {
-            if (wordHistory[i].attempts.size < 1) {
+            if (wordHistory[i].getAttempts().isEmpty()) {
                 count++
             }
         }

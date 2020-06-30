@@ -47,6 +47,7 @@ import javax.inject.Inject
 import kotlin.math.roundToInt
 
 //TODO set validator views with appropriate text and image
+@ExperimentalCoroutinesApi
 class ArHostFragment @Inject
 constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), GameCommandListener {
     @Inject
@@ -57,9 +58,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     @Inject
     lateinit var application: Application
-
-    private lateinit var arModelUtil: ArModelUtil
-    private lateinit var arModelList: List<ArModel>
 
     private lateinit var progressBar: ProgressBar
 
@@ -97,6 +95,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private var hasPlacedGame = false
     private var hasPlacedAnimation = false
 
+    private lateinit var arModelUtil: ArModelUtil
+    private lateinit var arModelList: List<ArModel>
     private var modelMapList: List<MutableMap<String, ModelRenderable>> = ArrayList()
     private var letterMap = mapOf<String, ModelRenderable>()
 
@@ -154,12 +154,16 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     //TODO implement audio effects shutdown
     override fun onDestroy() {
         super.onDestroy()
-
 //        textToSpeech.shutdown()
         pronunciationUtil = null
         //        playBalloonPop.reset();
         //        playBalloonPop.release();
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        startViewModelProcesses(category)
     }
 
     private fun checkPermission(): Boolean {
@@ -172,7 +176,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     override fun startGame(modelKey: String) {
         //TODO examine if the statement checks correctly
-        if (gameManager.isFirstGame()) {
+        if (!gameManager.isFirstGame()) {
             refreshModelResources()
         }
         if (mainHit.trackable.trackingState == TrackingState.TRACKING) {
@@ -180,9 +184,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             mainAnchorNode = AnchorNode(mainAnchor)
             mainAnchorNode?.setParent(arFragment.arSceneView.scene)
 
-            findByKey(modelMapList, modelKey)?.apply {
+            filterByKey(modelMapList, modelKey)?.apply {
                 this.ifPresent {
-                    it[modelKey]?.let { model -> createSingleGame(model, modelKey) }
+                    it[modelKey]?.let {
+                        model -> createSingleGame(model, modelKey) }
                 }
             }
         } else {
@@ -196,39 +201,24 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             mainHit = frame.hitTest(tap)[0]
             val trackable = mainHit.trackable
             if (trackable is Plane && trackable.isPoseInPolygon(mainHit.hitPose)) {
-                if (!this::gameManager.isInitialized) {
-                    gameManager = GameManager(arModelList, this, listener)
-                    arModelUtil = gameManager.arModelUtil
+                if (!this::gameManager.isInitialized || gameManager.isGameOverState()) {
+                    assignNewGameManager(arModelList, this, listener)
                 }
-
-//                if (trackable.getTrackingState() == TrackingState.TRACKING) {
-//                    mainAnchor = mainHit.createAnchor()
+//                if (gameManager.isGameOverState()) {
+//                    assignNewGameManager(arModelList, this, listener)
 //                }
-//                mainAnchorNode = AnchorNode(mainAnchor)
-//                mainAnchorNode!!.setParent(arFragment.arSceneView.scene)
-                val modelKey = gameManager.getCurrentWordAnswer()
                 wordContainerCardView.visibility = View.VISIBLE
 //TODO examine follwoing method
-                startGame(modelKey)
-
-//                findByKey(modelMapList,modelKey)?.apply {
-//                    this.ifPresent {
-//                        it[modelKey]?.let { model -> createSingleGame(model, modelKey) }
-//                    }
-//                }
-
-//                modelMapList.stream()
-//                        .filter { it.containsKey(modelKey) }
-//                        .findFirst()
-//                        .apply {
-//                            this.ifPresent {
-//                                it[modelKey]?.let { model -> createSingleGame(model, modelKey) }
-//                            }
-//                        }
+                startGame(modelKey = gameManager.getCurrentWordAnswer())
                 return true
             }
         }
         return false
+    }
+
+    private fun assignNewGameManager(list: List<ArModel>, gameCommands: GameCommandListener, listener: NavListener) {
+        gameManager = GameManager(list, gameCommands, listener)
+        arModelUtil = gameManager.arModelUtil
     }
 
     private fun restartPlaneSearch() {
@@ -375,7 +365,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         }
     }
 
-    private fun findByKey(modelMapList: List<MutableMap<String, ModelRenderable>>, key: String): Optional<MutableMap<String, ModelRenderable>>? {
+    private fun filterByKey(modelMapList: List<MutableMap<String, ModelRenderable>>, key: String): Optional<MutableMap<String, ModelRenderable>>? {
         return modelMapList.stream()
                 .filter { it.containsKey(key) }
                 .findFirst()
@@ -389,7 +379,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         }
     }
 
-    @ExperimentalCoroutinesApi
     private fun processModelData(state: ArState) {
         when (state) {
             is ArState.Loading -> showProgressBar(true)
@@ -406,7 +395,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         }
     }
 
-    @ExperimentalCoroutinesApi
     private fun processFutureModelMapList(state: ArState) {
         when (state) {
             is ArState.Loading -> showProgressBar(true)
@@ -484,6 +472,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         })
         fadeOut = Animations.Normal().setCardFadeOutAnimator(validatorCardView)
         fadeOut.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationStart(animation: Animator) {
+                validatorCardView.okButton.isClickable = false
+            }
+
             override fun onAnimationEnd(animation: Animator) {
                 validatorCardView.visibility = View.INVISIBLE
                 exitButton.isClickable = true
@@ -594,19 +586,14 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 })
     }
 
-    @ExperimentalCoroutinesApi
     private fun onFragmentResult(requestKey: String, result: Bundle) {
         if (REQUEST_KEY == requestKey) {
             category = result.getString(KEY_ID)
-            arViewModel.getModelsFromRepositoryByCategory(category)
-                    .observe(viewLifecycleOwner, Observer {
-                        processModelData(it)
-                    })
+            startViewModelProcesses(category)
         }
     }
 
-    override fun onResume() {
-        super.onResume()
+    private fun startViewModelProcesses(category: String) {
         arViewModel.getModelsFromRepositoryByCategory(category)
                 .observe(viewLifecycleOwner, Observer {
                     processModelData(it)
