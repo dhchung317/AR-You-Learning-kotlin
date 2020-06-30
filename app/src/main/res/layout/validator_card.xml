@@ -3,17 +3,15 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/validator_card"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:layout_margin="30dp"
         android:elevation="100dp"
         android:orientation="horizontal"
         android:visibility="visible"
+        android:background="@android:color/transparent"
         app:cardBackgroundColor="@color/categoryCard"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="7dp">
+        app:cardCornerRadius="20dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -106,7 +104,7 @@
                         tools:src="@tools:sample/avatars" />
 
                     <TextView
-                        android:id="@+id/validator_prompt"
+                        android:id="@+id/validator_answer_prompt"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
@@ -122,7 +120,7 @@
                         app:layout_constraintStart_toStartOf="@+id/answer" />
 
                     <TextView
-                        android:id="@+id/validator_incorrect_answer_prompt"
+                        android:id="@+id/validator_wrong_answer_prompt"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"

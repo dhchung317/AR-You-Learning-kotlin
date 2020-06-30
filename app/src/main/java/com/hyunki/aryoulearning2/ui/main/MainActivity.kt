@@ -24,7 +24,7 @@ import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 import javax.inject.Inject
 
-class MainActivity : FragmentActivity(), NavListener {
+class MainActivity : AppCompatActivity(), NavListener {
     private lateinit var viewModel: MainViewModel
     private lateinit var progressBar: ProgressBar
     private lateinit var prefs: SharedPreferences
