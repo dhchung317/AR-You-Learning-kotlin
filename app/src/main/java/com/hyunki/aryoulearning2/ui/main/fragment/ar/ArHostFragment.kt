@@ -131,7 +131,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if(!checkPermission()){
+        if (!checkPermission()) {
             requestCameraPermission(requireActivity(), RC_PERMISSIONS)
         }
 
@@ -164,9 +164,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         return ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
     }
+
     override fun startNextGame(modelKey: String) {
         refreshModelResources()
-        if(mainHit.trackable.trackingState == TrackingState.TRACKING){
+        if (mainHit.trackable.trackingState == TrackingState.TRACKING) {
             mainAnchor = mainHit.createAnchor()
             mainAnchorNode = AnchorNode(mainAnchor)
             mainAnchorNode!!.setParent(arFragment.arSceneView.scene)
@@ -291,7 +292,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                     if (!hasPlacedAnimation && plane.trackingState == TrackingState.TRACKING) {
                         hasPlacedAnimation = true
                         tapAnimation = lottieHelper.getAnimationView(application, LottieHelper.AnimationType.TAP)
-                        tapAnimation  = lottieHelper.getTapAnimationToScreen(
+                        tapAnimation = lottieHelper.getTapAnimationToScreen(
                                 tapAnimation,
                                 requireActivity().window.decorView.width,
                                 requireActivity().window.decorView.height)
@@ -323,29 +324,26 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             val trackable = mainHit.trackable
 
             if (trackable is Plane && trackable.isPoseInPolygon(mainHit.hitPose)) {
-                if(!this::gameManager.isInitialized){
+                if (!this::gameManager.isInitialized) {
                     gameManager = GameManager(modelList, this, listener)
                     modelUtil = gameManager.modelUtil
                 }
-                // Create the Anchor.
                 if (trackable.getTrackingState() == TrackingState.TRACKING) {
                     mainAnchor = mainHit.createAnchor()
                 }
-
                 mainAnchorNode = AnchorNode(mainAnchor)
                 mainAnchorNode!!.setParent(arFragment.arSceneView.scene)
-
                 val modelKey = gameManager.getCurrentWordAnswer()
-
                 wordContainerCardView.visibility = View.VISIBLE
 
-                for (i in modelMapList.indices) {
-                    for ((key, value) in modelMapList[i]) {
-                        if (key == modelKey) {
-                            createSingleGame(value, key)
+                modelMapList.stream()
+                        .filter { it.containsKey(modelKey) }
+                        .findFirst()
+                        .apply {
+                            this.ifPresent {
+                                it[modelKey]?.let { model -> createSingleGame(model, modelKey) }
+                            }
                         }
-                    }
-                }
                 return true
             }
         }
@@ -438,6 +436,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             }
         }
     }
+
     //TODO - refactor animations to separate class
     private fun setAnimations() {
 //        validatorCardView.bringToFront()
@@ -447,6 +446,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 validatorCardView.visibility = View.VISIBLE
                 validatorCardView.okButton.isClickable = false
             }
+
             override fun onAnimationEnd(animation: Animator) {
                 super.onAnimationEnd(animation)
                 validatorCardView.okButton.isClickable = true
@@ -585,6 +585,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                         it, arrayOf(Manifest.permission.CAMERA), requestCode)
             }
         }
+
         const val REQUEST_KEY = "get-current-category"
         const val KEY_ID = "current-category"
     }
