@@ -1,7 +1,7 @@
 package com.hyunki.aryoulearning2
 
 import com.google.ar.sceneform.math.Vector3
-import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ModelUtil
+import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ArModelUtil
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -9,9 +9,9 @@ import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class ModelUtilTest {
+class ArModelUtilTest {
 
-    lateinit var modelUtil: ModelUtil
+    lateinit var arModelUtil: ArModelUtil
 
     private var xRange: Int = 0
     private var yRange: Int = 0
@@ -19,11 +19,11 @@ class ModelUtilTest {
 
     @Before
     fun setup() {
-        modelUtil = ModelUtil()
+        arModelUtil = ArModelUtil()
 
-        xRange = ModelUtil.xRange
-        yRange = ModelUtil.yRange
-        zRange = ModelUtil.zRange
+        xRange = ArModelUtil.xRange
+        yRange = ArModelUtil.yRange
+        zRange = ArModelUtil.zRange
     }
 
     @Test
@@ -33,7 +33,7 @@ class ModelUtilTest {
 
         val expected = true
 
-        val actual = modelUtil.checkDoesLetterCollide(vector1,vector2)
+        val actual = arModelUtil.checkDoesLetterCollide(vector1,vector2)
 
         assertEquals(expected,actual)
     }
@@ -45,7 +45,7 @@ class ModelUtilTest {
 
         val expected = true
 
-        val actual = modelUtil.checkDoesLetterCollide(vector1,vector2)
+        val actual = arModelUtil.checkDoesLetterCollide(vector1,vector2)
 
         assertEquals(expected,actual)
     }
@@ -57,7 +57,7 @@ class ModelUtilTest {
 
         val expected = true
 
-        val actual = modelUtil.checkDoesLetterCollide(vector1,vector2)
+        val actual = arModelUtil.checkDoesLetterCollide(vector1,vector2)
 
         assertEquals(expected,actual)
     }
@@ -69,7 +69,7 @@ class ModelUtilTest {
 
         val expected = false
 
-        val actual = modelUtil.checkDoesLetterCollide(vector1,vector2)
+        val actual = arModelUtil.checkDoesLetterCollide(vector1,vector2)
 
         assertEquals(expected,actual)
     }
@@ -81,7 +81,7 @@ class ModelUtilTest {
 
         val expected = false
 
-        val actual = modelUtil.checkDoesLetterCollide(vector1,vector2)
+        val actual = arModelUtil.checkDoesLetterCollide(vector1,vector2)
 
         assertEquals(expected,actual)
     }

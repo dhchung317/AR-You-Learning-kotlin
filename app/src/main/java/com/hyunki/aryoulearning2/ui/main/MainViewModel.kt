@@ -5,8 +5,8 @@ import androidx.lifecycle.liveData
 import com.hyunki.aryoulearning2.data.MainRepository
 import com.hyunki.aryoulearning2.data.MainState
 import com.hyunki.aryoulearning2.data.db.model.Category
-import com.hyunki.aryoulearning2.data.db.model.Model
-import com.hyunki.aryoulearning2.data.db.model.ModelResponse
+import com.hyunki.aryoulearning2.data.db.model.ArModel
+import com.hyunki.aryoulearning2.data.db.model.ArModelResponse
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.util.DispatcherProvider
 import javax.inject.Inject
@@ -32,7 +32,7 @@ constructor(private val mainRepositoryImpl: MainRepository, private val defaultD
         }
     }
 
-    private suspend fun saveResponseData(response: List<ModelResponse>) {
+    private suspend fun saveResponseData(response: List<ArModelResponse>) {
         saveModels(getModelList(response))
         saveCategories(getCategories(response))
     }
@@ -57,29 +57,29 @@ constructor(private val mainRepositoryImpl: MainRepository, private val defaultD
         }
     }
 
-    private fun getModelList(data: List<ModelResponse>): List<Model> {
+    private fun getModelList(data: List<ArModelResponse>): List<ArModel> {
         return parseModelsToSaveFromModelResponseData(data)
     }
 
-    private fun getCategories(data: List<ModelResponse>): List<Category> {
+    private fun getCategories(data: List<ArModelResponse>): List<Category> {
         return parseCategoriesToSaveFromModelResponseData(data)
     }
 
-    private fun parseCategoriesToSaveFromModelResponseData(modelResponses: List<ModelResponse>): List<Category> {
+    private fun parseCategoriesToSaveFromModelResponseData(arModelResponses: List<ArModelResponse>): List<Category> {
         val categories = arrayListOf<Category>()
-        for (i in modelResponses.indices) {
+        for (i in arModelResponses.indices) {
             categories.add(Category(
-                    modelResponses[i].category,
-                    modelResponses[i].background
+                    arModelResponses[i].category,
+                    arModelResponses[i].background
             ))
         }
         return categories
     }
 
-    private fun parseModelsToSaveFromModelResponseData(modelResponses: List<ModelResponse>): List<Model> {
-        val models = arrayListOf<Model>()
-        for (i in modelResponses.indices) {
-            models.addAll(modelResponses[i].list)
+    private fun parseModelsToSaveFromModelResponseData(arModelResponses: List<ArModelResponse>): List<ArModel> {
+        val models = arrayListOf<ArModel>()
+        for (i in arModelResponses.indices) {
+            models.addAll(arModelResponses[i].list)
         }
         return models
     }
@@ -90,8 +90,8 @@ constructor(private val mainRepositoryImpl: MainRepository, private val defaultD
         }
     }
 
-    private suspend fun saveModels(models: List<Model>): List<Long> {
-        return mainRepositoryImpl.insertAllModels(*models.toTypedArray())
+    private suspend fun saveModels(arModels: List<ArModel>): List<Long> {
+        return mainRepositoryImpl.insertAllModels(*arModels.toTypedArray())
     }
 
     fun getWordHistory(): List<CurrentWord> {

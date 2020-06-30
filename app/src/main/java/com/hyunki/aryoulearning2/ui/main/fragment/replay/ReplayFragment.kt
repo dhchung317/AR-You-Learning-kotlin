@@ -12,11 +12,8 @@ import androidx.fragment.app.Fragment
 
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
-import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
-
-import java.util.ArrayList
 
 import javax.inject.Inject
 

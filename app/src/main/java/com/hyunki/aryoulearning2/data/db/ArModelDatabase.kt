@@ -3,14 +3,14 @@ package com.hyunki.aryoulearning2.data.db
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.hyunki.aryoulearning2.data.db.dao.CategoryDao
-import com.hyunki.aryoulearning2.data.db.dao.ModelDao
+import com.hyunki.aryoulearning2.data.db.dao.ArModelDao
 import com.hyunki.aryoulearning2.data.db.model.Category
-import com.hyunki.aryoulearning2.data.db.model.Model
+import com.hyunki.aryoulearning2.data.db.model.ArModel
 
-@Database(version = 3, entities = [Model::class, Category::class], exportSchema = false)
-abstract class ModelDatabase : RoomDatabase() {
+@Database(version = 3, entities = [ArModel::class, Category::class], exportSchema = false)
+abstract class ArModelDatabase : RoomDatabase() {
 
-    abstract fun modelDao(): ModelDao
+    abstract fun modelDao(): ArModelDao
 
     abstract fun catDao(): CategoryDao
 

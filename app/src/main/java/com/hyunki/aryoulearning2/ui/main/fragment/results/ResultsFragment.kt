@@ -30,7 +30,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.data.MainState
-import com.hyunki.aryoulearning2.data.db.model.Model
+import com.hyunki.aryoulearning2.data.db.model.ArModel
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
@@ -47,7 +47,7 @@ class ResultsFragment @Inject
 constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fragment() {
     private lateinit var rainbowRatingBar: RatingBar
     private lateinit var categoryTextView: TextView
-    private val modelMap = HashMap<String, Model>()
+    private val modelMap = HashMap<String, ArModel>()
     private lateinit var shareFAB: FloatingActionButton
     private lateinit var backFAB: FloatingActionButton
     private lateinit var resultRV: RecyclerView
@@ -229,7 +229,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         var count = 0
 
         for (i in wordHistory.indices) {
-            if (wordHistory[i].attempts.size < 1) {
+            if (wordHistory[i].getAttempts().isEmpty()) {
                 count++
             }
         }

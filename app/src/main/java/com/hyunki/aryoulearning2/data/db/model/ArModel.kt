@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "models")
-data class Model(
+data class ArModel(
         @PrimaryKey
         val name: String,
         @ColumnInfo(name = "category")
