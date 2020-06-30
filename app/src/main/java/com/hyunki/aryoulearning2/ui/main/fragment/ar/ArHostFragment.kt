@@ -102,7 +102,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private var modelMapList: List<MutableMap<String, ModelRenderable>> = ArrayList()
     private var letterMap = mapOf<String, ModelRenderable>()
 
-    val balloonTF by lazy{ ResourcesCompat.getFont(requireActivity(), R.font.balloon) }
+    val balloonTF by lazy { ResourcesCompat.getFont(requireActivity(), R.font.balloon) }
 
     //TODO implement text to speech
 //    private val textToSpeech: TextToSpeech
@@ -194,13 +194,11 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     override fun showCard(isCorrect: Boolean) {
         validatorCardView.answerText = gameManager.currentWord.answer
-        validatorCardView.wrongAnswerVisibility = View.INVISIBLE
-        validatorCardView.wrongAnswerPromptVisibility = View.INVISIBLE
         validatorCardView.answerImage = gameManager.currentWord.image
 
         when (isCorrect) {
             true -> setUpCardWithCorrectValidators()
-            else -> setUpCardWithInorrectValidators()
+            else -> setUpCardWithIncorrectValidators()
         }
 
         validatorCardView.okButton.setOnClickListener {
@@ -216,13 +214,18 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun setUpCardWithCorrectValidators() {
+        validatorCardView.headerText = "GREAT!!!"
         validatorCardView.backgroundImage = R.drawable.star
-    }
-
-    private fun setUpCardWithInorrectValidators() {
-        validatorCardView.backgroundImage = R.drawable.error
         validatorCardView.wrongAnswerVisibility = View.INVISIBLE
         validatorCardView.wrongAnswerPromptVisibility = View.INVISIBLE
+    }
+
+    private fun setUpCardWithIncorrectValidators() {
+        validatorCardView.headerText = "TRY AGAIN..."
+        validatorCardView.backgroundImage = R.drawable.error
+        validatorCardView.wrongAnswerVisibility = View.VISIBLE
+        validatorCardView.wrongAnswerPromptVisibility = View.VISIBLE
+        validatorCardView.wrongAnswerText = gameManager.attempt
     }
 
     private fun setUpViews(view: View) {
@@ -294,17 +297,21 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             if (!hasPlacedGame) {
                 for (plane in frame.getUpdatedTrackables(Plane::class.java)) {
                     if (!hasPlacedAnimation && plane.trackingState == TrackingState.TRACKING) {
-                        hasPlacedAnimation = true
-                        tapAnimation = lottieHelper.getAnimationView(application, LottieHelper.AnimationType.TAP)
-                        tapAnimation = lottieHelper.getTapAnimationToScreen(
-                                tapAnimation,
-                                requireActivity().window.decorView.width,
-                                requireActivity().window.decorView.height)
-                        frameLayout.addView(tapAnimation, 500, 500)
+                        placeAnimation()
                     }
                 }
             }
         }
+    }
+
+    private fun placeAnimation() {
+        hasPlacedAnimation = true
+        tapAnimation = lottieHelper.getAnimationView(application, LottieHelper.AnimationType.TAP)
+        tapAnimation = lottieHelper.placeTapAnimationOnScreen(
+                tapAnimation,
+                requireActivity().window.decorView.width,
+                requireActivity().window.decorView.height)
+        frameLayout.addView(tapAnimation, 500, 500)
     }
 
     private fun onSingleTap(tap: MotionEvent) {
@@ -368,11 +375,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             is ArState.Loading -> showProgressBar(true)
             is ArState.Error -> {
                 showProgressBar(false)
-                Log.d(TAG, "processModelData: " + state.e)
             }
             is ArState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
-                Log.d(TAG, "processModelData: " + state.models.size)
                 modelList = state.models
                 arViewModel.getListOfMapsOfFutureModels(state.models).observe(viewLifecycleOwner, Observer {
                     processFutureModelMapList(it)
@@ -443,25 +448,24 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     //TODO - refactor animations to separate class
     private fun setAnimations() {
-        validatorCardView.bringToFront()
         fadeIn = Animations.Normal().setCardFadeInAnimator(validatorCardView)
+
         fadeIn.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationStart(animation: Animator) {
                 validatorCardView.visibility = View.VISIBLE
+                exit.isClickable = false
                 validatorCardView.okButton.isClickable = false
             }
-
-            override fun onAnimationEnd(animation: Animator) {
-                super.onAnimationEnd(animation)
+            override fun onAnimationEnd(animation: Animator?) {
+                validatorCardView.bringToFront()
                 validatorCardView.okButton.isClickable = true
             }
         })
-
         fadeOut = Animations.Normal().setCardFadeOutAnimator(validatorCardView)
         fadeOut.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
-                super.onAnimationEnd(animation)
                 validatorCardView.visibility = View.INVISIBLE
+                exit.isClickable = true
             }
         })
     }
@@ -479,8 +483,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private fun addLetterToWordContainer(letter: String) {
         val t =
-        ViewUtil.configureWordContainerTextView(
-                TextView(activity),letter,balloonTF,ContextCompat.getColor(requireContext(),R.color.colorWhite))
+                ViewUtil.configureWordContainerTextView(
+                        TextView(activity), letter, balloonTF, ContextCompat.getColor(requireContext(), R.color.colorWhite))
         wordContainer.addView(t)
     }
 
@@ -541,7 +545,11 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
             frameLayout.addView(lav, 300, 300)
             lav.addAnimatorListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationStart(animation: Animator?) {
+                    lav.elevation = 0f
+                }
                 override fun onAnimationEnd(animation: Animator?) {
+//                    frameLayout.removeViewInLayout(lav)
                     frameLayout.removeView(lav)
                 }
             })
