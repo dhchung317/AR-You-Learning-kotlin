@@ -135,10 +135,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (!checkPermission()) {
+        if(!checkPermission()){
             requestCameraPermission(requireActivity(), RC_PERMISSIONS)
         }
-
         progressBar = requireActivity().findViewById(R.id.progress_bar)
         frameLayout = view.findViewById(R.id.frame_layout)
         setUpViews(view)
