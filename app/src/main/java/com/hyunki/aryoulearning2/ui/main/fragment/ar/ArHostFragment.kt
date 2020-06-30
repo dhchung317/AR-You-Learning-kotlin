@@ -167,27 +167,75 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
     }
 
-    override fun startNextGame(modelKey: String) {
-        refreshModelResources()
+
+    //TODO refactor the following two methods
+
+    override fun startGame(modelKey: String) {
+        //TODO examine if the statement checks correctly
+        if (gameManager.isFirstGame()) {
+            refreshModelResources()
+        }
         if (mainHit.trackable.trackingState == TrackingState.TRACKING) {
             mainAnchor = mainHit.createAnchor()
             mainAnchorNode = AnchorNode(mainAnchor)
-            mainAnchorNode!!.setParent(arFragment.arSceneView.scene)
+            mainAnchorNode?.setParent(arFragment.arSceneView.scene)
 
-            for (i in modelMapList.indices) {
-                for ((key, value) in modelMapList[i]) {
-                    if (key == modelKey) {
-                        createSingleGame(value, key)
-                    }
+            findByKey(modelMapList, modelKey)?.apply {
+                this.ifPresent {
+                    it[modelKey]?.let { model -> createSingleGame(model, modelKey) }
                 }
             }
         } else {
-            hasPlacedGame = false
-            hasPlacedAnimation = false
-            gestureDetector = getGestureDetector()
-            setUpARScene(arFragment)
+            restartPlaneSearch()
         }
         wordContainer.removeAllViews()
+    }
+
+    private fun tryPlaceGame(tap: MotionEvent?, frame: Frame): Boolean {
+        if (tap != null && frame.camera.trackingState == TrackingState.TRACKING) {
+            mainHit = frame.hitTest(tap)[0]
+            val trackable = mainHit.trackable
+            if (trackable is Plane && trackable.isPoseInPolygon(mainHit.hitPose)) {
+                if (!this::gameManager.isInitialized) {
+                    gameManager = GameManager(arModelList, this, listener)
+                    arModelUtil = gameManager.arModelUtil
+                }
+
+//                if (trackable.getTrackingState() == TrackingState.TRACKING) {
+//                    mainAnchor = mainHit.createAnchor()
+//                }
+//                mainAnchorNode = AnchorNode(mainAnchor)
+//                mainAnchorNode!!.setParent(arFragment.arSceneView.scene)
+                val modelKey = gameManager.getCurrentWordAnswer()
+                wordContainerCardView.visibility = View.VISIBLE
+//TODO examine follwoing method
+                startGame(modelKey)
+
+//                findByKey(modelMapList,modelKey)?.apply {
+//                    this.ifPresent {
+//                        it[modelKey]?.let { model -> createSingleGame(model, modelKey) }
+//                    }
+//                }
+
+//                modelMapList.stream()
+//                        .filter { it.containsKey(modelKey) }
+//                        .findFirst()
+//                        .apply {
+//                            this.ifPresent {
+//                                it[modelKey]?.let { model -> createSingleGame(model, modelKey) }
+//                            }
+//                        }
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun restartPlaneSearch() {
+        hasPlacedGame = false
+        hasPlacedAnimation = false
+        gestureDetector = getGestureDetector()
+        setUpARScene(arFragment)
     }
 
     override fun showCard(isCorrect: Boolean) {
@@ -327,36 +375,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         }
     }
 
-    private fun tryPlaceGame(tap: MotionEvent?, frame: Frame): Boolean {
-        if (tap != null && frame.camera.trackingState == TrackingState.TRACKING) {
-            mainHit = frame.hitTest(tap)[0]
-            val trackable = mainHit.trackable
-
-            if (trackable is Plane && trackable.isPoseInPolygon(mainHit.hitPose)) {
-                if (!this::gameManager.isInitialized) {
-                    gameManager = GameManager(arModelList, this, listener)
-                    arModelUtil = gameManager.arModelUtil
-                }
-                if (trackable.getTrackingState() == TrackingState.TRACKING) {
-                    mainAnchor = mainHit.createAnchor()
-                }
-                mainAnchorNode = AnchorNode(mainAnchor)
-                mainAnchorNode!!.setParent(arFragment.arSceneView.scene)
-                val modelKey = gameManager.getCurrentWordAnswer()
-                wordContainerCardView.visibility = View.VISIBLE
-
-                modelMapList.stream()
-                        .filter { it.containsKey(modelKey) }
-                        .findFirst()
-                        .apply {
-                            this.ifPresent {
-                                it[modelKey]?.let { model -> createSingleGame(model, modelKey) }
-                            }
-                        }
-                return true
-            }
-        }
-        return false
+    private fun findByKey(modelMapList: List<MutableMap<String, ModelRenderable>>, key: String): Optional<MutableMap<String, ModelRenderable>>? {
+        return modelMapList.stream()
+                .filter { it.containsKey(key) }
+                .findFirst()
     }
 
     private fun showProgressBar(isVisible: Boolean) {
@@ -454,6 +476,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 exitButton.isClickable = false
                 validatorCardView.okButton.isClickable = false
             }
+
             override fun onAnimationEnd(animation: Animator?) {
                 validatorCardView.bringToFront()
                 validatorCardView.okButton.isClickable = true
@@ -546,6 +569,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 override fun onAnimationStart(animation: Animator?) {
                     lav.elevation = 0f
                 }
+
                 override fun onAnimationEnd(animation: Animator?) {
 //                    frameLayout.removeViewInLayout(lav)
                     frameLayout.removeView(lav)

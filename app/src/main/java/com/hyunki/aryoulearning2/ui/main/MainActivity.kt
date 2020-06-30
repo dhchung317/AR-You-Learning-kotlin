@@ -6,7 +6,6 @@ import android.preference.PreferenceManager
 import android.view.View
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.hyunki.aryoulearning2.BaseApplication

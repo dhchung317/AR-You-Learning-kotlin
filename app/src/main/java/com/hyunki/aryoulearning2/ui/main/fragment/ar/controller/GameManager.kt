@@ -30,6 +30,8 @@ class GameManager(arModelList: List<ArModel>, private val gameCommands: GameComm
             }
         }
         this.currentWord = CurrentWord(keyStack.pop())
+        //TODO examine this line
+        keyStack[keyStack.size] = null
     }
 
     fun addTappedLetterToCurrentWordAttempt(letter: String): Boolean {
@@ -65,7 +67,7 @@ class GameManager(arModelList: List<ArModel>, private val gameCommands: GameComm
     }
 
     private fun onAnswerWasIncorrect() {
-        startNextGame(currentWord.answerArModel)
+        startGameFromGameManager(currentWord.answerArModel)
     }
 
     private fun onAnswerWasCorrect() {
@@ -81,7 +83,7 @@ class GameManager(arModelList: List<ArModel>, private val gameCommands: GameComm
     }
 
     private fun onGamesLeft() {
-        startNextGame(keyStack.pop())
+        startGameFromGameManager(keyStack.pop())
     }
 
     private fun onGamesOver() {
@@ -95,9 +97,9 @@ class GameManager(arModelList: List<ArModel>, private val gameCommands: GameComm
         return tappedLetter == correctLetter
     }
 
-    private fun startNextGame(key: ArModel) {
+    private fun startGameFromGameManager(key: ArModel) {
         refreshManager(key)
-        gameCommands.startNextGame(key.name)
+        gameCommands.startGame(key.name)
     }
 
     private fun addLetterToAttempt(letter: String) {
@@ -135,6 +137,10 @@ class GameManager(arModelList: List<ArModel>, private val gameCommands: GameComm
 
     fun getKeyCount(): Int {
         return keyStack.size
+    }
+
+    fun isFirstGame():Boolean {
+        return roundLimit == keyStack.size - 1
     }
 
     companion object {

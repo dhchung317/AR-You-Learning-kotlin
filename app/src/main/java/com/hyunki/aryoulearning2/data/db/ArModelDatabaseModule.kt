@@ -24,7 +24,7 @@ class ArModelDatabaseModule {
     }
 
     @Provides
-    fun provideModelDao(arModelDatabase: ArModelDatabase): ArModelDao {
+    fun provideArModelDao(arModelDatabase: ArModelDatabase): ArModelDao {
         return arModelDatabase.modelDao()
     }
 
