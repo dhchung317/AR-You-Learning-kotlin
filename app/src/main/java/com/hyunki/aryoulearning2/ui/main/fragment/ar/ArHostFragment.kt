@@ -7,6 +7,7 @@ import android.animation.ObjectAnimator
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
@@ -138,14 +139,17 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if(!checkPermission()){
+            requestCameraPermission(requireActivity(), RC_PERMISSIONS)
+        }
         progressBar = requireActivity().findViewById(R.id.progress_bar)
         frameLayout = view.findViewById(R.id.frame_layout)
+
 
         setUpViews(view)
         setAnimations()
 
         gestureDetector = getGestureDetector()
-        requestCameraPermission(activity, RC_PERMISSIONS)
         arViewModel = ViewModelProvider(this, viewModelProviderFactory).get(ArViewModel::class.java)
         setUpARScene(arFragment)
         runViewModel(arViewModel)
@@ -164,6 +168,11 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         pronunciationUtil = null
         //        playBalloonPop.reset();
         //        playBalloonPop.release();
+    }
+
+    private fun checkPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
     }
 
     override fun startNextGame(modelKey: String) {
