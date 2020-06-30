@@ -38,6 +38,7 @@ import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameCommandListe
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameManager
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.customview.ValidatorCardView
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ModelUtil
+import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ViewUtil
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
@@ -46,6 +47,7 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
+//TODO set validator views with appropriate text and image
 class ArHostFragment @Inject
 constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), GameCommandListener {
     @Inject
@@ -99,6 +101,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private var modelMapList: List<MutableMap<String, ModelRenderable>> = ArrayList()
     private var letterMap = mapOf<String, ModelRenderable>()
+
+    val balloonTF by lazy{ ResourcesCompat.getFont(requireActivity(), R.font.balloon) }
 
     //TODO implement text to speech
 //    private val textToSpeech: TextToSpeech
@@ -439,7 +443,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     //TODO - refactor animations to separate class
     private fun setAnimations() {
-//        validatorCardView.bringToFront()
+        validatorCardView.bringToFront()
         fadeIn = Animations.Normal().setCardFadeInAnimator(validatorCardView)
         fadeIn.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationStart(animation: Animator) {
@@ -474,14 +478,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun addLetterToWordContainer(letter: String) {
-        val balloonTF = ResourcesCompat.getFont(requireActivity(), R.font.balloon)
-        val t = TextView(activity)
-        t.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        t.typeface = balloonTF
-        t.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorWhite))
-        t.textSize = 100f
-        t.text = letter
-        t.textAlignment = View.TEXT_ALIGNMENT_CENTER
+        val t =
+        ViewUtil.configureWordContainerTextView(
+                TextView(activity),letter,balloonTF,ContextCompat.getColor(requireContext(),R.color.colorWhite))
         wordContainer.addView(t)
     }
 

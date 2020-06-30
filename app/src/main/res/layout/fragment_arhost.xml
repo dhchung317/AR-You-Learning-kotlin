@@ -83,6 +83,5 @@
         android:layout_height="match_parent"
         android:layout_margin="25dp"
         app:cardElevation="0dp"
-        android:elevation="100dp"
         app:cardBackgroundColor="@android:color/transparent"/>
 </FrameLayout>
