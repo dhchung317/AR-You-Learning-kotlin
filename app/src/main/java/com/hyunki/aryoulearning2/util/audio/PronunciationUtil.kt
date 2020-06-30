@@ -68,7 +68,10 @@ constructor(context: Context) : TextToSpeech.OnInitListener {
             textToSpeech.language = Locale.US
         } else {
             Log.e("TextToSpeechManager", "Initilization Failed!")
-
         }
+    }
+
+    fun closeTTS(){
+        textToSpeech.shutdown()
     }
 }

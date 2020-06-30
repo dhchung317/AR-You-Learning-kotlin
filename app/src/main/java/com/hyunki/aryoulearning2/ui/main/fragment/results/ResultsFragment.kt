@@ -45,13 +45,14 @@ import javax.inject.Inject
 //TODO- refactor resultsfragment
 class ResultsFragment @Inject
 constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fragment() {
+    @Inject
+    lateinit var pronunciationUtil: PronunciationUtil
+
     private lateinit var rainbowRatingBar: RatingBar
     private lateinit var categoryTextView: TextView
     private lateinit var shareFAB: FloatingActionButton
     private lateinit var backFAB: FloatingActionButton
     private lateinit var resultRV: RecyclerView
-    private lateinit var pronunciationUtil: PronunciationUtil
-    private lateinit var textToSpeech: TextToSpeech
     private lateinit var viewModel: MainViewModel
     private lateinit var progressBar: ProgressBar
     private lateinit var navListener: NavListener
@@ -59,17 +60,11 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     override fun onAttach(context: Context) {
         (requireActivity().application as BaseApplication).appComponent.inject(this)
         super.onAttach(context)
-
         if (context is NavListener) {
             navListener = context
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        //        pronunciationUtil = new PronunciationUtil();
-        //        textToSpeech = pronunciationUtil.getTTS(getContext());
-    }
 
     private fun initializeViews(view: View) {
         rainbowRatingBar = view.findViewById(R.id.rainbow_correctword_ratingbar)
@@ -91,12 +86,10 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         initializeViews(view)
         setViews()
 
-//        renderModelList(viewModel.getModelLiveData().value!!)
     }
 
     private fun setViews() {
         displayRatingBarAttempts()
-        //        categoryTextView.setText(MainActivityX.currentCategory);
         shareFAB.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.share_button_color))
         backFABClick()
         shareFABClick()
@@ -204,7 +197,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     override fun onDestroy() {
         super.onDestroy()
-        textToSpeech.shutdown();
+        pronunciationUtil.closeTTS()
     }
 
     private fun getCorrectAnswerCount(wordHistory: List<CurrentWord>): Int {
