@@ -5,31 +5,31 @@ import android.app.Application
 import androidx.room.Room
 
 import com.hyunki.aryoulearning2.data.db.dao.CategoryDao
-import com.hyunki.aryoulearning2.data.db.dao.ModelDao
+import com.hyunki.aryoulearning2.data.db.dao.ArModelDao
 
 import dagger.Module
 import dagger.Provides
 
 @Module
-class ModelDatabaseModule {
+class ArModelDatabaseModule {
 
     @Provides
-    fun provideModelDatabase(application: Application): ModelDatabase {
+    fun provideModelDatabase(application: Application): ArModelDatabase {
         return Room.databaseBuilder(
                 application.applicationContext,
-                ModelDatabase::class.java, ModelDatabase.DATABASE_NAME)
+                ArModelDatabase::class.java, ArModelDatabase.DATABASE_NAME)
                 .fallbackToDestructiveMigration()
                 .allowMainThreadQueries()
                 .build()
     }
 
     @Provides
-    fun provideModelDao(modelDatabase: ModelDatabase): ModelDao {
-        return modelDatabase.modelDao()
+    fun provideModelDao(arModelDatabase: ArModelDatabase): ArModelDao {
+        return arModelDatabase.modelDao()
     }
 
     @Provides
-    fun provideCatDao(modelDatabase: ModelDatabase): CategoryDao {
-        return modelDatabase.catDao()
+    fun provideCatDao(arModelDatabase: ArModelDatabase): CategoryDao {
+        return arModelDatabase.catDao()
     }
 }

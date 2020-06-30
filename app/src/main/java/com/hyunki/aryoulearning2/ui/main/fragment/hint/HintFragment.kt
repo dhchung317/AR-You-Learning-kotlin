@@ -20,7 +20,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.data.MainState
-import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArHostFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.FragmentListener
@@ -170,7 +169,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
             is MainState.Error -> showProgressBar(false)
             is MainState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
-                hintAdapter.setList(state.models)
+                hintAdapter.setList(state.arModels)
             }
         }
     }

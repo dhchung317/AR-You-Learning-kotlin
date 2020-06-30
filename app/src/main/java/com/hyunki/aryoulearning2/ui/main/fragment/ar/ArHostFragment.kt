@@ -10,7 +10,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.cardview.widget.CardView
@@ -33,11 +32,11 @@ import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.animation.Animations
 import com.hyunki.aryoulearning2.animation.LottieHelper
 import com.hyunki.aryoulearning2.data.ArState
-import com.hyunki.aryoulearning2.data.db.model.Model
+import com.hyunki.aryoulearning2.data.db.model.ArModel
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameCommandListener
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameManager
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.customview.ValidatorCardView
-import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ModelUtil
+import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ArModelUtil
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ViewUtil
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
@@ -59,8 +58,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     @Inject
     lateinit var application: Application
 
-    private lateinit var modelUtil: ModelUtil
-    private lateinit var modelList: List<Model>
+    private lateinit var arModelUtil: ArModelUtil
+    private lateinit var arModelList: List<ArModel>
 
     private lateinit var progressBar: ProgressBar
 
@@ -72,15 +71,14 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private lateinit var playBalloonPop: MediaPlayer
 
     private lateinit var frameLayout: FrameLayout
-
     private lateinit var wordContainer: LinearLayout
-    private lateinit var undo: ImageButton
     private lateinit var wordContainerCardView: CardView
+    private lateinit var wordContainerUndoButton: ImageButton
 
     private lateinit var validatorCardView: ValidatorCardView
 
-    private lateinit var exitMenu: View
-    private lateinit var exit: ImageButton
+    private lateinit var exitMenuDialog: View
+    private lateinit var exitButton: ImageButton
     private lateinit var exitYes: Button
     private lateinit var exitNo: Button
 
@@ -102,7 +100,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private var modelMapList: List<MutableMap<String, ModelRenderable>> = ArrayList()
     private var letterMap = mapOf<String, ModelRenderable>()
 
-    val balloonTF by lazy { ResourcesCompat.getFont(requireActivity(), R.font.balloon) }
+    private val balloonTF by lazy { ResourcesCompat.getFont(requireActivity(), R.font.balloon) }
 
     //TODO implement text to speech
 //    private val textToSpeech: TextToSpeech
@@ -239,20 +237,20 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         wordContainerCardView = view.findViewById(R.id.word_container_card)
         wordContainer = view.findViewById(R.id.word_container)
 
-        exitMenu = layoutInflater.inflate(R.layout.exit_menu_card, frameLayout, false)
-        exit = view.findViewById(R.id.exit_imageButton)
-        exitYes = exitMenu.findViewById(R.id.exit_button_yes)
-        exitNo = exitMenu.findViewById(R.id.exit_button_no)
+        exitMenuDialog = layoutInflater.inflate(R.layout.exit_menu_card, frameLayout, false)
+        exitButton = view.findViewById(R.id.exit_imageButton)
+        exitYes = exitMenuDialog.findViewById(R.id.exit_button_yes)
+        exitNo = exitMenuDialog.findViewById(R.id.exit_button_no)
 
-        undo = view.findViewById(R.id.button_undo)
+        wordContainerUndoButton = view.findViewById(R.id.button_undo)
         validatorCardView.visibility = View.INVISIBLE;
     }
 
     private fun setListeners() {
-        exit.setOnClickListener { frameLayout.addView(exitMenu) }
+        exitButton.setOnClickListener { frameLayout.addView(exitMenuDialog) }
         exitYes.setOnClickListener { listener.moveToListFragment() }
-        exitNo.setOnClickListener { frameLayout.removeView(exitMenu) }
-        undo.setOnClickListener { undoLastLetter() }
+        exitNo.setOnClickListener { frameLayout.removeView(exitMenuDialog) }
+        wordContainerUndoButton.setOnClickListener { undoLastLetter() }
     }
 
     private fun getGestureDetector(): GestureDetector {
@@ -336,8 +334,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
             if (trackable is Plane && trackable.isPoseInPolygon(mainHit.hitPose)) {
                 if (!this::gameManager.isInitialized) {
-                    gameManager = GameManager(modelList, this, listener)
-                    modelUtil = gameManager.modelUtil
+                    gameManager = GameManager(arModelList, this, listener)
+                    arModelUtil = gameManager.arModelUtil
                 }
                 if (trackable.getTrackingState() == TrackingState.TRACKING) {
                     mainAnchor = mainHit.createAnchor()
@@ -378,8 +376,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             }
             is ArState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
-                modelList = state.models
-                arViewModel.getListOfMapsOfFutureModels(state.models).observe(viewLifecycleOwner, Observer {
+                arModelList = state.arModels
+                arViewModel.getListOfMapsOfFutureModels(state.arModels).observe(viewLifecycleOwner, Observer {
                     processFutureModelMapList(it)
                 })
             }
@@ -453,7 +451,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         fadeIn.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationStart(animation: Animator) {
                 validatorCardView.visibility = View.VISIBLE
-                exit.isClickable = false
+                exitButton.isClickable = false
                 validatorCardView.okButton.isClickable = false
             }
             override fun onAnimationEnd(animation: Animator?) {
@@ -465,13 +463,13 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         fadeOut.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
                 validatorCardView.visibility = View.INVISIBLE
-                exit.isClickable = true
+                exitButton.isClickable = true
             }
         })
     }
 
     private fun createSingleGame(mainModel: ModelRenderable, name: String) {
-        base = modelUtil.getGameAnchor(mainModel)
+        base = arModelUtil.getGameAnchor(mainModel)
         mainAnchorNode?.addChild(base)
         placeLetters(name)
     }
@@ -489,7 +487,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun placeSingleLetter(letter: String) {
-        val letterAnchorNode = modelUtil.getLetter(base, letterMap[letter], arFragment)
+        val letterAnchorNode = arModelUtil.getLetter(base, letterMap[letter], arFragment)
         letterAnchorNode.children[0].setOnTapListener(getNodeOnTapListener(letter, letterAnchorNode))
         connectAnchorToBase(letterAnchorNode)
     }
@@ -581,6 +579,14 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                         processModelData(it)
                     })
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        arViewModel.getModelsFromRepositoryByCategory(category)
+                .observe(viewLifecycleOwner, Observer {
+                    processModelData(it)
+                })
     }
 
     companion object {

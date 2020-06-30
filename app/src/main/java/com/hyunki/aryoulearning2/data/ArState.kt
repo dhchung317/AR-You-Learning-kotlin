@@ -1,8 +1,7 @@
 package com.hyunki.aryoulearning2.data
 
 import com.google.ar.sceneform.rendering.ModelRenderable
-import com.hyunki.aryoulearning2.data.db.model.Model
-import java.lang.Exception
+import com.hyunki.aryoulearning2.data.db.model.ArModel
 import java.util.concurrent.CompletableFuture
 
 sealed class ArState {
@@ -14,7 +13,7 @@ sealed class ArState {
     sealed class Success : ArState() {
 
         data class OnModelsLoaded(
-                val models: List<Model>
+                val arModels: List<ArModel>
         ) : Success()
 
         data class OnFutureModelMapListLoaded(

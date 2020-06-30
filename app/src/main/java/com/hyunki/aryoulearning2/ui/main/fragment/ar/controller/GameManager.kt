@@ -1,17 +1,17 @@
 package com.hyunki.aryoulearning2.ui.main.fragment.ar.controller
 
-import com.hyunki.aryoulearning2.data.db.model.Model
+import com.hyunki.aryoulearning2.data.db.model.ArModel
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
-import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ModelUtil
+import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ArModelUtil
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import java.util.*
 
-class GameManager(modelList: List<Model>, private val gameCommands: GameCommandListener, private val navListener: NavListener) {
+class GameManager(arModelList: List<ArModel>, private val gameCommands: GameCommandListener, private val navListener: NavListener) {
     private val roundLimit = 3
 
-    val keyStack = Stack<Model>()
+    val keyStack = Stack<ArModel>()
 
-    var modelUtil: ModelUtil = ModelUtil()
+    var arModelUtil: ArModelUtil = ArModelUtil()
 
     var wordHistoryList = ArrayList<CurrentWord>()
         private set
@@ -23,10 +23,10 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
         private set
 
     init {
-        while (keyStack.size < roundLimit && keyStack.size < modelList.size) {
-            val ran = getRandom(modelList.size, 0)
-            if (!keyStack.contains(modelList[ran])) {
-                keyStack.add(modelList[ran])
+        while (keyStack.size < roundLimit && keyStack.size < arModelList.size) {
+            val ran = getRandom(arModelList.size, 0)
+            if (!keyStack.contains(arModelList[ran])) {
+                keyStack.add(arModelList[ran])
             }
         }
         this.currentWord = CurrentWord(keyStack.pop())
@@ -65,7 +65,7 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
     }
 
     private fun onAnswerWasIncorrect() {
-        startNextGame(currentWord.answerModel)
+        startNextGame(currentWord.answerArModel)
     }
 
     private fun onAnswerWasCorrect() {
@@ -95,7 +95,7 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
         return tappedLetter == correctLetter
     }
 
-    private fun startNextGame(key: Model) {
+    private fun startNextGame(key: ArModel) {
         refreshManager(key)
         gameCommands.startNextGame(key.name)
     }
@@ -117,11 +117,11 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
         currentWord.addWrongAnswerToSet(wrongAnswer)
     }
 
-    private fun refreshManager(key: Model) {
+    private fun refreshManager(key: ArModel) {
         if (currentWord.answer != key.name) {
             currentWord = CurrentWord(key)
         }
-        modelUtil.refreshCollisionSet()
+        arModelUtil.refreshCollisionSet()
         attempt = ""
     }
 

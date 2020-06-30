@@ -13,13 +13,13 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 
 import com.hyunki.aryoulearning2.R
-import com.hyunki.aryoulearning2.data.db.model.Model
+import com.hyunki.aryoulearning2.data.db.model.ArModel
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.squareup.picasso.Picasso
 
 //TODO refactor results adapter
-class ResultsAdapter(private val wordHistory: List<CurrentWord>, private val modelMap: Map<String, Model>, private val pronunUtil: PronunciationUtil, private val TTS: TextToSpeech) : RecyclerView.Adapter<ResultsAdapter.ResultsViewHolder>() {
+class ResultsAdapter(private val wordHistory: List<CurrentWord>, private val arModelMap: Map<String, ArModel>, private val pronunUtil: PronunciationUtil, private val TTS: TextToSpeech) : RecyclerView.Adapter<ResultsAdapter.ResultsViewHolder>() {
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, position: Int): ResultsViewHolder {
         return ResultsViewHolder(LayoutInflater.from(viewGroup.context)
@@ -28,7 +28,7 @@ class ResultsAdapter(private val wordHistory: List<CurrentWord>, private val mod
     }
 
     override fun onBindViewHolder(resultsViewHolder: ResultsViewHolder, position: Int) {
-        resultsViewHolder.onBind(wordHistory[position], modelMap[wordHistory[position].answer]!!, pronunUtil, TTS)
+        resultsViewHolder.onBind(wordHistory[position], arModelMap[wordHistory[position].answer]!!, pronunUtil, TTS)
     }
 
     override fun getItemCount(): Int {
@@ -43,22 +43,22 @@ class ResultsAdapter(private val wordHistory: List<CurrentWord>, private val mod
         private val promptText: TextView = itemView.findViewById(R.id.result_prompt_textView)
 
         @SuppressLint("ResourceAsColor")
-        fun onBind(currentWord: CurrentWord, model: Model, pronunUtil: PronunciationUtil, TTS: TextToSpeech) {
+        fun onBind(currentWord: CurrentWord, arModel: ArModel, pronunUtil: PronunciationUtil, TTS: TextToSpeech) {
             val correct = "Correct"
 
             Log.d("resultsadapter", "onBind currentword: " + currentWord.answer)
-            Log.d("resultsadapter", "onBind model: " + model.name)
+            Log.d("resultsadapter", "onBind model: " + arModel.name)
             var wrong = ""
             for (s in currentWord.attempts) {
                 wrong += "$s, "
             }
 
-            val name = model.name.toUpperCase()[0] + model.name.toLowerCase().substring(1)
+            val name = arModel.name.toUpperCase()[0] + arModel.name.toLowerCase().substring(1)
             val cardView = itemView.findViewById<CardView>(R.id.cardView4)
 
             modelTextView.text = name
 
-            Picasso.get().load(model.image).into(modelImageView)
+            Picasso.get().load(arModel.image).into(modelImageView)
 
             if (currentWord.attempts.isEmpty()) {
                 resultImage.setImageResource(R.drawable.star)
