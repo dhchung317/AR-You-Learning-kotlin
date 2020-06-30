@@ -1,6 +1,5 @@
 package com.hyunki.aryoulearning2.ui.main.fragment.ar.controller
 
-import android.util.Log
 import com.hyunki.aryoulearning2.data.db.model.ArModel
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ArModelUtil
@@ -8,6 +7,7 @@ import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import java.util.*
 
 class GameManager(private val arModelList: List<ArModel>, private val gameCommands: GameCommandListener, private val navListener: NavListener) {
+    private var managerState: GameManagerState = GameManagerState.Uninitialized
     private val roundLimit = 3
 
     val keyStack = Stack<ArModel>()
@@ -25,7 +25,7 @@ class GameManager(private val arModelList: List<ArModel>, private val gameComman
 
     init {
         setupGameManager()
-
+        setManagerState(GameManagerState.Initialized)
         //TODO examine this line
 //        keyStack[keyStack.size] = null
     }
@@ -33,9 +33,9 @@ class GameManager(private val arModelList: List<ArModel>, private val gameComman
 
     private fun setupGameManager(){
         while (keyStack.size < roundLimit && keyStack.size < arModelList.size) {
-            val ran = getRandom(arModelList.size, 0)
-            if (!keyStack.contains(arModelList[ran])) {
-                keyStack.add(arModelList[ran])
+            val randomModel = arModelList.random()
+            if (!keyStack.contains(randomModel)) {
+                keyStack.add(randomModel)
             }
         }
         currentWord = CurrentWord(keyStack.pop())
@@ -95,13 +95,11 @@ class GameManager(private val arModelList: List<ArModel>, private val gameComman
 
     private fun onGamesOver() {
         navListener.saveWordHistoryFromGameFragment(wordHistoryList)
-        setPlaceHolderCurrentWord()
+        setManagerState(GameManagerState.GameOver)
         navListener.moveToReplayFragment()
     }
 
     private fun checkIfTappedLetterIsCorrect(tappedLetter: String): Boolean {
-        Log.d("gamemanager", "checkIfTappedLetterIsCorrect: correct answer: " + getCurrentWordAnswer())
-        Log.d("gamemanager", "checkIfTappedLetterIsCorrect: correct attempt: " + attempt)
         val correctLetter =
                 getCurrentWordAnswer()[attempt.length - 1].toString()
 
@@ -136,8 +134,8 @@ class GameManager(private val arModelList: List<ArModel>, private val gameComman
         attempt = ""
     }
 
-    private fun setPlaceHolderCurrentWord(){
-        currentWord = CurrentWord(ArModel(GAME_OVER_CODE, GAME_OVER_CODE, GAME_OVER_CODE))
+    private fun setManagerState(state: GameManagerState){
+        managerState = state
     }
 
     private fun setCurrentWord(key: ArModel){
@@ -162,14 +160,6 @@ class GameManager(private val arModelList: List<ArModel>, private val gameComman
         return roundLimit == keyStack.size && currentWord.getAttempts().isEmpty()
     }
     fun isGameOverState(): Boolean {
-        return currentWord.answer == GAME_OVER_CODE
-    }
-
-    companion object {
-        private const val GAME_OVER_CODE = "game has finished"
-        private val r = Random()
-        private fun getRandom(max: Int, min: Int): Int {
-            return r.nextInt(max - min) + min
-        }
+        return managerState == GameManagerState.GameOver
     }
 }
