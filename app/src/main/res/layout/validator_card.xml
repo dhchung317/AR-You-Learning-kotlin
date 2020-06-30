@@ -1,32 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:elevation="7dp"
-    >
-
     <androidx.cardview.widget.CardView
-        android:id="@+id/word_validator_cv"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:layout_margin="30dp"
         android:elevation="100dp"
         android:orientation="horizontal"
         android:visibility="visible"
+        android:background="@android:color/transparent"
         app:cardBackgroundColor="@color/categoryCard"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="7dp">
+        app:cardCornerRadius="20dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/word_validator"
+                android:id="@+id/validator_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -43,6 +35,7 @@
                 tools:text="THIS IS A TEST" />
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/nested_container_card"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginStart="32dp"
@@ -54,14 +47,14 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/word_validator">
+                app:layout_constraintTop_toBottomOf="@+id/validator_header">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
                     <ImageView
-                        android:id="@+id/validator_imageView"
+                        android:id="@+id/answer_imageView"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="24dp"
@@ -70,14 +63,14 @@
                         android:layout_marginBottom="8dp"
                         android:elevation="0dp"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/validator_word"
+                        app:layout_constraintEnd_toStartOf="@+id/answer"
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         tools:src="@tools:sample/avatars" />
 
                     <TextView
-                        android:id="@+id/validator_word"
+                        android:id="@+id/answer"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -87,15 +80,15 @@
                         android:textAlignment="center"
                         android:textColor="@color/colorBlack"
                         android:textSize="36sp"
-                        app:layout_constraintBottom_toTopOf="@+id/validator_wrong_word"
+                        app:layout_constraintBottom_toTopOf="@+id/wrong_answer"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.5"
-                        app:layout_constraintStart_toEndOf="@+id/validator_imageView"
+                        app:layout_constraintStart_toEndOf="@+id/answer_imageView"
                         app:layout_constraintTop_toTopOf="parent"
                         tools:text="CAT" />
 
                     <ImageView
-                        android:id="@+id/correct_star_imageView"
+                        android:id="@+id/validator_background_imageView"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         android:layout_marginStart="8dp"
@@ -111,7 +104,7 @@
                         tools:src="@tools:sample/avatars" />
 
                     <TextView
-                        android:id="@+id/validator_correct_prompt"
+                        android:id="@+id/validator_answer_prompt"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
@@ -122,12 +115,12 @@
                         android:textAlignment="center"
                         android:textColor="@color/colorBlack"
                         android:textSize="18sp"
-                        app:layout_constraintBottom_toTopOf="@+id/validator_word"
+                        app:layout_constraintBottom_toTopOf="@+id/answer"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="@+id/validator_word" />
+                        app:layout_constraintStart_toStartOf="@+id/answer" />
 
                     <TextView
-                        android:id="@+id/validator_incorrect_prompt"
+                        android:id="@+id/validator_wrong_answer_prompt"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -140,13 +133,13 @@
                         android:textColor="@color/colorBlack"
                         android:textSize="18sp"
                         android:visibility="invisible"
-                        app:layout_constraintBottom_toTopOf="@+id/validator_wrong_word"
+                        app:layout_constraintBottom_toTopOf="@+id/wrong_answer"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.5"
-                        app:layout_constraintStart_toStartOf="@+id/validator_word" />
+                        app:layout_constraintStart_toStartOf="@+id/answer" />
 
                     <TextView
-                        android:id="@+id/validator_wrong_word"
+                        android:id="@+id/wrong_answer"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -159,12 +152,12 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.5"
-                        app:layout_constraintStart_toStartOf="@+id/validator_word"
-                        app:layout_constraintTop_toBottomOf="@+id/validator_word"
+                        app:layout_constraintStart_toStartOf="@+id/answer"
+                        app:layout_constraintTop_toBottomOf="@+id/answer"
                         tools:text="ATC" />
 
                     <Button
-                        android:id="@+id/button_validator_ok"
+                        android:id="@+id/validator_ok_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -184,4 +177,3 @@
             </androidx.cardview.widget.CardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
-</androidx.constraintlayout.widget.ConstraintLayout>

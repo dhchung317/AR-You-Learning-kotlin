@@ -17,7 +17,7 @@
         android:layout_gravity="center"/>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/card_wordContainer"
+        android:id="@+id/word_container_card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
@@ -76,4 +76,13 @@
         android:layout_marginRight="8dp"
         android:background="?android:selectableItemBackgroundBorderless"
         android:src="@android:drawable/ic_delete" />
+
+    <com.hyunki.aryoulearning2.ui.main.fragment.ar.customview.ValidatorCardView
+        android:id="@+id/validator_card"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="25dp"
+        app:cardElevation="0dp"
+        android:elevation="100dp"
+        app:cardBackgroundColor="@android:color/transparent"/>
 </FrameLayout>

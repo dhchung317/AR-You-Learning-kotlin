@@ -36,11 +36,11 @@ import com.hyunki.aryoulearning2.data.ArState
 import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameCommandListener
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameManager
+import com.hyunki.aryoulearning2.ui.main.fragment.ar.customview.ValidatorCardView
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ModelUtil
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
-import com.squareup.picasso.Picasso
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.util.*
 import javax.inject.Inject
@@ -72,17 +72,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private lateinit var frameLayout: FrameLayout
 
     private lateinit var wordContainer: LinearLayout
-    private lateinit var wordValidatorLayout: View
-    private lateinit var wordCardView: CardView
-    private lateinit var wordValidatorCv: CardView
-    private lateinit var wordValidator: TextView
-    private lateinit var validatorWord: TextView
-    private lateinit var validatorWrongWord: TextView
-    private lateinit var validatorWrongPrompt: TextView
-    private lateinit var validatorImage: ImageView
-    private lateinit var validatorBackgroundImage: ImageView
-    private lateinit var validatorOkButton: Button
     private lateinit var undo: ImageButton
+    private lateinit var wordContainerCardView: CardView
+
+    private lateinit var validatorCardView: ValidatorCardView
 
     private lateinit var exitMenu: View
     private lateinit var exit: ImageButton
@@ -102,7 +95,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private lateinit var category: String
 
     private var hasPlacedGame = false
-    private var placedAnimation = false
+    private var hasPlacedAnimation = false
 
     private var modelMapList: List<MutableMap<String, ModelRenderable>> = ArrayList()
     private var letterMap = mapOf<String, ModelRenderable>()
@@ -131,7 +124,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.activity_arfragment_host, container, false)
+        val rootView = inflater.inflate(R.layout.fragment_arhost, container, false)
         arFragment = childFragmentManager.findFragmentById(R.id.ux_fragment).let { it as ArGameFragment }
         return rootView
     }
@@ -153,7 +146,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     override fun onDestroyView() {
         super.onDestroyView()
         hasPlacedGame = false
-        placedAnimation = false
+        hasPlacedAnimation = false
     }
 
     //TODO implement audio effects shutdown
@@ -173,30 +166,39 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
     override fun startNextGame(modelKey: String) {
         refreshModelResources()
-        mainAnchor = mainHit.createAnchor()
-        mainAnchorNode = AnchorNode(mainAnchor)
-        mainAnchorNode!!.setParent(arFragment.arSceneView.scene)
+        if(mainHit.trackable.trackingState == TrackingState.TRACKING){
+            mainAnchor = mainHit.createAnchor()
+            mainAnchorNode = AnchorNode(mainAnchor)
+            mainAnchorNode!!.setParent(arFragment.arSceneView.scene)
 
-        for (i in modelMapList.indices) {
-            for ((key, value) in modelMapList[i]) {
-                if (key == modelKey) {
-                    createSingleGame(value, key)
+            for (i in modelMapList.indices) {
+                for ((key, value) in modelMapList[i]) {
+                    if (key == modelKey) {
+                        createSingleGame(value, key)
+                    }
                 }
             }
+        } else {
+            hasPlacedGame = false
+            hasPlacedAnimation = false
+            gestureDetector = getGestureDetector()
+            setUpARScene(arFragment)
         }
         wordContainer.removeAllViews()
     }
 
     override fun showCard(isCorrect: Boolean) {
-        validatorWord.text = gameManager.currentWord.answer
-        validatorWrongWord.visibility = View.INVISIBLE
-        validatorWrongPrompt.visibility = View.INVISIBLE
-        Picasso.get().load(gameManager.currentWord.image).into(validatorImage)
+        validatorCardView.answerText = gameManager.currentWord.answer
+        validatorCardView.wrongAnswerVisibility = View.INVISIBLE
+        validatorCardView.wrongAnswerPromptVisibility = View.INVISIBLE
+        validatorCardView.answerImage = gameManager.currentWord.image
+
         when (isCorrect) {
             true -> setUpCardWithCorrectValidators()
             else -> setUpCardWithInorrectValidators()
         }
-        validatorOkButton.setOnClickListener {
+
+        validatorCardView.okButton.setOnClickListener {
             onHidingCard(isCorrect)
             fadeOut.startDelay = 500
             fadeOut.start()
@@ -209,13 +211,13 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun setUpCardWithCorrectValidators() {
-        validatorBackgroundImage.setImageResource(R.drawable.star)
+        validatorCardView.backgroundImage = R.drawable.star
     }
 
     private fun setUpCardWithInorrectValidators() {
-        validatorBackgroundImage.setImageResource(R.drawable.error)
-        validatorWrongWord.visibility = View.VISIBLE
-        validatorWrongPrompt.visibility = View.VISIBLE
+        validatorCardView.backgroundImage = R.drawable.error
+        validatorCardView.wrongAnswerVisibility = View.INVISIBLE
+        validatorCardView.wrongAnswerPromptVisibility = View.INVISIBLE
     }
 
     private fun setUpViews(view: View) {
@@ -225,23 +227,17 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun initViews(view: View) {
-        wordCardView = view.findViewById(R.id.card_wordContainer)
+        validatorCardView = view.findViewById(R.id.validator_card)
+        wordContainerCardView = view.findViewById(R.id.word_container_card)
         wordContainer = view.findViewById(R.id.word_container)
-        wordValidatorLayout = layoutInflater.inflate(R.layout.validator_card, frameLayout, false)
-        wordValidatorCv = wordValidatorLayout.findViewById(R.id.word_validator_cv);
-        wordValidator = wordValidatorLayout.findViewById(R.id.word_validator)
-        validatorImage = wordValidatorLayout.findViewById(R.id.validator_imageView)
-        validatorBackgroundImage = wordValidatorLayout.findViewById(R.id.correct_star_imageView)
-        validatorWord = wordValidatorLayout.findViewById(R.id.validator_word)
-        validatorWrongPrompt = wordValidatorLayout.findViewById(R.id.validator_incorrect_prompt)
-        validatorWrongWord = wordValidatorLayout.findViewById(R.id.validator_wrong_word)
-        validatorOkButton = wordValidatorLayout.findViewById(R.id.button_validator_ok)
+
         exitMenu = layoutInflater.inflate(R.layout.exit_menu_card, frameLayout, false)
         exit = view.findViewById(R.id.exit_imageButton)
         exitYes = exitMenu.findViewById(R.id.exit_button_yes)
         exitNo = exitMenu.findViewById(R.id.exit_button_no)
+
         undo = view.findViewById(R.id.button_undo)
-        wordValidatorCv.visibility = View.INVISIBLE;
+        validatorCardView.visibility = View.INVISIBLE;
     }
 
     private fun setListeners() {
@@ -253,7 +249,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private fun getGestureDetector(): GestureDetector {
         return GestureDetector(
-                activity,
+                requireActivity(),
                 object : GestureDetector.SimpleOnGestureListener() {
                     override fun onSingleTapUp(e: MotionEvent): Boolean {
                         onSingleTap(e)
@@ -292,14 +288,14 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             }
             if (!hasPlacedGame) {
                 for (plane in frame.getUpdatedTrackables(Plane::class.java)) {
-                    if (!placedAnimation && plane.trackingState == TrackingState.TRACKING) {
-                        placedAnimation = true
+                    if (!hasPlacedAnimation && plane.trackingState == TrackingState.TRACKING) {
+                        hasPlacedAnimation = true
                         tapAnimation = lottieHelper.getAnimationView(application, LottieHelper.AnimationType.TAP)
-                        val lav = lottieHelper.getTapAnimationToScreen(
+                        tapAnimation  = lottieHelper.getTapAnimationToScreen(
                                 tapAnimation,
                                 requireActivity().window.decorView.width,
                                 requireActivity().window.decorView.height)
-                        frameLayout.addView(lav, 500, 500)
+                        frameLayout.addView(tapAnimation, 500, 500)
                     }
                 }
             }
@@ -327,8 +323,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             val trackable = mainHit.trackable
 
             if (trackable is Plane && trackable.isPoseInPolygon(mainHit.hitPose)) {
-                gameManager = GameManager(modelList, this, listener)
-                modelUtil = gameManager.modelUtil
+                if(!this::gameManager.isInitialized){
+                    gameManager = GameManager(modelList, this, listener)
+                    modelUtil = gameManager.modelUtil
+                }
                 // Create the Anchor.
                 if (trackable.getTrackingState() == TrackingState.TRACKING) {
                     mainAnchor = mainHit.createAnchor()
@@ -339,7 +337,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
                 val modelKey = gameManager.getCurrentWordAnswer()
 
-                wordCardView.visibility = View.VISIBLE
+                wordContainerCardView.visibility = View.VISIBLE
 
                 for (i in modelMapList.indices) {
                     for ((key, value) in modelMapList[i]) {
@@ -442,24 +440,24 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
     //TODO - refactor animations to separate class
     private fun setAnimations() {
-        fadeIn = Animations.Normal().setCardFadeInAnimator(wordValidatorCv)
+//        validatorCardView.bringToFront()
+        fadeIn = Animations.Normal().setCardFadeInAnimator(validatorCardView)
         fadeIn.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationStart(animation: Animator) {
-                frameLayout.addView(wordValidatorLayout)
-                validatorOkButton.isClickable = false
+                validatorCardView.visibility = View.VISIBLE
+                validatorCardView.okButton.isClickable = false
             }
-
             override fun onAnimationEnd(animation: Animator) {
                 super.onAnimationEnd(animation)
-                validatorOkButton.isClickable = true
+                validatorCardView.okButton.isClickable = true
             }
         })
 
-        fadeOut = Animations.Normal().setCardFadeOutAnimator(wordValidatorCv)
+        fadeOut = Animations.Normal().setCardFadeOutAnimator(validatorCardView)
         fadeOut.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
                 super.onAnimationEnd(animation)
-                frameLayout.removeView(wordValidatorLayout)
+                validatorCardView.visibility = View.INVISIBLE
             }
         })
     }
@@ -590,6 +588,4 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         const val REQUEST_KEY = "get-current-category"
         const val KEY_ID = "current-category"
     }
-
-
 }
