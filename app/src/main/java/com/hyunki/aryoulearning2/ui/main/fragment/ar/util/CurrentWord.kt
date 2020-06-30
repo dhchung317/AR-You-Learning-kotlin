@@ -3,7 +3,7 @@ package com.hyunki.aryoulearning2.ui.main.fragment.ar.util
 import com.hyunki.aryoulearning2.data.db.model.Model
 import java.util.HashSet
 
-class CurrentWord(val answerModel: Model) {
+data class CurrentWord(val answerModel: Model) {
     val attempts = HashSet<String>()
     val image = answerModel.image
     val answer = answerModel.name

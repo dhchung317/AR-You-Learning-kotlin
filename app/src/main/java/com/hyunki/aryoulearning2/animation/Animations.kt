@@ -54,11 +54,8 @@ class Animations {
     //TODO animations to control flow of validator cards in arFragment
     class Normal {
         fun setCardFadeInAnimator(cv: CardView): ObjectAnimator {
-            cv.alpha = 0f
-            cv.visibility = View.VISIBLE
             val fadeAnimation = ObjectAnimator.ofFloat(cv, "alpha", 0f, 1.0f)
             fadeAnimation.duration = 1000
-            fadeAnimation.startDelay = 500
             return fadeAnimation
         }
 
