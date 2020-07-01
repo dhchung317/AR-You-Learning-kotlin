@@ -31,12 +31,11 @@ import javax.inject.Inject
 
 //TODO refactor/implement pronounciation util
 class HintFragment @Inject
-constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
-        //    @Inject
-        //    PronunciationUtil pronunciationUtil;
-            private val hintAdapter: HintAdapter) : Fragment(), FragmentListener {
+constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fragment(), FragmentListener {
+
 
     private lateinit var hintRecyclerView: RecyclerView
+    val hintAdapter = HintAdapter()
     private lateinit var constraintLayout: ConstraintLayout
     private lateinit var listener: NavListener
     private lateinit var startGameButton: Button
@@ -82,9 +81,9 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
 
         //        textToSpeech = pronunciationUtil.getTTS(requireContext());
         initializeViews(view)
-        hintRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        hintRecyclerView.adapter = hintAdapter
+
         viewClickListeners()
+
     }
 
     override fun setCurrentCategoryFromFragment(category: String) {
@@ -139,11 +138,11 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
 
     private fun initializeViews(view: View) {
         startGameButton = view.findViewById(R.id.hint_fragment_button)
-
-        hintRecyclerView = view.findViewById(R.id.hint_recycler_view)
         tutorialButton = view.findViewById(R.id.hint_frag_tutorial_button)
         backFAB = view.findViewById(R.id.back_btn)
-
+        hintRecyclerView = view.findViewById(R.id.hint_recycler_view)
+        hintRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        hintRecyclerView.adapter = hintAdapter
         constraintLayout = view.findViewById(R.id.hint_layout)
 
         //        parentalSupervision = getLayoutInflater().inflate(R.layout.parental_supervision_card, constraintLayout, false);
@@ -170,7 +169,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
             is MainState.Error -> showProgressBar(false)
             is MainState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
-                hintAdapter.setList(state.models)
+                hintAdapter.modelList = state.models
             }
         }
     }
@@ -200,8 +199,9 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
+        hintRecyclerView.adapter = null
         setCurrentCategoryFromFragment(category)
+        super.onDestroyView()
     }
 
     companion object {
