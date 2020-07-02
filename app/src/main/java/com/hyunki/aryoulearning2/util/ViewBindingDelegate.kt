@@ -20,7 +20,7 @@ class ViewBindingDelegate<T : ViewBinding>(
 
     private var binding: T? = null
 
-    init {
+    fun init() {
         fragment.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
                 fragment.viewLifecycleOwnerLiveData.observe(fragment) { viewLifecycleOwner ->
@@ -35,7 +35,11 @@ class ViewBindingDelegate<T : ViewBinding>(
         })
     }
 
+
+
+
     override fun getValue(thisRef: Fragment, property: KProperty<*>): T {
+        init()
         val binding = binding
         if (binding != null) {
             return binding

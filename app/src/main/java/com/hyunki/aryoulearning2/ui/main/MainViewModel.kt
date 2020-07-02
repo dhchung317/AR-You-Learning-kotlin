@@ -17,7 +17,6 @@ constructor(private val mainRepositoryImpl: MainRepository, private val defaultD
 
     private lateinit var wordHistory: List<CurrentWord>
 
-
     fun getModelResponses() = liveData(defaultDispatcher.io()) {
         emit(MainState.Loading)
         try {

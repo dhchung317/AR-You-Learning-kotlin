@@ -16,6 +16,7 @@ import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.Observer
@@ -38,7 +39,10 @@ import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameManager
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.customview.ValidatorCardView
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ArModelUtil
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ViewUtil
+import com.hyunki.aryoulearning2.ui.main.fragment.category.CategoryFragment
+import com.hyunki.aryoulearning2.ui.main.fragment.controller.FragmentListener
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
+import com.hyunki.aryoulearning2.ui.main.fragment.hint.HintFragment
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -49,7 +53,7 @@ import kotlin.math.roundToInt
 //TODO set validator views with appropriate text and image
 @ExperimentalCoroutinesApi
 class ArHostFragment @Inject
-constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), GameCommandListener {
+constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), GameCommandListener{
     @Inject
     lateinit var viewModelProviderFactory: ViewModelProviderFactory
 
@@ -153,6 +157,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     //TODO implement audio effects shutdown
     override fun onDestroy() {
         super.onDestroy()
+
 //        textToSpeech.shutdown()
         pronunciationUtil = null
         //        playBalloonPop.reset();
@@ -612,4 +617,11 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         const val REQUEST_KEY = "get-current-category"
         const val KEY_ID = "current-category"
     }
+
+//    override fun setCurrentCategoryFromFragment(category: String) {
+//        parentFragmentManager.setFragmentResult(
+//                CategoryFragment.REQUEST_KEY,
+//                bundleOf(CategoryFragment.KEY_ID to category)
+//        )
+//    }
 }

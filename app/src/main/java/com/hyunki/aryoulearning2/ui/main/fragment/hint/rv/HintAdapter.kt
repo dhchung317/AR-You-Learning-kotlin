@@ -20,7 +20,7 @@ class HintAdapter : RecyclerView.Adapter<HintViewHolder>() {
         notifyChanges(old, new)
     }
 
-    fun notifyChanges(old: List<ArModel>, new: List<ArModel>) {
+    private fun notifyChanges(old: List<ArModel>, new: List<ArModel>) {
 
         val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
 
@@ -53,9 +53,5 @@ class HintAdapter : RecyclerView.Adapter<HintViewHolder>() {
         return arModelList.size
     }
 
-    fun setList(arModelList: List<ArModel>) {
-        this.arModelList = arModelList
-        notifyDataSetChanged()
-    }
 }
 

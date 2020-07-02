@@ -2,67 +2,64 @@ package com.hyunki.aryoulearning2.ui.main.fragment.category
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
-import com.hyunki.aryoulearning2.ui.main.MainViewModel
 import com.hyunki.aryoulearning2.data.MainState
-import com.hyunki.aryoulearning2.data.db.model.Category
-import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArHostFragment
-import com.hyunki.aryoulearning2.ui.main.fragment.controller.FragmentListener
+import com.hyunki.aryoulearning2.databinding.FragmentCategoryBinding
+import com.hyunki.aryoulearning2.ui.main.MainViewModel
 import com.hyunki.aryoulearning2.ui.main.fragment.category.rv.CategoryAdapter
+import com.hyunki.aryoulearning2.ui.main.fragment.controller.FragmentListener
 import com.hyunki.aryoulearning2.ui.main.fragment.hint.HintFragment
+import com.hyunki.aryoulearning2.util.viewBinding
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
-
 import javax.inject.Inject
+
 //TODO close button for categoryfragment
 class CategoryFragment @Inject
 constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
         Fragment(), FragmentListener {
+    val binding by viewBinding(FragmentCategoryBinding::bind)
 
     private lateinit var mainViewModel: MainViewModel
 
-    private lateinit var recyclerView: RecyclerView
+//    private lateinit var recyclerView: RecyclerView
 
-    private lateinit var progressBar: ProgressBar
+//    private lateinit var progressBar: ProgressBar
 
-    private lateinit var categoryAdapter: CategoryAdapter
+    private var categoryAdapter: CategoryAdapter? = null
 
     override fun onAttach(context: Context) {
-        (activity?.application as BaseApplication).appComponent.inject(this)
+        (requireActivity().application as BaseApplication).appComponent.inject(this)
         super.onAttach(context)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_list, container, false)
+        return inflater.inflate(R.layout.fragment_category, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        progressBar = requireActivity().findViewById(R.id.progress_bar)
-        recyclerView = view.findViewById(R.id.category_rv)
+//        progressBar = requireActivity().findViewById(R.id.progress_bar)
         mainViewModel = ViewModelProvider(requireActivity(), viewModelProviderFactory).get(MainViewModel::class.java)
         mainViewModel.getAllCats().observe(viewLifecycleOwner, Observer { renderCategories(it) })
         initRecyclerView()
     }
 
     private fun initRecyclerView() {
-        recyclerView.layoutManager = LinearLayoutManager(requireContext(),
-                RecyclerView.HORIZONTAL,
-                false)
-        categoryAdapter = CategoryAdapter(this)
-        recyclerView.adapter = categoryAdapter
+        binding.categoryRv.let {
+            it.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
+            categoryAdapter = CategoryAdapter(this)
+            it.adapter = categoryAdapter
+        }
+
     }
 
     private fun renderCategories(state: MainState) {
@@ -73,17 +70,17 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
             is MainState.Error -> showProgressBar(false)
             is MainState.Success.OnCategoriesLoaded -> {
                 showProgressBar(false)
-                categoryAdapter.setLists(state.categories)
+                categoryAdapter?.setLists(state.categories)
             }
         }
     }
 
     private fun showProgressBar(isVisible: Boolean) {
-        if (isVisible) {
-            progressBar.visibility = View.VISIBLE
-        } else {
-            progressBar.visibility = View.GONE
-        }
+//        if (isVisible) {
+//            progressBar.visibility = View.VISIBLE
+//        } else {
+//            progressBar.visibility = View.GONE
+//        }
     }
 
     override fun setCurrentCategoryFromFragment(category: String) {
@@ -93,7 +90,14 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
         )
     }
 
+    override fun onDestroy() {
+        categoryAdapter = null
+        super.onDestroy()
+    }
+
     companion object {
+        const val REQUEST_KEY = "get-current-category"
+        const val KEY_ID = "current-category"
         const val TAG = "ListFragmentX"
     }
 }

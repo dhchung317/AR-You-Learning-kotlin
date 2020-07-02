@@ -139,6 +139,8 @@ dependencies {
 
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
 
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
+
 }
 //letters
 sceneform.asset('sampledata/alphabet/balloonb.obj',
