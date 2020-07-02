@@ -10,7 +10,7 @@ import androidx.core.view.iterator
 import androidx.recyclerview.widget.RecyclerView
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.animation.Animations
-import com.hyunki.aryoulearning2.data.db.model.Model
+import com.hyunki.aryoulearning2.data.db.model.ArModel
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.squareup.picasso.Picasso
 
@@ -22,16 +22,14 @@ class HintViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.O
         itemView.setOnClickListener(this)
     }
 
-    fun onBind(model: Model) {
+    fun onBind(arModel: ArModel) {
         textView.setTextColor(Color.DKGRAY)
-        Picasso.get().load(model.image).into(imageView)
-        textView.text = model.name
+        Picasso.get().load(arModel.image).into(imageView)
+        textView.text = arModel.name
     }
 
     override fun onClick(v: View?) {
         toggleViews(v,false)
-//        val model = modelList[adapterPosition]
-//        pronunciationUtil.textToSpeechAnnouncer(model.name, pronunciationUtil.textToSpeech)
         itemView.startAnimation(Animations.Normal().getVibrator(itemView))
         textView.setTextColor(Color.LTGRAY)
         val timer = object : CountDownTimer(1000, 1000) {

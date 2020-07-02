@@ -2,28 +2,22 @@ package com.hyunki.aryoulearning2
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
-import com.hyunki.aryoulearning2.data.ArState
 import com.hyunki.aryoulearning2.data.MainRepository
 import com.hyunki.aryoulearning2.data.MainState
 import com.hyunki.aryoulearning2.data.db.model.Category
-import com.hyunki.aryoulearning2.data.db.model.Model
-import com.hyunki.aryoulearning2.data.db.model.ModelResponse
+import com.hyunki.aryoulearning2.data.db.model.ArModel
+import com.hyunki.aryoulearning2.data.db.model.ArModelResponse
 import com.hyunki.aryoulearning2.rules.CoroutineTestRule
-import com.hyunki.aryoulearning2.rules.RxImmediateSchedulerRule
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
 import com.nhaarman.mockitokotlin2.*
-import io.reactivex.Observable
-import io.reactivex.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
-import org.apache.tools.ant.Main
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
-import java.lang.Exception
 
 @ExperimentalCoroutinesApi
 class MainViewModelTest {
@@ -51,8 +45,8 @@ class MainViewModelTest {
     @Test
     fun `assert getModelResponses() emits mainStateLoading on call before success`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val testList = listOf(
-                ModelResponse(
-                        arrayListOf(Model("test", "testCategory", "testImage")),
+                ArModelResponse(
+                        arrayListOf(ArModel("test", "testCategory", "testImage")),
                         "testCategory",
                         "testImage"))
 
@@ -124,8 +118,8 @@ class MainViewModelTest {
     @Test
     fun `assert getModelsByCat() emits mainStateLoading on call before success`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val testCategory = "testCategory"
-        val testList = arrayListOf<Model>()
-        testList.add(Model(name = "cat", category = testCategory, image = "testImage"))
+        val testList = arrayListOf<ArModel>()
+        testList.add(ArModel(name = "cat", category = testCategory, image = "testImage"))
 
         whenever(repository.getModelsByCat(testCategory))
                 .thenReturn(testList)

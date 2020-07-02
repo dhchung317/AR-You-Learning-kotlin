@@ -15,8 +15,8 @@ import com.google.ar.sceneform.ux.TransformableNode
 import java.util.HashSet
 import java.util.Random
 
-class ModelUtil {
-    companion object Factory {
+class ArModelUtil {
+    companion object {
         const val xRange = 3
         const val yRange = 3
         const val zRange = 2

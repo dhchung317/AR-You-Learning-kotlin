@@ -1,24 +1,19 @@
 package com.hyunki.aryoulearning2.data
 
-import androidx.lifecycle.LiveData
 import com.hyunki.aryoulearning2.data.db.model.Category
-import com.hyunki.aryoulearning2.data.db.model.Model
-import com.hyunki.aryoulearning2.data.db.model.ModelResponse
-import io.reactivex.Observable
-import io.reactivex.Single
-import kotlinx.coroutines.Deferred
-import java.util.ArrayList
+import com.hyunki.aryoulearning2.data.db.model.ArModel
+import com.hyunki.aryoulearning2.data.db.model.ArModelResponse
 
 interface MainRepository {
     suspend fun getAllCats(): List<Category>
 
-    suspend fun getModelResponses(): List<ModelResponse>
+    suspend fun getModelResponses(): List<ArModelResponse>
 
-    suspend fun getModelsByCat(cat: String): List<Model>
+    suspend fun getModelsByCat(cat: String): List<ArModel>
 
-    suspend fun insertModel(model: Model): Long
+    suspend fun insertModel(arModel: ArModel): Long
 
-    suspend fun insertAllModels(vararg models: Model): List<Long>
+    suspend fun insertAllModels(vararg arModels: ArModel): List<Long>
 
     suspend fun insertCat(category: Category)
 

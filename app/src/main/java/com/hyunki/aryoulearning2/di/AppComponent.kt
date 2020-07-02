@@ -3,7 +3,7 @@ package com.hyunki.aryoulearning2.di
 import android.app.Application
 
 import com.hyunki.aryoulearning2.BaseApplication
-import com.hyunki.aryoulearning2.data.db.ModelDatabaseModule
+import com.hyunki.aryoulearning2.data.db.ArModelDatabaseModule
 import com.hyunki.aryoulearning2.di.main.MainModule
 import com.hyunki.aryoulearning2.di.main.MainViewModelsModule
 import com.hyunki.aryoulearning2.ui.main.MainActivity
@@ -23,7 +23,7 @@ import dagger.Component
         modules = [
             AppModule::class,
             ViewModelFactoryModule::class,
-            ModelDatabaseModule::class,
+            ArModelDatabaseModule::class,
             MainModule::class,
             MainViewModelsModule::class
         ]

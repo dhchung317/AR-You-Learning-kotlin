@@ -2,8 +2,6 @@ package com.hyunki.aryoulearning2
 
 import android.app.Application
 import android.content.Context
-import android.os.Looper
-import android.util.Log
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
@@ -11,15 +9,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.hyunki.aryoulearning2.data.ArState
 import com.hyunki.aryoulearning2.data.MainRepository
-import com.hyunki.aryoulearning2.data.db.model.Model
+import com.hyunki.aryoulearning2.data.db.model.ArModel
 import com.hyunki.aryoulearning2.rules.CoroutineTestRule
-import com.hyunki.aryoulearning2.rules.RxImmediateSchedulerRule
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArViewModel
 import com.nhaarman.mockitokotlin2.*
-import io.reactivex.Observable
-import io.reactivex.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.*
 import org.junit.Before
@@ -29,18 +23,11 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnit
-import org.robolectric.Shadows.shadowOf
-import org.robolectric.annotation.LooperMode
-import java.lang.ClassCastException
-import java.lang.Exception
-import java.lang.NullPointerException
-import java.lang.RuntimeException
 import java.util.concurrent.CompletableFuture
-import kotlin.math.exp
 
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
-class ArViewModelTest {
+class ArViewArModelTest {
 
     @get:Rule
     var coroutinesTestRule = CoroutineTestRule()
@@ -70,7 +57,7 @@ class ArViewModelTest {
     fun `assert getModelsFromRepositoryByCategory() emits arStateLoading on call before success`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val testCat = "testCategory"
 
-        val data = listOf(Model("test1", testCat, "testImage"))
+        val data = listOf(ArModel("test1", testCat, "testImage"))
 
         whenever(repository.getModelsByCat(testCat))
                 .thenReturn(data)
@@ -103,7 +90,7 @@ class ArViewModelTest {
     @Test
     fun `assert getListOfMapsOfFutureModels() emits arStateLoading on call before success`() = coroutinesTestRule.testDispatcher.runBlockingTest {
         val testCat = "testCategory"
-        val testInput = listOf(Model("test1", testCat, "testImage"))
+        val testInput = listOf(ArModel("test1", testCat, "testImage"))
 
         val spyObserver = createObserver()
 
@@ -125,7 +112,7 @@ class ArViewModelTest {
 
         val spyObserver = createObserver()
 
-        model.getListOfMapsOfFutureModels(badTestInput as List<Model>).observeForever(spyObserver)
+        model.getListOfMapsOfFutureModels(badTestInput as List<ArModel>).observeForever(spyObserver)
 
         val inOrder = inOrder(spyObserver)
 

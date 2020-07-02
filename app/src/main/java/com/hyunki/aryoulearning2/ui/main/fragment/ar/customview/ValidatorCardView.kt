@@ -16,7 +16,6 @@ class ValidatorCardView @JvmOverloads constructor(context: Context, attrs: Attri
     private val attributes: TypedArray
 
     private val headerTextView: TextView by lazy { findViewById<TextView>(R.id.validator_header) }
-    private val answerPromptTextView: TextView by lazy { findViewById<TextView>(R.id.validator_answer_prompt) }
     private val answerTextView: TextView by lazy { findViewById<TextView>(R.id.answer) }
     private val wrongAnswerPromptTextView: TextView by lazy { findViewById<TextView>(R.id.validator_wrong_answer_prompt) }
     private val wrongAnswerTextView: TextView by lazy { findViewById<TextView>(R.id.wrong_answer) }
@@ -30,14 +29,8 @@ class ValidatorCardView @JvmOverloads constructor(context: Context, attrs: Attri
     var answerText: String by observable(initialValue = "") { _, _, newValue ->
         answerTextView.text = newValue
     }
-    var answerPromptText: String by observable(initialValue = "") { _, _, newValue ->
-        answerPromptTextView.text = newValue
-    }
     var wrongAnswerText: String by observable(initialValue = "") { _, _, newValue ->
         wrongAnswerTextView.text = newValue
-    }
-    var wrongAnswerPromptText: String by observable(initialValue = "") { _, _, newValue ->
-        wrongAnswerPromptTextView.text = newValue
     }
     var answerImage: String by observable(initialValue = "") { _, _, newValue ->
         Picasso.get().load(newValue).into(answerImageView)

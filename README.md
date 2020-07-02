@@ -1,7 +1,9 @@
 # AR you learning 2 - kotlin
-kotlin refactor of original project
+Refactor of original project to Kotlin
 
-Goals will be to learn and apply kotlin, unit testing, rx and di while refactoring code and playing around with architecture and libraries
+The main goal of this project is try and refactor the code to be as clear as possible (with the help of Kotlin).
+
+Other goals will be to learn and play around with Kotlin and its features, trying to apply principles and best practices from 'Effective Java', work on unit testing, work on threading/concurrency and dependency injection while separating concerns in code and trying out different architectures and libraries.
 
 ## Current Libraries:
 * Androidx

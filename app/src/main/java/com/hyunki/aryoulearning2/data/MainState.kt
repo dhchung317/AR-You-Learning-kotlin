@@ -1,8 +1,8 @@
 package com.hyunki.aryoulearning2.data
 
 import com.hyunki.aryoulearning2.data.db.model.Category
-import com.hyunki.aryoulearning2.data.db.model.Model
-import com.hyunki.aryoulearning2.data.db.model.ModelResponse
+import com.hyunki.aryoulearning2.data.db.model.ArModel
+import com.hyunki.aryoulearning2.data.db.model.ArModelResponse
 
 sealed class MainState {
 
@@ -13,11 +13,11 @@ sealed class MainState {
     sealed class Success : MainState() {
 
         data class OnModelResponsesLoaded(
-                val responses: List<ModelResponse>
+                val responses: List<ArModelResponse>
         ) : Success()
 
         data class OnModelsLoaded(
-                val models: List<Model>
+                val arModels: List<ArModel>
         ) : Success()
 
         data class OnCategoriesLoaded(

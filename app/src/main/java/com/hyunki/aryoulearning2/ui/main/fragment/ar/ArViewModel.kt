@@ -7,7 +7,7 @@ import androidx.lifecycle.liveData
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.hyunki.aryoulearning2.data.ArState
 import com.hyunki.aryoulearning2.data.MainRepository
-import com.hyunki.aryoulearning2.data.db.model.Model
+import com.hyunki.aryoulearning2.data.db.model.ArModel
 import com.hyunki.aryoulearning2.util.DispatcherProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -36,12 +36,12 @@ constructor(
     }
 
     @ExperimentalCoroutinesApi
-    fun getListOfMapsOfFutureModels(modelList: List<Model>) = liveData(defaultDispatcher.io()) {
+    fun getListOfMapsOfFutureModels(arModelList: List<ArModel>) = liveData(defaultDispatcher.io()) {
         emit(ArState.Loading)
         try {
             withContext(defaultDispatcher.main()) {
                 val list = async {
-                    modelList
+                    arModelList
                             .map {
                                 mapOf(
                                         Pair(it.name,

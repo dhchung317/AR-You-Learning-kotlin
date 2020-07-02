@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
 import com.hyunki.aryoulearning2.R
-import com.hyunki.aryoulearning2.data.db.model.Model
+import com.hyunki.aryoulearning2.data.db.model.ArModel
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 
 import java.util.ArrayList
@@ -15,13 +15,12 @@ import javax.inject.Inject
 import kotlin.properties.Delegates
 
 class HintAdapter : RecyclerView.Adapter<HintViewHolder>() {
-//    private var modelList: List<Model> = ArrayList()
 
-    var modelList: List<Model> by Delegates.observable(emptyList()) { _, old, new ->
+    var arModelList: List<ArModel> by Delegates.observable(emptyList()) { _, old, new ->
         notifyChanges(old, new)
     }
 
-    fun notifyChanges(old: List<Model>, new: List<Model>) {
+    fun notifyChanges(old: List<ArModel>, new: List<ArModel>) {
 
         val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
 
@@ -47,15 +46,15 @@ class HintAdapter : RecyclerView.Adapter<HintViewHolder>() {
     }
 
     override fun onBindViewHolder(hintViewHolder: HintViewHolder, i: Int) {
-        hintViewHolder.onBind(modelList[i])
+        hintViewHolder.onBind(arModelList[i])
     }
 
     override fun getItemCount(): Int {
-        return modelList.size
+        return arModelList.size
     }
 
-    fun setList(modelList: List<Model>) {
-        this.modelList = modelList
+    fun setList(arModelList: List<ArModel>) {
+        this.arModelList = arModelList
         notifyDataSetChanged()
     }
 }
