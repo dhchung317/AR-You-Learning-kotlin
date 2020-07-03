@@ -109,7 +109,7 @@ class GameManager(private val arModelList: List<ArModel>, private val gameComman
     private fun startGameFromGameManager(key: ArModel) {
         setCurrentWord(key)
         refreshManager()
-        gameCommands.startGame(key.name)
+        gameCommands.startGame(key.name, this)
     }
 
     private fun addLetterToAttempt(letter: String) {

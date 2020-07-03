@@ -55,7 +55,7 @@ class ArModelUtil {
         return base
     }
 
-    fun getLetter(parent: Node?, renderable: ModelRenderable?, arFragment: ArFragment?): AnchorNode {
+    fun getLetter(parent: Node, renderable: ModelRenderable, arFragment: ArFragment): AnchorNode {
 
         val session = arFragment!!.arSceneView.session
         var anchor: Anchor? = setUpAnchorAndReturn(session)

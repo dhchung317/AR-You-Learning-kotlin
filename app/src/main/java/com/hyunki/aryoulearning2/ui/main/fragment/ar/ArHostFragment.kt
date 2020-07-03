@@ -49,6 +49,7 @@ import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.hyunki.aryoulearning2.util.viewBinding
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import java.lang.ref.WeakReference
 import java.util.*
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -69,19 +70,15 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     @Inject
     lateinit var application: Application
 
-    private lateinit var progressBar: ProgressBar
 
     private lateinit var arViewModel: ArViewModel
     private var arFragment: ArGameFragment? = null
     private var gameManager: GameManager? = null
-    private var listener: NavListener? = null
+    private lateinit var listener: WeakReference<NavListener>
 
-    private lateinit var playBalloonPop: MediaPlayer
-
+    private var progressBar: ProgressBar? = null
     private var frameLayout: FrameLayout? = null
     private var wordContainer: LinearLayout? = null
-//    private lateinit var wordContainerCardView: CardView
-//    private lateinit var wordContainerUndoButton: ImageButton
 
     private var validatorCardView: ValidatorCardView? = null
 
@@ -95,11 +92,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private var fadeOut: ObjectAnimator? = null
 
     private var gestureDetector: GestureDetector? = null
-
-    private var base: Node? = null
     private var mainAnchor: Anchor? = null
     private var mainAnchorNode: AnchorNode? = null
     private var mainHit: HitResult? = null
+    private var base: Node? = null
 
     private lateinit var category: String
 
@@ -110,6 +106,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private lateinit var arModelList: List<ArModel>
     private var modelMapList: List<MutableMap<String, ModelRenderable>> = ArrayList()
     private var letterMap = mapOf<String, ModelRenderable>()
+
+    private lateinit var playBalloonPop: MediaPlayer
 
     private val balloonTF by lazy { ResourcesCompat.getFont(requireActivity().applicationContext, R.font.balloon) }
 
@@ -123,7 +121,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         (requireActivity().application as BaseApplication).appComponent.inject(this)
         super.onAttach(context)
         if (context is NavListener) {
-            listener = context
+            listener = WeakReference(context)
         }
         //        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
     }
@@ -147,24 +145,28 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         if (!checkPermission()) {
             requestCameraPermission(requireActivity(), RC_PERMISSIONS)
         }
-//        progressBar = requireActivity().findViewById(R.id.progress_bar)
-//        frameLayout = view.findViewById(R.id.frame_layout)
-        setUpViews(view)
+
+        progressBar = requireActivity().findViewById(R.id.progress_bar)
+
+        listener.get()?.let {
+            setUpViews(view, it, frameLayout!!)
+            setListeners(it, mainAnchorNode!!, gameManager!!, frameLayout!!)
+        }
         gestureDetector = getGestureDetector()
         arViewModel = ViewModelProvider(this, viewModelProviderFactory).get(ArViewModel::class.java)
         setUpARScene(arFragment)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onStop() {
+        resetViews()
+        clearAnimations()
+        clearGameObjects()
+        super.onStop()
     }
 
-    override fun onStop() {
-        hasPlacedGame = false
-        hasPlacedAnimation = false
+    private fun resetViews(){
         wordContainer = null
         validatorCardView = null
-        validatorCardView?.clearAnimation()
         exitMenuDialog = null
         frameLayout = null
         gameManager = null
@@ -173,26 +175,30 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         exitButton = null
         exitYes = null
         exitNo = null
-
-        pronunciationUtil = null
-        listener = null
-        base = null
-        mainAnchor = null
-        mainAnchorNode = null
-        mainHit = null
+    }
+    private fun clearAnimations(){
+        hasPlacedAnimation = false
+        validatorCardView?.clearAnimation()
         tapAnimation = null
         fadeIn?.removeAllListeners()
         fadeOut?.removeAllListeners()
         fadeIn = null
         fadeOut = null
-        super.onStop()
     }
+    private fun clearGameObjects(){
+        hasPlacedGame = false
+        pronunciationUtil = null
+        listener.clear()
+        base = null
+        mainAnchor = null
+        mainAnchorNode = null
+        mainHit = null
+    }
+
 
     //TODO implement audio effects shutdown
     override fun onDestroy() {
-
         super.onDestroy()
-
 //        textToSpeech.shutdown()
         //        playBalloonPop.reset();
         //        playBalloonPop.release();
@@ -212,9 +218,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     //TODO refactor the following two methods
 
-    override fun startGame(modelKey: String) {
+    override fun startGame(modelKey: String, gameManager: GameManager) {
         //TODO examine if the statement checks correctly
-        if (!gameManager!!.isFirstGame()) {
+        if (gameManager.isFirstGame()) {
             refreshModelResources()
         }
         if (mainHit!!.trackable.trackingState == TrackingState.TRACKING) {
@@ -224,7 +230,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
             filterByKey(modelMapList, modelKey)?.apply {
                 this.ifPresent {
-                    it[modelKey]?.let { model -> createSingleGame(model, modelKey) }
+                    it[modelKey]?.let { model -> createSingleGame(model, modelKey, mainAnchorNode!!, gameManager, frameLayout!!) }
                 }
             }
         } else {
@@ -239,14 +245,11 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             val trackable = mainHit!!.trackable
             if (trackable is Plane && trackable.isPoseInPolygon(mainHit!!.hitPose)) {
                 if (gameManager == null || gameManager?.isGameOverState()!!) {
-                    assignNewGameManager(arModelList, this, listener)
+                    assignNewGameManager(arModelList, this, listener.get())
                 }
-//                if (gameManager.isGameOverState()) {
-//                    assignNewGameManager(arModelList, this, listener)
-//                }
                 binding.wordContainerCard.visibility = View.VISIBLE
 //TODO examine follwoing method
-                startGame(modelKey = gameManager!!.getCurrentWordAnswer())
+                startGame(modelKey = gameManager!!.getCurrentWordAnswer(), gameManager = gameManager!!)
                 return true
             }
         }
@@ -266,15 +269,15 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     override fun showCard(isCorrect: Boolean) {
-        validatorCardView!!.answerText = gameManager!!.currentWord.answer
-        validatorCardView!!.answerImage = gameManager!!.currentWord.image
+        validatorCardView?.answerText = gameManager!!.currentWord.answer
+        validatorCardView?.answerImage = gameManager!!.currentWord.image
 
         when (isCorrect) {
-            true -> setUpCardWithCorrectValidators(validatorCardView!!)
-            else -> setUpCardWithIncorrectValidators(validatorCardView!!)
+            true -> validatorCardView?.let { setUpCardWithCorrectValidators(it) }
+            else -> validatorCardView?.let { setUpCardWithIncorrectValidators(it) }
         }
 
-        validatorCardView!!.okButton.setOnClickListener {
+        validatorCardView?.okButton?.setOnClickListener {
             onHidingCard(isCorrect)
             fadeOut?.startDelay = 500
             fadeOut?.start()
@@ -301,9 +304,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         v.wrongAnswerText = gameManager!!.attempt
     }
 
-    private fun setUpViews(view: View) {
+    private fun setUpViews(view: View, listener: NavListener, frameLayout: FrameLayout) {
         initViews(view)
-        setListeners()
         validatorCardView?.let { setAnimations(it) };
     }
 
@@ -315,18 +317,23 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         exitButton = binding.exitImageButton
 
         exitMenuDialog = layoutInflater.inflate(R.layout.exit_menu_card, frameLayout, false)
-        exitYes = exitMenuDialog!!.findViewById(R.id.exit_button_yes)
-        exitNo = exitMenuDialog!!.findViewById(R.id.exit_button_no)
+        exitMenuDialog.let {
+            if (it != null) {
+                exitYes = it.findViewById(R.id.exit_button_yes)
+                exitNo = it.findViewById(R.id.exit_button_no)
+            }
+        }
+
 
 //        wordContainerUndoButton = view.findViewById(R.id.button_undo)
-        validatorCardView!!.visibility = View.INVISIBLE;
+        validatorCardView?.visibility = View.INVISIBLE;
     }
 
-    private fun setListeners() {
-        exitButton?.setOnClickListener { frameLayout?.addView(exitMenuDialog) }
-        exitYes?.setOnClickListener { listener?.moveToListFragment() }
-        exitNo?.setOnClickListener { frameLayout?.removeView(exitMenuDialog) }
-        binding.buttonUndo.setOnClickListener { undoLastLetter() }
+    private fun setListeners(listener: NavListener,anchorNode: AnchorNode, gameManager: GameManager, frameLayout: FrameLayout) {
+        exitButton?.setOnClickListener { frameLayout.addView(exitMenuDialog) }
+        exitYes?.setOnClickListener { listener.moveToListFragment() }
+        exitNo?.setOnClickListener { frameLayout.removeView(exitMenuDialog) }
+        binding.buttonUndo.setOnClickListener { undoLastLetter(anchorNode, gameManager, frameLayout) }
     }
 
     private fun getGestureDetector(): GestureDetector {
@@ -521,10 +528,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         })
     }
 
-    private fun createSingleGame(mainModel: ModelRenderable, name: String) {
+    private fun createSingleGame(mainModel: ModelRenderable, name: String, anchorNode: AnchorNode, gameManager: GameManager, frameLayout: FrameLayout) {
         base = arModelUtil.getGameAnchor(mainModel)
         mainAnchorNode?.addChild(base)
-        placeLetters(name)
+        placeLetters(name, anchorNode, gameManager, frameLayout)
     }
 
     private fun connectAnchorToBase(anchorNode: AnchorNode) {
@@ -539,16 +546,20 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         wordContainer?.addView(t)
     }
 
-    private fun placeSingleLetter(letter: String) {
-        val letterAnchorNode = arModelUtil.getLetter(base, letterMap[letter], arFragment)
-        letterAnchorNode.children[0].setOnTapListener(getNodeOnTapListener(letter, letterAnchorNode))
-        connectAnchorToBase(letterAnchorNode)
+    private fun placeSingleLetter(letter: String, anchorNode: AnchorNode, gameManager: GameManager, frameLayout: FrameLayout) {
+        anchorNode.children[0].setOnTapListener(getNodeOnTapListener(letter, anchorNode, gameManager, frameLayout))
+        connectAnchorToBase(anchorNode)
     }
 
-    private fun placeLetters(word: String) {
+
+    private fun getSingleLetterAnchorNode(base: Node, model: ModelRenderable, arFragment: ArFragment): AnchorNode {
+        return arModelUtil.getLetter(base, model, arFragment)
+    }
+
+
+    private fun placeLetters(word: String, anchorNode: AnchorNode, gameManager: GameManager, frameLayout: FrameLayout) {
         for (letter in word) {
-            placeSingleLetter(
-                    letter.toString())
+            placeSingleLetter(letter.toString(), anchorNode, gameManager, frameLayout)
         }
     }
 
@@ -569,32 +580,32 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         }
     }
 
-    private fun undoLastLetter() {
-        val erasedLetter = gameManager!!.subtractLetterFromAttempt()
-        recreateErasedLetter(erasedLetter)
-        if (wordContainer!!.childCount > 0) {
-            wordContainer!!.removeViewAt(wordContainer!!.childCount - 1)
+    private fun undoLastLetter(anchorNode: AnchorNode, gameManager: GameManager, frameLayout: FrameLayout) {
+        val erasedLetter = gameManager.subtractLetterFromAttempt()
+        recreateErasedLetter(erasedLetter, anchorNode, gameManager, frameLayout)
+        if (wordContainer?.childCount!! > 0) {
+            wordContainer?.removeViewAt(wordContainer?.childCount!! - 1)
         }
     }
 
-    private fun recreateErasedLetter(letterToRecreate: String) {
+    private fun recreateErasedLetter(letterToRecreate: String,anchorNode: AnchorNode, gameManager: GameManager, frameLayout: FrameLayout) {
         if (letterToRecreate != "") {
-            placeSingleLetter(letterToRecreate)
+            placeSingleLetter(letterToRecreate, anchorNode, gameManager, frameLayout)
         }
     }
 
-    private fun getNodeOnTapListener(letterString: String, letterAnchorNode: AnchorNode): Node.OnTapListener {
+    private fun getNodeOnTapListener(letterString: String, letterAnchorNode: AnchorNode, gameManager: GameManager, frameLayout: FrameLayout): Node.OnTapListener {
         return Node.OnTapListener { _, motionEvent ->
             addLetterToWordBox(letterString)
             letterAnchorNode.anchor?.detach()
-            val isCorrect = gameManager!!.addTappedLetterToCurrentWordAttempt(letterString)
+            val isCorrect = gameManager.addTappedLetterToCurrentWordAttempt(letterString)
             val lav =
                     lottieHelper.getAnimationViewOnTopOfLetter(
                             getLetterTapAnimation(isCorrect),
                             (motionEvent.x - 7).roundToInt(),
                             (motionEvent.y + 7).roundToInt())
 
-            frameLayout?.addView(lav, 300, 300)
+            frameLayout.addView(lav, 300, 300)
             lav.addAnimatorListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationStart(animation: Animator?) {
                     lav.elevation = 0f
@@ -602,10 +613,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
                 override fun onAnimationEnd(animation: Animator?) {
 //                    frameLayout.removeViewInLayout(lav)
-                    frameLayout?.removeView(lav)
+                    frameLayout.removeView(lav)
                 }
             })
-            gameManager?.onWordAnswered()
+            gameManager.onWordAnswered()
         }
     }
 
