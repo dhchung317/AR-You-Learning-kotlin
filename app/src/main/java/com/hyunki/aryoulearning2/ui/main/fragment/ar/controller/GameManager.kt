@@ -6,9 +6,10 @@ import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ArModelUtil
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import java.util.*
 
-class GameManager(private val arModelList: List<ArModel>, private val gameCommands: GameCommandListener, private val navListener: NavListener?) {
+class GameManager(private val arModelList: List<ArModel>, private val gameCommands: GameCommandListener, private var navListener: NavListener?) {
     private var managerState: GameManagerState = GameManagerState.Uninitialized
     private val roundLimit = 3
+
 
     val keyStack = Stack<ArModel>()
 
@@ -97,6 +98,7 @@ class GameManager(private val arModelList: List<ArModel>, private val gameComman
         navListener?.saveWordHistoryFromGameFragment(wordHistoryList)
         setManagerState(GameManagerState.GameOver)
         navListener?.moveToReplayFragment()
+        navListener = null
     }
 
     private fun checkIfTappedLetterIsCorrect(tappedLetter: String): Boolean {
@@ -109,7 +111,7 @@ class GameManager(private val arModelList: List<ArModel>, private val gameComman
     private fun startGameFromGameManager(key: ArModel) {
         setCurrentWord(key)
         refreshManager()
-        gameCommands.startGame(key.name, this)
+        gameCommands.startGame(key.name)
     }
 
     private fun addLetterToAttempt(letter: String) {
