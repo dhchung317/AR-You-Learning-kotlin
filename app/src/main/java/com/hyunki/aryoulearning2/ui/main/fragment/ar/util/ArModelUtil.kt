@@ -55,9 +55,9 @@ class ArModelUtil {
         return base
     }
 
-    fun getLetter(parent: Node, renderable: ModelRenderable?, arFragment: ArFragment): AnchorNode {
+    fun getLetter(parent: Node?, renderable: ModelRenderable?, arFragment: ArFragment?): AnchorNode {
 
-        val session = arFragment.arSceneView.session
+        val session = arFragment!!.arSceneView.session
         var anchor: Anchor? = setUpAnchorAndReturn(session)
 
         val base = AnchorNode(anchor)
@@ -88,12 +88,12 @@ class ArModelUtil {
         return floatArrayOf(0f, 0f, 0f, 0f)
     }
 
-    private fun setUpTrNodeAndReturn(arFragment: ArFragment, renderable: ModelRenderable?, parent: Node): TransformableNode {
+    private fun setUpTrNodeAndReturn(arFragment: ArFragment, renderable: ModelRenderable?, parent: Node?): TransformableNode {
         val trNode = TransformableNode(arFragment.transformationSystem)
 
         return trNode.apply {
             this.renderable = renderable
-            this.localPosition = getRandomUniqueCoordinates(parent.localPosition)
+            this.localPosition = getRandomUniqueCoordinates(parent!!.localPosition)
         }.let {
             setTrNodeLookAndScale(it)
             animateTrNode(it)

@@ -47,4 +47,5 @@ class CategoryViewHolder(itemView: View, private val categoryList: List<Category
         }
         makeVibration()
     }
+
 }

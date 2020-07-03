@@ -36,7 +36,7 @@ class HintFragment @Inject
 constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fragment(), FragmentListener {
     private val binding by viewBinding(FragmentHintBinding::bind)
 
-    //    private var hintRecyclerView: RecyclerView? = null
+    private var hintRecyclerView: RecyclerView? = null
     private var hintAdapter: HintAdapter? = null
 
     private var listener: NavListener? = null
@@ -140,9 +140,10 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         tutorialButton = binding.hintFragTutorialButton
         backFAB = binding.backBtn
         hintAdapter = HintAdapter()
-        binding.hintRecyclerView.let {
-            it.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-            it.adapter = hintAdapter
+        hintRecyclerView = binding.hintRecyclerView
+        hintRecyclerView.let {
+            it?.layoutManager = LinearLayoutManager(requireContext().applicationContext, LinearLayoutManager.HORIZONTAL, false)
+            it?.adapter = hintAdapter
         }
 //        constraintLayout = view.findViewById(R.id.hint_layout)
 
@@ -212,8 +213,18 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
         //nulling listener will cause start game button to die on replay
 //        listener = null
-        hintAdapter = null
+//        hintAdapter = null
         setCurrentCategoryFromFragment(category)
+
+        hintRecyclerView?.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewDetachedFromWindow(v: View?) {
+                hintRecyclerView?.adapter = null
+            }
+
+            override fun onViewAttachedToWindow(v: View?) {
+
+            }
+        })
         super.onDestroyView()
     }
 

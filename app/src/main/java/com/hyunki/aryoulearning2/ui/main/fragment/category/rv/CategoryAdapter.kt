@@ -64,4 +64,6 @@ class CategoryAdapter(private val fListener: FragmentListener) : RecyclerView.Ad
         this.categories = categories
         notifyDataSetChanged()
     }
+
+
 }

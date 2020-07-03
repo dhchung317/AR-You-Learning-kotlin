@@ -31,7 +31,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
 
     private lateinit var mainViewModel: MainViewModel
 
-//    private lateinit var recyclerView: RecyclerView
+    private var recyclerView: RecyclerView? = null
 
 //    private lateinit var progressBar: ProgressBar
 
@@ -54,10 +54,11 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
     }
 
     private fun initRecyclerView() {
-        binding.categoryRv.let {
-            it.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
+        recyclerView = binding.categoryRv
+        recyclerView.let {
+            it?.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
             categoryAdapter = CategoryAdapter(this)
-            it.adapter = categoryAdapter
+            it?.adapter = categoryAdapter
         }
 
     }
@@ -90,9 +91,19 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
         )
     }
 
-    override fun onDestroy() {
-        categoryAdapter = null
-        super.onDestroy()
+    override fun onDestroyView() {
+        recyclerView?.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewDetachedFromWindow(v: View?) {
+                recyclerView?.adapter = null
+            }
+
+            override fun onViewAttachedToWindow(v: View?) {
+
+            }
+        })
+//        categoryAdapter = null
+
+        super.onDestroyView()
     }
 
     companion object {
