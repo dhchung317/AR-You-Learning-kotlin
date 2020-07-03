@@ -75,19 +75,19 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private var validatorCardView: ValidatorCardView by AutoClearedValue()
 
     private var exitMenuDialog: View by AutoClearedValue()
-    private var exitButton: ImageButton? = null
     private var exitYes: Button by AutoClearedValue()
     private var exitNo: Button by AutoClearedValue()
+    private var exitButton: ImageButton? = null
 
     private var tapAnimation: LottieAnimationView by AutoClearedValue()
     private var fadeIn: ObjectAnimator by AutoClearedValue()
     private var fadeOut: ObjectAnimator by AutoClearedValue()
 
+    private var mainHit: HitResult by AutoClearedValue()
+    private var base: Node by AutoClearedValue()
     private var gestureDetector: GestureDetector? = null
     private var mainAnchor: Anchor? = null
     private var mainAnchorNode: AnchorNode? = null
-    private var mainHit: HitResult by AutoClearedValue()
-    private var base: Node by AutoClearedValue()
 
     private lateinit var category: String
 
@@ -206,18 +206,18 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             val trackable = mainHit.trackable
             if (trackable is Plane && trackable.isPoseInPolygon(mainHit.hitPose)) {
                 if (!this::gameManager.isInitialized || gameManager.isGameOverState()) {
-                    assignNewGameManager(arModelList, this, listener.get())
+                    assignNewGameManager(arModelList, this, listener)
                 }
                 binding.wordContainerCard.visibility = View.VISIBLE
-                startGame(modelKey = gameManager.getCurrentWordAnswer())
+                startGame(modelKey = gameManager.getCurrentWord().answer)
                 return true
             }
         }
         return false
     }
 
-    private fun assignNewGameManager(list: List<ArModel>, gameCommands: GameCommandListener, listener: NavListener?) {
-        gameManager = GameManager(list, gameCommands, listener)
+    private fun assignNewGameManager(list: List<ArModel>, gameCommands: GameCommandListener, listener: WeakReference<NavListener>) {
+        gameManager = GameManager(list, WeakReference(gameCommands), listener)
         arModelUtil = gameManager.arModelUtil
     }
 
@@ -229,8 +229,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     override fun showCard(isCorrect: Boolean) {
-        validatorCardView.answerText = gameManager.currentWord.answer
-        validatorCardView.answerImage = gameManager.currentWord.image
+        validatorCardView.answerText = gameManager.getCurrentWord().answer
+        validatorCardView.answerImage = gameManager.getCurrentWord().image
 
         when (isCorrect) {
             true -> setUpCardWithCorrectValidators(validatorCardView)
