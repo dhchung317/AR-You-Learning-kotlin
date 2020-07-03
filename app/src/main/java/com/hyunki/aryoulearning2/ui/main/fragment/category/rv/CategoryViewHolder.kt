@@ -14,12 +14,13 @@ import com.hyunki.aryoulearning2.ui.main.fragment.controller.FragmentListener
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.hyunki.aryoulearning2.util.AutoClearedValue
 import com.squareup.picasso.Picasso
+import java.lang.ref.WeakReference
 
-class CategoryViewHolder(itemView: View, private val categoryList: List<Category>, fListener: FragmentListener, nListener: NavListener) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+class CategoryViewHolder(itemView: View, private val categoryList: List<Category>, fragmentListenerWeakReference: WeakReference<FragmentListener>, navListenerWeakReference: WeakReference<NavListener>) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
     private val categoryName: TextView = itemView.findViewById(R.id.category_name)
     private val categoryImage: ImageView = itemView.findViewById(R.id.category_image)
-    private var fListener: FragmentListener? = fListener
-    private var nListener: NavListener? = nListener
+    private var fListener: FragmentListener? = fragmentListenerWeakReference.get()
+    private var nListener: NavListener? = navListenerWeakReference.get()
 
     init {
         itemView.setOnClickListener(this)

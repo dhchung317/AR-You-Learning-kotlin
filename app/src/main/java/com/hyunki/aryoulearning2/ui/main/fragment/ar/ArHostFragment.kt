@@ -49,6 +49,9 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
+//TODO submit button logic, where you will be able to submit a word only when all tiles are clicked,
+// giving the user a choice to fix their mistake before commiting to the answer
+
 @ExperimentalCoroutinesApi
 class ArHostFragment @Inject
 constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), GameCommandListener {
@@ -369,11 +372,11 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun showProgressBar(isVisible: Boolean) {
-//        if (isVisible) {
-//            progressBar.visibility = View.VISIBLE
-//        } else {
-//            progressBar.visibility = View.GONE
-//        }
+        if (isVisible) {
+            progressBar.visibility = View.VISIBLE
+        } else {
+            progressBar.visibility = View.GONE
+        }
     }
 
     private fun processModelData(state: ArState) {
