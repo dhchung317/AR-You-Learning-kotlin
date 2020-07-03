@@ -56,6 +56,7 @@ import kotlin.math.roundToInt
 class ArHostFragment @Inject
 constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), GameCommandListener {
     private val binding by viewBinding(FragmentArhostBinding::bind)
+
     @Inject
     lateinit var viewModelProviderFactory: ViewModelProviderFactory
 
@@ -74,6 +75,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private var progressBar: ProgressBar by AutoClearedValue()
     private var frameLayout: FrameLayout by AutoClearedValue()
     private var wordContainer: LinearLayout by AutoClearedValue()
+    private var submitButton: ImageButton by AutoClearedValue()
 
     private var validatorCardView: ValidatorCardView by AutoClearedValue()
 
@@ -276,6 +278,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         frameLayout = binding.frameLayout
         validatorCardView = binding.validatorCard
         wordContainer = binding.wordContainer
+        submitButton = binding.submitImageButton
         exitButton = binding.exitImageButton
         exitMenuDialog = layoutInflater.inflate(R.layout.exit_menu_card, frameLayout, false)
         exitMenuDialog.let {
@@ -290,6 +293,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         exitYes.setOnClickListener { listener.moveToListFragment() }
         exitNo.setOnClickListener { frameLayout.removeView(exitMenuDialog) }
         binding.buttonUndo.setOnClickListener { undoLastLetter() }
+        submitButton.setOnClickListener {submitAnswer()}
     }
 
     private fun getGestureDetector(): GestureDetector {
@@ -541,12 +545,35 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         if (wordContainer.childCount > 0) {
             wordContainer.removeViewAt(wordContainer.childCount - 1)
         }
+        checkForValidEntry()
     }
 
     private fun recreateErasedLetter(letterToRecreate: String) {
         if (letterToRecreate != "") {
             val letterNode = getSingleLetterAnchorNode(letterMap[letterToRecreate])
             placeSingleLetter(letterToRecreate, letterNode)
+        }
+    }
+
+
+    private fun submitAnswer() {
+        gameManager.onWordAnswered()
+    }
+
+    private fun checkForValidEntry() {
+        toggleSubmitButton(gameManager.attempt.length == gameManager.getCurrentWord().answer.length)
+
+    }
+
+    private fun toggleSubmitButton(boolean: Boolean) {
+        submitButton.isClickable = boolean
+        when(boolean){
+            true -> {
+                submitButton.setBackgroundResource(R.drawable.submit_button)
+            }
+            else -> {
+                submitButton.setBackgroundResource(R.drawable.submit_button_dead)
+            }
         }
     }
 
@@ -571,7 +598,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                     frameLayout.removeView(lav)
                 }
             })
-            gameManager.onWordAnswered()
+            checkForValidEntry()
         }
     }
 
@@ -613,6 +640,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                         it, arrayOf(Manifest.permission.CAMERA), requestCode)
             }
         }
+
         const val REQUEST_KEY = "get-current-category"
         const val KEY_ID = "current-category"
     }
