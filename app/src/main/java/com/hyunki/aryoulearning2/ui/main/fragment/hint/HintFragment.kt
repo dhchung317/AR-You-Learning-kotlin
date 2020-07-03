@@ -139,9 +139,9 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         startGameButton = binding.hintFragmentButton
         tutorialButton = binding.hintFragTutorialButton
         backFAB = binding.backBtn
+        hintAdapter = HintAdapter()
         binding.hintRecyclerView.let {
             it.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-            hintAdapter = HintAdapter()
             it.adapter = hintAdapter
         }
 //        constraintLayout = view.findViewById(R.id.hint_layout)
@@ -201,12 +201,25 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     }
 
     override fun onDestroyView() {
+        backFAB?.setOnClickListener(null)
+        backFAB = null
+        startGameButton?.setOnClickListener(null)
+        startGameButton = null
+        tutorialButton?.setOnClickListener(null)
+        tutorialButton = null
 //        backFAB?.setOnClickListener(null)
 //        startGameButton = null
+
+        //nulling listener will cause start game button to die on replay
 //        listener = null
         hintAdapter = null
         setCurrentCategoryFromFragment(category)
         super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        listener = null
+        super.onDestroy()
     }
 
     override fun onResume() {

@@ -66,9 +66,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private lateinit var progressBar: ProgressBar
 
     private lateinit var arViewModel: ArViewModel
-    private lateinit var arFragment: ArGameFragment
-    private lateinit var gameManager: GameManager
-    private lateinit var listener: NavListener
+    private var arFragment: ArGameFragment? = null
+    private var gameManager: GameManager? = null
+    private var listener: NavListener? = null
 
     private lateinit var playBalloonPop: MediaPlayer
 
@@ -156,10 +156,14 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     //TODO implement audio effects shutdown
     override fun onDestroy() {
+        pronunciationUtil = null
+        gameManager = null
+        arFragment = null
+
+
         super.onDestroy()
 
 //        textToSpeech.shutdown()
-        pronunciationUtil = null
         //        playBalloonPop.reset();
         //        playBalloonPop.release();
 
