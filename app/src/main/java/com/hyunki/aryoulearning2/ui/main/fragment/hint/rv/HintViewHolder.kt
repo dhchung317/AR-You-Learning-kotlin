@@ -14,7 +14,7 @@ import com.hyunki.aryoulearning2.data.db.model.ArModel
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.squareup.picasso.Picasso
 
-class HintViewHolder(itemView: View, private val arModelList: List<ArModel>, val pronunciationUtil: PronunciationUtil) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+class HintViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
     private val imageView: ImageView = itemView.findViewById(R.id.hint_fragment_image_view)
     private val textView: TextView = itemView.findViewById(R.id.hint_fragment_textview)
 
@@ -30,8 +30,6 @@ class HintViewHolder(itemView: View, private val arModelList: List<ArModel>, val
 
     override fun onClick(v: View?) {
         toggleViews(v,false)
-        val model = arModelList[adapterPosition]
-        pronunciationUtil.textToSpeechAnnouncer(model.name, pronunciationUtil.textToSpeech)
         itemView.startAnimation(Animations.Normal().getVibrator(itemView))
         textView.setTextColor(Color.LTGRAY)
         val timer = object : CountDownTimer(1000, 1000) {

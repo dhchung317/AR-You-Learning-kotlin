@@ -17,11 +17,6 @@ class MainModule {
     }
 
     @Provides
-    fun provideHintAdapter(pronunciationUtil: PronunciationUtil): HintAdapter {
-        return HintAdapter(pronunciationUtil)
-    }
-
-    @Provides
     fun provideLottieHelper(): LottieHelper {
         return LottieHelper()
     }
