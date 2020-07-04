@@ -33,9 +33,7 @@ class LottieHelperTest {
     @Test
     fun `assert that getType() with params TAP returns view with tap animation`() {
         val expected = LottieHelper.AnimationType.TAP.ordinal
-
         val actual = lottieHelper.getAnimationView(context,LottieHelper.AnimationType.TAP).id
-
         assertEquals(expected, actual)
     }
 
