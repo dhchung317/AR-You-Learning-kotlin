@@ -12,14 +12,17 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.*
 import android.widget.*
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.airbnb.lottie.LottieAnimationView
+import com.google.android.material.snackbar.Snackbar
 import com.google.ar.core.*
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.HitTestResult
@@ -28,6 +31,7 @@ import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.ux.ArFragment
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
+import com.hyunki.aryoulearning2.R.*
 import com.hyunki.aryoulearning2.animation.Animations
 import com.hyunki.aryoulearning2.animation.LottieHelper
 import com.hyunki.aryoulearning2.data.ArState
@@ -73,6 +77,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private lateinit var listener: WeakReference<NavListener>
 
     private var progressBar: ProgressBar by AutoClearedValue()
+//    private var coordinatorLayout: CoordinatorLayout by AutoClearedValue()
     private var frameLayout: FrameLayout by AutoClearedValue()
     private var wordContainer: LinearLayout by AutoClearedValue()
     private var submitButton: ImageButton by AutoClearedValue()
@@ -106,7 +111,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private lateinit var playBalloonPop: MediaPlayer
 
-    private val balloonTF by lazy { ResourcesCompat.getFont(requireActivity().applicationContext, R.font.balloon) }
+    private val balloonTF by lazy { ResourcesCompat.getFont(requireActivity().applicationContext, font.balloon) }
 
     //TODO implement text to speech
 //    private val textToSpeech: TextToSpeech
@@ -132,7 +137,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.fragment_arhost, container, false)
+        val rootView = inflater.inflate(layout.fragment_arhost, container, false)
         arFragment = childFragmentManager.findFragmentById(R.id.ux_fragment).let { it as ArGameFragment }
         return rootView
     }
@@ -206,7 +211,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun tryPlaceGame(tap: MotionEvent?, frame: Frame): Boolean {
-        if (tap != null && frame.camera.trackingState == TrackingState.TRACKING) {
+        if (tap != null && frame.camera.trackingState == TrackingState.TRACKING && frame.hitTest(tap).isNotEmpty()) {
             mainHit = frame.hitTest(tap)[0]
             val trackable = mainHit.trackable
             if (trackable is Plane && trackable.isPoseInPolygon(mainHit.hitPose)) {
@@ -256,14 +261,14 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private fun setUpCardWithCorrectValidators(v: ValidatorCardView) {
         v.headerText = "GREAT!!!"
-        v.backgroundImage = R.drawable.star
+        v.backgroundImage = drawable.star
         v.wrongAnswerVisibility = View.INVISIBLE
         v.wrongAnswerPromptVisibility = View.INVISIBLE
     }
 
     private fun setUpCardWithIncorrectValidators(v: ValidatorCardView) {
         v.headerText = "TRY AGAIN..."
-        v.backgroundImage = R.drawable.error
+        v.backgroundImage = drawable.error
         v.wrongAnswerVisibility = View.VISIBLE
         v.wrongAnswerPromptVisibility = View.VISIBLE
         v.wrongAnswerText = gameManager.attempt
@@ -280,7 +285,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         wordContainer = binding.wordContainer
         submitButton = binding.submitImageButton
         exitButton = binding.exitImageButton
-        exitMenuDialog = layoutInflater.inflate(R.layout.exit_menu_card, frameLayout, false)
+        exitMenuDialog = layoutInflater.inflate(layout.exit_menu_card, frameLayout, false)
         exitMenuDialog.let {
             exitYes = it.findViewById(R.id.exit_button_yes)
             exitNo = it.findViewById(R.id.exit_button_no)
@@ -487,6 +492,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun createSingleGame(mainModel: ModelRenderable, name: String) {
+        toggleSubmitButtonColor(checkForValidEntry())
         base = arModelUtil.getGameAnchor(mainModel)
         mainAnchorNode?.addChild(base)
         placeLetters(name)
@@ -500,7 +506,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private fun addLetterToWordContainer(letter: String) {
         val t =
                 ViewUtil.configureWordContainerTextView(
-                        TextView(requireContext().applicationContext), letter, balloonTF, ContextCompat.getColor(requireContext(), R.color.colorWhite))
+                        TextView(requireContext().applicationContext), letter, balloonTF, ContextCompat.getColor(requireContext(), color.colorWhite))
         wordContainer.addView(t)
     }
 
@@ -545,7 +551,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         if (wordContainer.childCount > 0) {
             wordContainer.removeViewAt(wordContainer.childCount - 1)
         }
-        checkForValidEntry()
+        toggleSubmitButtonColor(checkForValidEntry())
     }
 
     private fun recreateErasedLetter(letterToRecreate: String) {
@@ -555,24 +561,41 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         }
     }
 
-
     private fun submitAnswer() {
-        gameManager.onWordAnswered()
+        if(checkForValidEntry()){
+            gameManager.onWordAnswered()
+        }else{
+            Snackbar.make(
+                    binding.coordinatorLayout,
+                    "Finish spelling the word to submit!",
+                    Snackbar.LENGTH_SHORT
+            ).let {
+                it.view.updateLayoutParams<CoordinatorLayout.LayoutParams> {
+                    this.gravity = Gravity.CENTER
+                    this.width = ViewGroup.LayoutParams.WRAP_CONTENT
+                }
+                it.view.bringToFront()
+                it.anchorView = binding.submitImageButton
+                it.show()
+            }
+        }
     }
 
-    private fun checkForValidEntry() {
-        toggleSubmitButton(gameManager.attempt.length == gameManager.getCurrentWord().answer.length)
-
+    private fun checkForValidEntry(): Boolean {
+        return if(this::gameManager.isInitialized){
+            gameManager.attempt.length == gameManager.getCurrentWord().answer.length
+        }else{
+            false
+        }
     }
 
-    private fun toggleSubmitButton(boolean: Boolean) {
-        submitButton.isClickable = boolean
+    private fun toggleSubmitButtonColor(boolean: Boolean) {
         when(boolean){
             true -> {
-                submitButton.setBackgroundResource(R.drawable.submit_button)
+                submitButton.setBackgroundResource(drawable.submit_button)
             }
             else -> {
-                submitButton.setBackgroundResource(R.drawable.submit_button_dead)
+                submitButton.setBackgroundResource(drawable.submit_button_dead)
             }
         }
     }
@@ -598,7 +621,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                     frameLayout.removeView(lav)
                 }
             })
-            checkForValidEntry()
+            toggleSubmitButtonColor(checkForValidEntry())
         }
     }
 
@@ -640,7 +663,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                         it, arrayOf(Manifest.permission.CAMERA), requestCode)
             }
         }
-
         const val REQUEST_KEY = "get-current-category"
         const val KEY_ID = "current-category"
     }
