@@ -565,19 +565,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         if(checkForValidEntry()){
             gameManager.onWordAnswered()
         }else{
-            Snackbar.make(
-                    binding.coordinatorLayout,
-                    "Finish spelling the word to submit!",
-                    Snackbar.LENGTH_SHORT
-            ).let {
-                it.view.updateLayoutParams<CoordinatorLayout.LayoutParams> {
-                    this.gravity = Gravity.CENTER
-                    this.width = ViewGroup.LayoutParams.WRAP_CONTENT
-                }
-                it.view.bringToFront()
-                it.anchorView = binding.submitImageButton
-                it.show()
-            }
+            showSnackbar()
         }
     }
 
@@ -589,6 +577,21 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         }
     }
 
+    private fun showSnackbar() {
+        Snackbar.make(
+                binding.coordinatorLayout,
+                "Finish spelling the word to submit!",
+                Snackbar.LENGTH_SHORT
+        ).let {
+            it.anchorView = binding.constraintLayout
+            it.view.updateLayoutParams<CoordinatorLayout.LayoutParams> {
+                this.gravity = Gravity.CENTER
+                this.width = ViewGroup.LayoutParams.WRAP_CONTENT
+
+            }
+            it.show()
+        }
+    }
     private fun toggleSubmitButtonColor(boolean: Boolean) {
         when(boolean){
             true -> {
