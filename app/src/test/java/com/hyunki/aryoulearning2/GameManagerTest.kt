@@ -137,48 +137,48 @@ class GameManagerTest {
             assertEquals(expected, wrongAnswer)
         }
     }
-//
-//    @Test
-//    fun `assert that addTappedLetterToCurrentWordAttempt() starts a new game with the same word when attempt is incorrect`() {
-//
-//        val keys = listOf(ArModel(name = "cat", category = "testCategory", image = "testImage"))
-//
-//        gameManager = GameManager(keys, gameCommandListener, navListener)
-//
-//        val expected = "cat"
-//
-//        gameManager.addTappedLetterToCurrentWordAttempt("x")
-//        gameManager.addTappedLetterToCurrentWordAttempt("y")
-//        gameManager.addTappedLetterToCurrentWordAttempt("z")
-//
-//        gameManager.onWordAnswered()
-//        gameManager.onHidingCard(false)
-//
-//        val actual = gameManager.getCurrentWord().answer
-//
-//        assertEquals(expected, actual)
-//    }
 
-//    @Test
-//    fun `assert that addTappedLetterToCurrentWordAttempt() starts a new game with the next word when attempt is correct`() {
-//
-//        gameManager = GameManager(testKeys, gameCommandListener, navListener)
-//
-//        val expected = gameManager.keyStack.peek().name
-//
-//        val answer = gameManager.getCurrentWord().answer
-//
-//        for(c in answer) {
-//            gameManager.addTappedLetterToCurrentWordAttempt(c.toString())
-//        }
-//
-//        gameManager.onWordAnswered()
-//        gameManager.onHidingCard(true)
-//
-//        val actual = gameManager.getCurrentWord().answer
-//
-//        assertEquals(expected, actual)
-//    }
+    @Test
+    fun `assert that addTappedLetterToCurrentWordAttempt() starts a new game with the same word when attempt is incorrect`() {
+
+        val keys = listOf(ArModel(name = "cat", category = "testCategory", image = "testImage"))
+
+        gameManager = GameManager(keys, gameCommandListener, navListener)
+
+        val expected = "cat"
+
+        gameManager.addTappedLetterToCurrentWordAttempt("x")
+        gameManager.addTappedLetterToCurrentWordAttempt("y")
+        gameManager.addTappedLetterToCurrentWordAttempt("z")
+
+        gameManager.onWordAnswered()
+        gameManager.onHidingCard(false)
+
+        val actual = gameManager.getCurrentWord().answer
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `assert that addTappedLetterToCurrentWordAttempt() starts a new game with the next word when attempt is correct`() {
+
+        gameManager = GameManager(testKeys, gameCommandListener, navListener)
+
+        val expected = gameManager.keyStack.peek().name
+
+        val answer = gameManager.getCurrentWord().answer
+
+        for(c in answer) {
+            gameManager.addTappedLetterToCurrentWordAttempt(c.toString())
+        }
+
+        gameManager.onWordAnswered()
+        gameManager.onHidingCard(true)
+
+        val actual = gameManager.getCurrentWord().answer
+
+        assertEquals(expected, actual)
+    }
 
     @Test
     fun `assert that addTappedLetterToCurrentWordAttempt() loads a new word when answer is correct and games are left`() {
