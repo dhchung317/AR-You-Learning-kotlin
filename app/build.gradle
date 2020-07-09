@@ -39,7 +39,6 @@ android {
     viewBinding {
         enabled = true
     }
-
     buildToolsVersion '23.0.3'
 }
 
