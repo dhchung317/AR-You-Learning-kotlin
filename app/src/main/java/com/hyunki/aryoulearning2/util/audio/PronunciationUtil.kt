@@ -14,20 +14,20 @@ constructor(context: Context) : TextToSpeech.OnInitListener {
     val textToSpeech: TextToSpeech = TextToSpeech(context, this)
 
     fun textToSpeechAnnouncer(textView: TextView, textToSpeech: TextToSpeech) {
-        val letter = textView.text.toString().toLowerCase()
-        val speakText = textToSpeech.speak(pronounceSingleLetter(letter),
-                TextToSpeech.QUEUE_ADD, null)
-        if (speakText == TextToSpeech.ERROR) {
-            Log.e("TTS", "Error in converting Text to Speech!")
-        }
+//        val letter = textView.text.toString().toLowerCase()
+//        val speakText = textToSpeech.speak(pronounceSingleLetter(letter),
+//                TextToSpeech.QUEUE_ADD, null)
+//        if (speakText == TextToSpeech.ERROR) {
+//            Log.e("TTS", "Error in converting Text to Speech!")
+//        }
     }
 
     fun textToSpeechAnnouncer(message: String, textToSpeech: TextToSpeech) {
-        val speakText = textToSpeech.speak(message,
-                TextToSpeech.QUEUE_ADD, null)
-        if (speakText == TextToSpeech.ERROR) {
-            Log.e("TTS", "Error in converting Text to Speech!")
-        }
+//        val speakText = textToSpeech.speak(message,
+//                TextToSpeech.QUEUE_ADD, null)
+//        if (speakText == TextToSpeech.ERROR) {
+//            Log.e("TTS", "Error in converting Text to Speech!")
+//        }
     }
 
     private fun pronounceSingleLetter(letter: String): String {

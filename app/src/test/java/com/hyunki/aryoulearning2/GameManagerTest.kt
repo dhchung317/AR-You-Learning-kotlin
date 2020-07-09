@@ -32,12 +32,6 @@ class GameManagerTest {
                 ArModel(name = "bat", category = "testCategory", image = "testImage"))
     }
 
-    @After
-    fun teardown() {
-        gameCommandListener.clear()
-        navListener.clear()
-    }
-
     @Test
     fun `assert that key count is one less after init gameManager`() {
         gameManager = GameManager(testKeys, gameCommandListener, navListener)
@@ -306,4 +300,5 @@ class GameManagerTest {
 //                }
 //        )
 //    }
+
 }
