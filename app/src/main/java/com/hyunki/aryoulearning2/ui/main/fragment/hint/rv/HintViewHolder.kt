@@ -44,8 +44,8 @@ class HintViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.O
     }
 
     private fun toggleViews(v:View?, isClickable: Boolean){
-        for (v in v?.parent as ViewGroup){
-            v.isClickable = isClickable
+        for (view in v?.parent as ViewGroup){
+            view.isClickable = isClickable
         }
     }
 }

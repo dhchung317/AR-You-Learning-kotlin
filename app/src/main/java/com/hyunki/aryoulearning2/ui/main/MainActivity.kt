@@ -21,6 +21,7 @@ import com.hyunki.aryoulearning2.ui.main.fragment.results.ResultsFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.tutorial.TutorialFragment
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), NavListener {
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity(), NavListener {
     lateinit var providerFactory: ViewModelProviderFactory
     @Inject
     lateinit var pronunciationUtil: PronunciationUtil
+    @ExperimentalCoroutinesApi
     @Inject
     lateinit var arHostFragment: ArHostFragment
     @Inject
