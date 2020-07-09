@@ -301,9 +301,4 @@ class GameManagerTest {
 //        )
 //    }
 
-    @After
-    fun teardown() {
-        gameCommandListener.clear()
-        navListener.clear()
-    }
 }
