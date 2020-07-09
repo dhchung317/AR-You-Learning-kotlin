@@ -5,7 +5,6 @@ import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameCommandListe
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameManager
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.nhaarman.mockitokotlin2.*
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Before
