@@ -3,6 +3,7 @@ package com.hyunki.aryoulearning2.ui.main.fragment.ar.util
 import com.hyunki.aryoulearning2.animation.Animations
 import com.google.ar.core.Anchor
 import com.google.ar.core.Pose
+import com.google.ar.core.Session
 import com.google.ar.core.exceptions.CameraNotAvailableException
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.Node
@@ -14,11 +15,11 @@ import com.google.ar.sceneform.ux.TransformableNode
 import java.util.HashSet
 import java.util.Random
 
-class ModelUtil {
-    companion object Factory {
-        const val xRange = 2
-        const val yRange = 2
-        const val zRange = 3
+class ArModelUtil {
+    companion object {
+        const val xRange = 3
+        const val yRange = 3
+        const val zRange = 2
     }
 
     private val r = Random()
@@ -29,8 +30,8 @@ class ModelUtil {
                 getRandom(2, -6).toFloat(),
                 getRandom(-2, -10).toFloat())
 
-    private fun getRandom(max: Int, min: Int): Int {
-        return r.nextInt(max - min) + min
+    private fun getRandom(max: Int, min: Int): Float {
+        return min + r.nextFloat() * (max - min)
     }
 
     fun getGameAnchor(model: ModelRenderable): Node {
@@ -54,23 +55,10 @@ class ModelUtil {
         return base
     }
 
-    fun getLetter(parent: Node, renderable: ModelRenderable?, arFragment: ArFragment): AnchorNode {
+    fun getLetter(parent: Node, renderable: ModelRenderable, arFragment: ArFragment): AnchorNode {
 
-        val pos = floatArrayOf(0f, //x
-                0f, //y
-                0f)//z
-        val rotation = floatArrayOf(0f, 0f, 0f, 0f)
-
-        val session = arFragment.arSceneView.session
-        var anchor: Anchor? = null
-        if (session != null) {
-            try {
-                session.resume()
-            } catch (e: CameraNotAvailableException) {
-                e.printStackTrace()
-            }
-            anchor = session.createAnchor(Pose(pos, rotation))
-        }
+        val session = arFragment!!.arSceneView.session
+        var anchor: Anchor? = setUpAnchorAndReturn(session)
 
         val base = AnchorNode(anchor)
         val trNode = setUpTrNodeAndReturn(arFragment,renderable,parent)
@@ -78,12 +66,34 @@ class ModelUtil {
         return base
     }
 
-    private fun setUpTrNodeAndReturn(arFragment: ArFragment, renderable: ModelRenderable?, parent: Node): TransformableNode {
+    private fun setUpAnchorAndReturn(session: Session?): Anchor? {
+        lateinit var anchor: Anchor
+
+        if (session != null) {
+            try {
+                session.resume()
+            } catch (e: CameraNotAvailableException) {
+                e.printStackTrace()
+            }
+            anchor = session.createAnchor(Pose(getPos(), getRotation()))
+        }
+        return anchor
+    }
+
+    private fun getPos(): FloatArray {
+        return floatArrayOf(0f, 0f, 0f)
+    }
+
+    private fun getRotation(): FloatArray {
+        return floatArrayOf(0f, 0f, 0f, 0f)
+    }
+
+    private fun setUpTrNodeAndReturn(arFragment: ArFragment, renderable: ModelRenderable?, parent: Node?): TransformableNode {
         val trNode = TransformableNode(arFragment.transformationSystem)
 
         return trNode.apply {
             this.renderable = renderable
-            this.localPosition = getRandomUniqueCoordinates(parent.localPosition)
+            this.localPosition = getRandomUniqueCoordinates(parent!!.localPosition)
         }.let {
             setTrNodeLookAndScale(it)
             animateTrNode(it)
@@ -135,7 +145,7 @@ class ModelUtil {
         return true
     }
 
-    private fun getRandomUniqueCoordinates( checkAgainstTheseCoordinates: Vector3): Vector3{
+    private fun getRandomUniqueCoordinates(checkAgainstTheseCoordinates: Vector3): Vector3{
         var coordinates = randomCoordinates
 
         while (checkDoesLetterCollide(coordinates, checkAgainstTheseCoordinates)) {

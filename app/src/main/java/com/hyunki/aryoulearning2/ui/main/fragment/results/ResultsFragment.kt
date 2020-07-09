@@ -30,7 +30,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.data.MainState
-import com.hyunki.aryoulearning2.data.db.model.Model
+import com.hyunki.aryoulearning2.data.db.model.ArModel
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
@@ -45,14 +45,14 @@ import javax.inject.Inject
 //TODO- refactor resultsfragment
 class ResultsFragment @Inject
 constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fragment() {
+    @Inject
+    lateinit var pronunciationUtil: PronunciationUtil
+
     private lateinit var rainbowRatingBar: RatingBar
     private lateinit var categoryTextView: TextView
-    private val modelMap = HashMap<String, Model>()
     private lateinit var shareFAB: FloatingActionButton
     private lateinit var backFAB: FloatingActionButton
     private lateinit var resultRV: RecyclerView
-    private lateinit var pronunciationUtil: PronunciationUtil
-    private lateinit var textToSpeech: TextToSpeech
     private lateinit var viewModel: MainViewModel
     private lateinit var progressBar: ProgressBar
     private lateinit var navListener: NavListener
@@ -60,17 +60,11 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     override fun onAttach(context: Context) {
         (requireActivity().application as BaseApplication).appComponent.inject(this)
         super.onAttach(context)
-
         if (context is NavListener) {
             navListener = context
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        //        pronunciationUtil = new PronunciationUtil();
-        //        textToSpeech = pronunciationUtil.getTTS(getContext());
-    }
 
     private fun initializeViews(view: View) {
         rainbowRatingBar = view.findViewById(R.id.rainbow_correctword_ratingbar)
@@ -91,19 +85,20 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         progressBar = requireActivity().findViewById(R.id.progress_bar)
         initializeViews(view)
         setViews()
-        renderModelList(viewModel.getModelLiveData().value!!)
+
     }
 
     private fun setViews() {
         displayRatingBarAttempts()
-        //        categoryTextView.setText(MainActivityX.currentCategory);
         shareFAB.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.share_button_color))
         backFABClick()
         shareFABClick()
+        setResultRV()
+
     }
 
     private fun setResultRV() {
-        resultRV.adapter = ResultsAdapter(viewModel.getWordHistory(), modelMap, pronunciationUtil, textToSpeech)
+        resultRV.adapter = ResultsAdapter(viewModel.getWordHistory(), pronunciationUtil)
         resultRV.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
     }
@@ -122,7 +117,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     private fun backFABClick() {
         backFAB.setOnClickListener { v -> navListener.moveToListFragment() }
-
     }
 
     private fun allowOnFileUriExposed() {
@@ -192,25 +186,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         rainbowRatingBar.setIsIndicator(true)
     }
 
-    private fun renderModelList(state: MainState) {
-        Log.d("results", "renderModelList: " + state.javaClass)
-        when (state) {
-
-            is MainState.Loading -> showProgressBar(true)
-
-            is MainState.Error -> showProgressBar(false)
-
-            is MainState.Success.OnModelsLoaded -> {
-                showProgressBar(false)
-                val (models) = state
-                for (i in models.indices) {
-                    modelMap[models[i].name] = models[i]
-                }
-                Log.d("resultsAdapter", "renderModelList: " + models.size)
-                setResultRV()
-            }
-        }
-    }
 
     private fun showProgressBar(isVisible: Boolean) {
         if (isVisible) {
@@ -222,14 +197,14 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     override fun onDestroy() {
         super.onDestroy()
-        textToSpeech.shutdown();
+        pronunciationUtil.closeTTS()
     }
 
     private fun getCorrectAnswerCount(wordHistory: List<CurrentWord>): Int {
         var count = 0
 
         for (i in wordHistory.indices) {
-            if (wordHistory[i].attempts.size < 1) {
+            if (wordHistory[i].getAttempts().isEmpty()) {
                 count++
             }
         }

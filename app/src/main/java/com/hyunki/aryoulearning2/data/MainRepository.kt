@@ -1,22 +1,21 @@
 package com.hyunki.aryoulearning2.data
 
 import com.hyunki.aryoulearning2.data.db.model.Category
-import com.hyunki.aryoulearning2.data.db.model.Model
-import com.hyunki.aryoulearning2.data.db.model.ModelResponse
-import io.reactivex.Observable
-import io.reactivex.Single
-import java.util.ArrayList
+import com.hyunki.aryoulearning2.data.db.model.ArModel
+import com.hyunki.aryoulearning2.data.db.model.ArModelResponse
 
 interface MainRepository {
-    fun getAllCats(): Single<List<Category>>
+    suspend fun getAllCats(): List<Category>
 
-    fun getModelResponses(): Observable<ArrayList<ModelResponse>>
+    suspend fun getModelResponses(): List<ArModelResponse>
 
-    fun getModelsByCat(cat: String): Single<List<Model>>
+    suspend fun getModelsByCat(cat: String): List<ArModel>
 
-    fun insertModel(model: Model)
+    suspend fun insertModel(arModel: ArModel): Long
 
-    fun insertCat(category: Category)
+    suspend fun insertAllModels(vararg arModels: ArModel): List<Long>
+
+    suspend fun insertCat(category: Category)
 
     fun clearEntireDatabase()
 }

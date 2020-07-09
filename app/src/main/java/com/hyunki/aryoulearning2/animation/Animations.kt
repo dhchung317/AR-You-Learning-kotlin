@@ -12,6 +12,7 @@ import com.google.ar.sceneform.math.QuaternionEvaluator
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.math.Vector3Evaluator
 import com.hyunki.aryoulearning2.R
+import com.hyunki.aryoulearning2.ui.main.fragment.ar.customview.ValidatorCardView
 
 class Animations {
     class AR {
@@ -53,16 +54,13 @@ class Animations {
 
     //TODO animations to control flow of validator cards in arFragment
     class Normal {
-        fun setCardFadeInAnimator(cv: CardView): ObjectAnimator {
-            cv.alpha = 0f
-            cv.visibility = View.VISIBLE
+        fun setCardFadeInAnimator(cv: ValidatorCardView): ObjectAnimator {
             val fadeAnimation = ObjectAnimator.ofFloat(cv, "alpha", 0f, 1.0f)
             fadeAnimation.duration = 1000
-            fadeAnimation.startDelay = 500
             return fadeAnimation
         }
 
-        fun setCardFadeOutAnimator(cv: CardView): ObjectAnimator {
+        fun setCardFadeOutAnimator(cv: ValidatorCardView): ObjectAnimator {
             val fadeAnimation = ObjectAnimator.ofFloat(cv, "alpha", 1.0f, 0f)
             fadeAnimation.duration = 1000
             return fadeAnimation

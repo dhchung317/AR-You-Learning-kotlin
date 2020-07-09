@@ -1,17 +1,8 @@
 package com.hyunki.aryoulearning2.animation
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.app.Activity
 import android.content.Context
 import android.view.View
-import android.view.ViewGroup
-import android.widget.FrameLayout
-import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.findFragment
-
 import com.airbnb.lottie.LottieAnimationView
-import com.google.ar.sceneform.ux.ArFragment
 
 class LottieHelper {
 
@@ -46,11 +37,10 @@ class LottieHelper {
         lav.x = x.toFloat()
         lav.y = y.toFloat()
         lav.playAnimation()
-
         return lav
     }
 
-    fun getTapAnimationToScreen(lavTap: LottieAnimationView, width: Int, height: Int): LottieAnimationView {
+    fun placeTapAnimationOnScreen(lavTap: LottieAnimationView, width: Int, height: Int): LottieAnimationView {
         lavTap.x = (width / 2 - 50).toFloat()
         lavTap.y = (height / 2 - 50).toFloat()
         lavTap.playAnimation()

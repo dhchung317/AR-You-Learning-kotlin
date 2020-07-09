@@ -1,15 +1,18 @@
 package com.hyunki.aryoulearning2.ui.main.fragment.ar.controller
 
-import com.hyunki.aryoulearning2.data.db.model.Model
+import com.hyunki.aryoulearning2.data.db.model.ArModel
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
-import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ModelUtil
+import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ArModelUtil
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import java.util.*
 
-class GameManager(modelList: List<Model>, private val gameCommands: GameCommandListener, private val navListener: NavListener) {
+class GameManager(private val arModelList: List<ArModel>, private val gameCommands: GameCommandListener, private val navListener: NavListener?) {
+    private var managerState: GameManagerState = GameManagerState.Uninitialized
     private val roundLimit = 3
-    val keyStack = Stack<Model>()
-    var modelUtil: ModelUtil = ModelUtil()
+
+    val keyStack = Stack<ArModel>()
+
+    var arModelUtil: ArModelUtil = ArModelUtil()
 
     var wordHistoryList = ArrayList<CurrentWord>()
         private set
@@ -17,44 +20,43 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
     var attempt: String = ""
         private set
 
-    var currentWord: CurrentWord
-        private set
+    lateinit var currentWord: CurrentWord
+
 
     init {
-        while (keyStack.size < roundLimit && keyStack.size < modelList.size) {
-            val ran = getRandom(modelList.size, 0)
+        setupGameManager()
+        setManagerState(GameManagerState.Initialized)
+        //TODO examine this line
+//        keyStack[keyStack.size] = null
+    }
 
-            if (!keyStack.contains(modelList[ran])) {
-                keyStack.add(modelList[ran])
+
+    private fun setupGameManager(){
+        while (keyStack.size < roundLimit && keyStack.size < arModelList.size) {
+            val randomModel = arModelList.random()
+            if (!keyStack.contains(randomModel)) {
+                keyStack.add(randomModel)
             }
         }
-        this.currentWord = CurrentWord(keyStack.pop())
+        currentWord = CurrentWord(keyStack.pop())
     }
 
     fun addTappedLetterToCurrentWordAttempt(letter: String): Boolean {
         addLetterToAttempt(letter)
-        val isCorrect = checkIfTappedLetterIsCorrect(letter)
-//        onWordAnswered()
-        return isCorrect
+        return checkIfTappedLetterIsCorrect(letter)
     }
 
     fun onWordAnswered() {
         if (isWordAnswered()) {
             when (isCorrectAnswer()) {
-                true -> {
-//                    onAnswerCorrect()
-                    showCard(isCorrect = true)
-                    //showCard() with correct validators
-                }
+                true -> showCard(isCorrect = true)
                 else -> {
-//                    onAnswerIncorrect()
                     showCard(isCorrect = false)
-                    //showCard() with incorrect validators
+                    recordWrongAnswer(attempt)
                 }
             }
         }
     }
-
 
     private fun isWordAnswered(): Boolean {
         return attempt.length == currentWord.answer.length
@@ -62,26 +64,24 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
 
     private fun isCorrectAnswer(): Boolean {
         return attempt == getCurrentWordAnswer()
-
     }
 
-    fun onHidingCard(wasAnswerCorrect: Boolean){
+    fun onHidingCard(wasAnswerCorrect: Boolean) {
         when (wasAnswerCorrect) {
-            //listener from fragment will inform manager which course of action to take
             true -> onAnswerWasCorrect()
-
             else -> onAnswerWasIncorrect()
         }
     }
+
     private fun onAnswerWasIncorrect() {
-        recordWrongAnswer(attempt)
-        startNextGame(currentWord.answerModel)
+        startGameFromGameManager(currentWord.answerArModel)
     }
 
     private fun onAnswerWasCorrect() {
+        wordHistoryList.add(currentWord)
         when (areGamesLeft()) {
-            true -> whenGamesLeft()
-            else -> whenGamesOver()
+            true -> onGamesLeft()
+            else -> onGamesOver()
         }
     }
 
@@ -89,26 +89,27 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
         return keyStack.size > 0
     }
 
-    private fun whenGamesLeft() {
-        wordHistoryList.add(currentWord)
-        startNextGame(keyStack.pop())
+    private fun onGamesLeft() {
+        startGameFromGameManager(keyStack.pop())
     }
 
-    private fun whenGamesOver() {
-        wordHistoryList.add(currentWord)
-        navListener.saveWordHistoryFromGameFragment(wordHistoryList)
-        navListener.moveToReplayFragment()
+    private fun onGamesOver() {
+        navListener?.saveWordHistoryFromGameFragment(wordHistoryList)
+        setManagerState(GameManagerState.GameOver)
+        navListener?.moveToReplayFragment()
     }
 
     private fun checkIfTappedLetterIsCorrect(tappedLetter: String): Boolean {
         val correctLetter =
                 getCurrentWordAnswer()[attempt.length - 1].toString()
+
         return tappedLetter == correctLetter
     }
 
-    private fun startNextGame(key: Model) {
-        refreshManager(key)
-        gameCommands.startNextGame(key.name)
+    private fun startGameFromGameManager(key: ArModel) {
+        setCurrentWord(key)
+        refreshManager()
+        gameCommands.startGame(key.name, this)
     }
 
     private fun addLetterToAttempt(letter: String) {
@@ -117,7 +118,7 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
 
     fun subtractLetterFromAttempt(): String {
         var letter = ""
-        if (!attempt.isEmpty()) {
+        if (attempt.isNotEmpty()) {
             letter = attempt.substring(attempt.length - 1)
             attempt = attempt.substring(0, attempt.length - 1)
         }
@@ -128,16 +129,22 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
         currentWord.addWrongAnswerToSet(wrongAnswer)
     }
 
-    private fun refreshManager(key: Model) {
-        if (currentWord.answer != key.name) {
-            currentWord = CurrentWord(key)
-        }
-        modelUtil.refreshCollisionSet()
+    private fun refreshManager() {
+        arModelUtil.refreshCollisionSet()
         attempt = ""
     }
 
+    private fun setManagerState(state: GameManagerState){
+        managerState = state
+    }
+
+    private fun setCurrentWord(key: ArModel){
+        if (currentWord.answer != key.name) {
+            currentWord = CurrentWord(key)
+        }
+    }
+
     private fun showCard(isCorrect: Boolean) {
-        //pass along data for fragment to show
         gameCommands.showCard(isCorrect)
     }
 
@@ -149,10 +156,10 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
         return keyStack.size
     }
 
-    companion object {
-        private val r = Random()
-        private fun getRandom(max: Int, min: Int): Int {
-            return r.nextInt(max - min) + min
-        }
+    fun isFirstGame():Boolean {
+        return roundLimit == keyStack.size && currentWord.getAttempts().isEmpty()
+    }
+    fun isGameOverState(): Boolean {
+        return managerState == GameManagerState.GameOver
     }
 }

@@ -254,6 +254,8 @@
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         android:layout_marginTop="8dp"
+                        android:elevation="100dp"
+                        android:visibility="visible"
                         app:layout_constraintBottom_toTopOf="@id/results_textView"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"

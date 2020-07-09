@@ -3,29 +3,24 @@ package com.hyunki.aryoulearning2.ui.main
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
-
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
-
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.data.MainState
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArHostFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
+import com.hyunki.aryoulearning2.ui.main.fragment.category.CategoryFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.hyunki.aryoulearning2.ui.main.fragment.hint.HintFragment
-import com.hyunki.aryoulearning2.ui.main.fragment.category.CategoryFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.replay.ReplayFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.results.ResultsFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.tutorial.TutorialFragment
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
-
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), NavListener {
@@ -33,6 +28,8 @@ class MainActivity : AppCompatActivity(), NavListener {
     private lateinit var progressBar: ProgressBar
     private lateinit var prefs: SharedPreferences
 
+    @Inject
+    lateinit var providerFactory: ViewModelProviderFactory
     @Inject
     lateinit var pronunciationUtil: PronunciationUtil
     @Inject
@@ -50,8 +47,6 @@ class MainActivity : AppCompatActivity(), NavListener {
     @JvmField
     @Inject
     var resId: Int = 0
-    @Inject
-    lateinit var providerFactory: ViewModelProviderFactory
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
@@ -73,20 +68,25 @@ class MainActivity : AppCompatActivity(), NavListener {
         viewModel = ViewModelProvider(this, providerFactory).get(MainViewModel::class.java)
         progressBar = findViewById(R.id.progress_bar)
 
-        if (prefs.contains(NETWORK_CALL_COMPLETED)) {
-            moveToListFragment()
-        } else {
-            viewModel.loadModelResponses()
-            viewModel.getModelResponsesData().observe(this, Observer<MainState> { this.renderModelResponses(it) })
-        }
+//        if (prefs.contains(NETWORK_CALL_COMPLETED)) {
+//            moveToListFragment()
+//        } else {
+//            viewModel.loadModelResponses()
+            viewModel.getModelResponses().observe(this, Observer {
+                renderModelResponses(it)
+            })
+//        }
     }
 
     private fun renderModelResponses(state: MainState) {
         when (state) {
             is MainState.Loading -> showProgressBar(true)
-            is MainState.Error -> showProgressBar(false)
+            is MainState.Error -> {
+                showProgressBar(false)
+            }
             is MainState.Success.OnModelResponsesLoaded -> {
-                prefs.edit().putString(NETWORK_CALL_COMPLETED, "success").apply()
+                showProgressBar(false)
+//                prefs.edit().putString(NETWORK_CALL_COMPLETED, "success").apply()
                 moveToListFragment()
             }
         }
