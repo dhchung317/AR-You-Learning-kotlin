@@ -124,23 +124,23 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         StrictMode.setVmPolicy(builder.build())
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        if (requestCode == REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                return
-            }
-        }
-    }
+//    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//
+//        if (requestCode == REQUEST_CODE) {
+//            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                return
+//            }
+//        }
+//    }
 
     private fun takeScreenshotAndShare(view: View) {
         allowOnFileUriExposed()
-        view.isDrawingCacheEnabled = true
-        view.buildDrawingCache(true)
-        val b = Bitmap.createBitmap(view.drawingCache)
-        view.isDrawingCacheEnabled = true
-        saveBitmap(b)
+//        view.isDrawingCacheEnabled = true
+//        view.buildDrawingCache(true)
+//        val b = Bitmap.createBitmap(view.drawingCache)
+//        view.isDrawingCacheEnabled = true
+//        saveBitmap(b)
     }
 
     private fun shareIt(imagePath: File) {

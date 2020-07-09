@@ -5,6 +5,7 @@ import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameCommandListe
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameManager
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.nhaarman.mockitokotlin2.*
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Before
@@ -167,9 +168,9 @@ class GameManagerTest {
 
         val answer = gameManager.getCurrentWord().answer
 
-        gameManager.addTappedLetterToCurrentWordAttempt(answer[0].toString())
-        gameManager.addTappedLetterToCurrentWordAttempt(answer[1].toString())
-        gameManager.addTappedLetterToCurrentWordAttempt(answer[2].toString())
+        for(c in answer) {
+            gameManager.addTappedLetterToCurrentWordAttempt(c.toString())
+        }
 
         gameManager.onWordAnswered()
         gameManager.onHidingCard(true)
@@ -299,4 +300,5 @@ class GameManagerTest {
 //                }
 //        )
 //    }
+
 }
