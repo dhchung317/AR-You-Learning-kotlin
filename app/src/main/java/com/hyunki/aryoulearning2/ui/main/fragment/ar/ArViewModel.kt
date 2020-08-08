@@ -49,7 +49,6 @@ constructor(
                                 )
                             }.toList()
                 }
-
                 emit(ArState.Success.OnFutureModelMapListLoaded(list.await()))
             }
         } catch (exception: Exception) {
