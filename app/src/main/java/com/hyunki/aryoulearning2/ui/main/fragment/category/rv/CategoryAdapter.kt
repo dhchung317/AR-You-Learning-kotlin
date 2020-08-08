@@ -16,10 +16,10 @@ import java.util.ArrayList
 import kotlin.properties.Delegates
 
 class CategoryAdapter(private val fragmentListenerWeakReference: WeakReference<FragmentListener>) : RecyclerView.Adapter<CategoryViewHolder>() {
-    var categories: List<Category> = emptyList()
-//            by Delegates.observable(emptyList()) { _, old, new ->
-//        notifyChanges(old, new)
-//    }
+    private var categories: List<Category>
+            by Delegates.observable(emptyList()) { _, old, new ->
+        notifyChanges(old, new)
+    }
     private lateinit var navListenerWeakReference: WeakReference<NavListener>
 
     private fun notifyChanges(old: List<Category>, new: List<Category>) {
@@ -63,7 +63,6 @@ class CategoryAdapter(private val fragmentListenerWeakReference: WeakReference<F
 //
     fun setLists(categories: List<Category>) {
         this.categories = categories
-        notifyDataSetChanged()
     }
 
 

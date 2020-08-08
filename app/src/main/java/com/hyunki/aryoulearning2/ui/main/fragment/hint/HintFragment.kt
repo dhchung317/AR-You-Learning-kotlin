@@ -38,13 +38,13 @@ class HintFragment @Inject
 constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fragment(), FragmentListener {
     private val binding by viewBinding(FragmentHintBinding::bind)
 
-    private var hintRecyclerView: RecyclerView by AutoClearedValue()
+    private lateinit var hintRecyclerView: RecyclerView
     private var hintAdapter: HintAdapter by AutoClearedValue()
     private lateinit var listener: WeakReference<NavListener>
-    private var startGameButton: Button by AutoClearedValue()
-    private var tutorialButton: Button by AutoClearedValue()
-    private var backFAB: FloatingActionButton by AutoClearedValue()
-    private var progressBar: ProgressBar by AutoClearedValue()
+    private lateinit var startGameButton: Button
+    private lateinit var tutorialButton: Button
+    private lateinit var backFAB: FloatingActionButton 
+    private lateinit var progressBar: ProgressBar
     private lateinit var mainViewModel: MainViewModel
     private lateinit var category: String
 
@@ -69,7 +69,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         mainViewModel = ViewModelProvider(requireActivity(), viewModelProviderFactory).get(MainViewModel::class.java)
         setUpResultListener()
         //        textToSpeech = pronunciationUtil.getTTS(requireContext());
-
     }
 
     @ExperimentalCoroutinesApi
@@ -120,7 +119,9 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         }
 
         tutorialButton.setOnClickListener { listener.moveToTutorialFragment() }
-        backFAB.setOnClickListener { requireActivity().onBackPressed() }
+        backFAB.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
     }
 
     private fun initializeViews(view: View) {
@@ -192,6 +193,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     override fun onDestroyView() {
         //nulling listener will cause start game button to die on replay
         setCurrentCategoryFromFragment(category)
+        backFAB.setOnClickListener(null)
 //        hintRecyclerView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
 //            override fun onViewDetachedFromWindow(v: View?) {
 //                hintRecyclerView.adapter = null
