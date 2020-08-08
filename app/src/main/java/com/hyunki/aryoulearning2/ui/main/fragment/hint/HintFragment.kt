@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentResultListener
@@ -29,32 +28,31 @@ import com.hyunki.aryoulearning2.ui.main.fragment.hint.rv.HintAdapter
 import com.hyunki.aryoulearning2.util.AutoClearedValue
 import com.hyunki.aryoulearning2.util.viewBinding
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 //TODO refactor/implement pronounciation util
+//TODO progressbar
 class HintFragment @Inject
 constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fragment(), FragmentListener {
     private val binding by viewBinding(FragmentHintBinding::bind)
 
-    private var hintRecyclerView: RecyclerView? = null
-    private var hintAdapter: HintAdapter? = null
-
-    private var listener: NavListener? = null
-
-    private var startGameButton: Button? = null
-    private var tutorialButton: Button? = null
-    private var backFAB: FloatingActionButton? = null
-//    private var progressBar: ProgressBar
-
+    private lateinit var hintRecyclerView: RecyclerView
+    private var hintAdapter: HintAdapter by AutoClearedValue()
+    private lateinit var listener: WeakReference<NavListener>
+    private lateinit var startGameButton: Button
+    private lateinit var tutorialButton: Button
+    private lateinit var backFAB: FloatingActionButton 
+    private lateinit var progressBar: ProgressBar
     private lateinit var mainViewModel: MainViewModel
-
     private lateinit var category: String
 
     override fun onAttach(context: Context) {
         (requireActivity().application as BaseApplication).appComponent.inject(this)
         super.onAttach(context)
         if (context is NavListener) {
-            listener = context
+            listener = WeakReference(context)
         }
     }
 
@@ -64,25 +62,16 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         enableViews(binding.hintLayout)
+        initializeViews(view)
+        listener.get()?.let { viewClickListeners(it) }
 
         mainViewModel = ViewModelProvider(requireActivity(), viewModelProviderFactory).get(MainViewModel::class.java)
-
         setUpResultListener()
-
-
-//
-//        mainViewModel.getModelLiveData().observe(viewLifecycleOwner,
-//                Observer { state -> renderModelsByCategory(state) })
-
         //        textToSpeech = pronunciationUtil.getTTS(requireContext());
-        initializeViews(view)
-
-        viewClickListeners()
-
     }
 
+    @ExperimentalCoroutinesApi
     override fun setCurrentCategoryFromFragment(category: String) {
         parentFragmentManager.setFragmentResult(
                 ArHostFragment.REQUEST_KEY,
@@ -114,39 +103,38 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         }
     }
 
-    private fun viewClickListeners() {
-        startGameButton?.setOnClickListener {
+    private fun viewClickListeners(listener: NavListener) {
+        startGameButton.setOnClickListener {
             //            constraintLayout.addView(parentalSupervision);
             //            okButton1.setOnClickListener(v1 -> {
             //                constraintLayout.removeView(parentalSupervision);
             //                constraintLayout.addView(stayAlert);
             //                okButton2.setOnClickListener(v11 -> {
             //                    constraintLayout.removeView(stayAlert);
-            listener?.moveToGameFragment()
+            listener.moveToGameFragment()
             disableViews(binding.hintLayout)
 
             //                });
             //            });
         }
 
-        tutorialButton?.setOnClickListener { listener?.moveToTutorialFragment() }
-        backFAB?.setOnClickListener { requireActivity().onBackPressed() }
+        tutorialButton.setOnClickListener { listener.moveToTutorialFragment() }
+        backFAB.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
     }
 
     private fun initializeViews(view: View) {
-        Log.d("Leak", "initializeViews: called")
-        Log.d("viewbinding", "initializeViews: " + binding.toString())
+        progressBar = requireActivity().findViewById(R.id.progress_bar)
         startGameButton = binding.hintFragmentButton
         tutorialButton = binding.hintFragTutorialButton
         backFAB = binding.backBtn
         hintAdapter = HintAdapter()
         hintRecyclerView = binding.hintRecyclerView
         hintRecyclerView.let {
-            it?.layoutManager = LinearLayoutManager(requireContext().applicationContext, LinearLayoutManager.HORIZONTAL, false)
-            it?.adapter = hintAdapter
+            it.layoutManager = LinearLayoutManager(requireContext().applicationContext, LinearLayoutManager.HORIZONTAL, false)
+            it.adapter = hintAdapter
         }
-//        constraintLayout = view.findViewById(R.id.hint_layout)
-
         //        parentalSupervision = getLayoutInflater().inflate(R.layout.parental_supervision_card, constraintLayout, false);
         //        stayAlert = getLayoutInflater().inflate(R.layout.stay_alert_card, constraintLayout, false);
         //        okButton1 = parentalSupervision.findViewById(R.id.warning_button_ok_1);
@@ -171,18 +159,18 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
             is MainState.Error -> showProgressBar(false)
             is MainState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
-                hintAdapter?.arModelList = state.arModels
+                hintAdapter.arModelList = state.arModels
 
             }
         }
     }
 
     private fun showProgressBar(isVisible: Boolean) {
-//        if (isVisible) {
-//            progressBar.visibility = View.VISIBLE
-//        } else {
-//            progressBar.visibility = View.GONE
-//        }
+        if (isVisible) {
+            progressBar.visibility = View.VISIBLE
+        } else {
+            progressBar.visibility = View.GONE
+        }
     }
 
     private fun setUpResultListener() {
@@ -201,35 +189,23 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         }
     }
 
+    @ExperimentalCoroutinesApi
     override fun onDestroyView() {
-        backFAB?.setOnClickListener(null)
-        backFAB = null
-        startGameButton?.setOnClickListener(null)
-        startGameButton = null
-        tutorialButton?.setOnClickListener(null)
-        tutorialButton = null
-//        backFAB?.setOnClickListener(null)
-//        startGameButton = null
-
         //nulling listener will cause start game button to die on replay
-//        listener = null
-//        hintAdapter = null
         setCurrentCategoryFromFragment(category)
-
-        hintRecyclerView?.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-            override fun onViewDetachedFromWindow(v: View?) {
-                hintRecyclerView?.adapter = null
-            }
-
-            override fun onViewAttachedToWindow(v: View?) {
-
-            }
-        })
+        backFAB.setOnClickListener(null)
+//        hintRecyclerView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+//            override fun onViewDetachedFromWindow(v: View?) {
+//                hintRecyclerView.adapter = null
+//            }
+//            override fun onViewAttachedToWindow(v: View?) {
+//            }
+//        })
         super.onDestroyView()
     }
 
     override fun onDestroy() {
-        listener = null
+        listener.clear()
         super.onDestroy()
     }
 

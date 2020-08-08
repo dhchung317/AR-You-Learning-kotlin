@@ -18,6 +18,7 @@ import javax.inject.Singleton
 
 import dagger.BindsInstance
 import dagger.Component
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @Component(
         modules = [
@@ -45,6 +46,7 @@ interface AppComponent {
     fun inject(mainActivity: MainActivity)
 
     fun inject(categoryFragment: CategoryFragment)
+    @ExperimentalCoroutinesApi
     fun inject(arHostFragment: ArHostFragment)
     fun inject(replayFragment: ReplayFragment)
     fun inject(resultsFragment: ResultsFragment)

@@ -10,16 +10,17 @@ import com.hyunki.aryoulearning2.data.db.model.ArModel
 import com.hyunki.aryoulearning2.data.db.model.Category
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.FragmentListener
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
+import java.lang.ref.WeakReference
 
 import java.util.ArrayList
 import kotlin.properties.Delegates
 
-class CategoryAdapter(private val fListener: FragmentListener) : RecyclerView.Adapter<CategoryViewHolder>() {
-    var categories: List<Category> = emptyList()
-//            by Delegates.observable(emptyList()) { _, old, new ->
-//        notifyChanges(old, new)
-//    }
-    private lateinit var listener: NavListener
+class CategoryAdapter(private val fragmentListenerWeakReference: WeakReference<FragmentListener>) : RecyclerView.Adapter<CategoryViewHolder>() {
+    private var categories: List<Category>
+            by Delegates.observable(emptyList()) { _, old, new ->
+        notifyChanges(old, new)
+    }
+    private lateinit var navListenerWeakReference: WeakReference<NavListener>
 
     private fun notifyChanges(old: List<Category>, new: List<Category>) {
 
@@ -45,11 +46,11 @@ class CategoryAdapter(private val fListener: FragmentListener) : RecyclerView.Ad
         val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.category_item, viewGroup, false)
         val context = viewGroup.context
         if (context is NavListener) {
-            listener = context
+            navListenerWeakReference = WeakReference(context)
         } else {
             throw RuntimeException(context.toString() + "must implement FragmentInteractionListener")
         }
-        return CategoryViewHolder(view, categories, fListener, listener)
+        return CategoryViewHolder(view, categories, fragmentListenerWeakReference, navListenerWeakReference)
     }
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
@@ -62,7 +63,6 @@ class CategoryAdapter(private val fListener: FragmentListener) : RecyclerView.Ad
 //
     fun setLists(categories: List<Category>) {
         this.categories = categories
-        notifyDataSetChanged()
     }
 
 

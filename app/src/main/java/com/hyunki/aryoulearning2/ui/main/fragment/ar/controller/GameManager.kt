@@ -4,24 +4,26 @@ import com.hyunki.aryoulearning2.data.db.model.ArModel
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ArModelUtil
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
+import java.lang.ref.WeakReference
 import java.util.*
 
-class GameManager(private val arModelList: List<ArModel>, private val gameCommands: GameCommandListener, private val navListener: NavListener?) {
+class GameManager(private val arModelList: List<ArModel>,
+                  private val gameCommandsWeakReference: WeakReference<GameCommandListener>,
+                  private val navListenerWeakReference: WeakReference<NavListener>) {
+
+    private var gameCommands = gameCommandsWeakReference.get()
+    private var navListener = navListenerWeakReference.get()
     private var managerState: GameManagerState = GameManagerState.Uninitialized
     private val roundLimit = 3
 
+    private lateinit var currentWord: CurrentWord
+
     val keyStack = Stack<ArModel>()
-
     var arModelUtil: ArModelUtil = ArModelUtil()
-
     var wordHistoryList = ArrayList<CurrentWord>()
         private set
-
     var attempt: String = ""
         private set
-
-    lateinit var currentWord: CurrentWord
-
 
     init {
         setupGameManager()
@@ -30,8 +32,7 @@ class GameManager(private val arModelList: List<ArModel>, private val gameComman
 //        keyStack[keyStack.size] = null
     }
 
-
-    private fun setupGameManager(){
+    private fun setupGameManager() {
         while (keyStack.size < roundLimit && keyStack.size < arModelList.size) {
             val randomModel = arModelList.random()
             if (!keyStack.contains(randomModel)) {
@@ -63,7 +64,7 @@ class GameManager(private val arModelList: List<ArModel>, private val gameComman
     }
 
     private fun isCorrectAnswer(): Boolean {
-        return attempt == getCurrentWordAnswer()
+        return attempt == getCurrentWord().answer
     }
 
     fun onHidingCard(wasAnswerCorrect: Boolean) {
@@ -94,22 +95,27 @@ class GameManager(private val arModelList: List<ArModel>, private val gameComman
     }
 
     private fun onGamesOver() {
-        navListener?.saveWordHistoryFromGameFragment(wordHistoryList)
         setManagerState(GameManagerState.GameOver)
-        navListener?.moveToReplayFragment()
+        navListener?.let{
+            it.saveWordHistoryFromGameFragment(wordHistoryList)
+            it.moveToReplayFragment()
+        }
+        navListenerWeakReference.clear()
+        navListener = null
+        gameCommandsWeakReference.clear()
+        gameCommands = null
     }
 
     private fun checkIfTappedLetterIsCorrect(tappedLetter: String): Boolean {
         val correctLetter =
-                getCurrentWordAnswer()[attempt.length - 1].toString()
-
+                getCurrentWord().answer[attempt.length - 1].toString()
         return tappedLetter == correctLetter
     }
 
     private fun startGameFromGameManager(key: ArModel) {
         setCurrentWord(key)
         refreshManager()
-        gameCommands.startGame(key.name, this)
+        gameCommands?.startGame(key.name)
     }
 
     private fun addLetterToAttempt(letter: String) {
@@ -134,31 +140,32 @@ class GameManager(private val arModelList: List<ArModel>, private val gameComman
         attempt = ""
     }
 
-    private fun setManagerState(state: GameManagerState){
+    private fun setManagerState(state: GameManagerState) {
         managerState = state
     }
 
-    private fun setCurrentWord(key: ArModel){
+    private fun setCurrentWord(key: ArModel) {
         if (currentWord.answer != key.name) {
             currentWord = CurrentWord(key)
         }
     }
 
     private fun showCard(isCorrect: Boolean) {
-        gameCommands.showCard(isCorrect)
+        gameCommands?.showCard(isCorrect)
     }
 
-    fun getCurrentWordAnswer(): String {
-        return currentWord.answer
+    fun getCurrentWord(): CurrentWord {
+        return currentWord
     }
 
     fun getKeyCount(): Int {
         return keyStack.size
     }
 
-    fun isFirstGame():Boolean {
+    fun isFirstGame(): Boolean {
         return roundLimit == keyStack.size && currentWord.getAttempts().isEmpty()
     }
+
     fun isGameOverState(): Boolean {
         return managerState == GameManagerState.GameOver
     }
