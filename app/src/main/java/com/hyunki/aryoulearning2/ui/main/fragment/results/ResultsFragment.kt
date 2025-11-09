@@ -198,8 +198,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
             is MainState.Loading -> showProgressBar(true)
 
-            is MainState.Error -> showProgressBar(false)
-
             is MainState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
                 val (models) = state
@@ -209,6 +207,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
                 Log.d("resultsAdapter", "renderModelList: " + models.size)
                 setResultRV()
             }
+            else -> showProgressBar(false)
         }
     }
 

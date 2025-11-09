@@ -53,7 +53,7 @@ class ResultsAdapter(private val wordHistory: List<CurrentWord>, private val mod
                 wrong += "$s, "
             }
 
-            val name = model.name.toUpperCase()[0] + model.name.toLowerCase().substring(1)
+            val name = model.name.uppercase()[0] + model.name.lowercase().substring(1)
             val cardView = itemView.findViewById<CardView>(R.id.cardView4)
 
             modelTextView.text = name

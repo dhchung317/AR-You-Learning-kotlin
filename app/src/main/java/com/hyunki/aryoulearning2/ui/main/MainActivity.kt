@@ -89,6 +89,7 @@ class MainActivity : AppCompatActivity(), NavListener {
                 prefs.edit().putString(NETWORK_CALL_COMPLETED, "success").apply()
                 moveToListFragment()
             }
+            else -> 0;
         }
     }
 

@@ -14,7 +14,7 @@ constructor(context: Context) : TextToSpeech.OnInitListener {
     val textToSpeech: TextToSpeech = TextToSpeech(context, this)
 
     fun textToSpeechAnnouncer(textView: TextView, textToSpeech: TextToSpeech) {
-        val letter = textView.text.toString().toLowerCase()
+        val letter = textView.text.toString().lowercase()
         val speakText = textToSpeech.speak(pronounceSingleLetter(letter),
                 TextToSpeech.QUEUE_ADD, null)
         if (speakText == TextToSpeech.ERROR) {

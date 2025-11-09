@@ -58,7 +58,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
     override fun onAttach(context: Context) {
         (activity?.application as BaseApplication).appComponent.inject(this)
         super.onAttach(context)
-        if (context is NavListener) {
+        if (context is NavListener) {`
             listener = context
         }
     }
@@ -163,6 +163,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
                 showProgressBar(false)
                 hintAdapter.setList(state.models)
             }
+            else -> showProgressBar(false)
         }
     }
 
@@ -185,7 +186,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory,
 
     private fun onFragmentResult(requestKey: String, result: Bundle) {
         if (REQUEST_KEY == requestKey) {
-            category = result.getString(KEY_ID)
+            category = result.getString(KEY_ID) ?: "animals"
             renderCurrentCategory(category)
         }
     }

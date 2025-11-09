@@ -11,7 +11,6 @@ import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.QuaternionEvaluator
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.math.Vector3Evaluator
-import com.hyunki.aryoulearning2.R
 
 class Animations {
     class AR {
@@ -23,7 +22,7 @@ class Animations {
 
             val orbitAnimation = ObjectAnimator()
             orbitAnimation.setObjectValues(orientation1, orientation2, orientation3, orientation4)
-            orbitAnimation.propertyName = "localRotation"
+            orbitAnimation.setPropertyName( "localRotation")
             orbitAnimation.setEvaluator(QuaternionEvaluator())
 
             orbitAnimation.repeatCount = ObjectAnimator.INFINITE
@@ -69,7 +68,8 @@ class Animations {
         }
 
         fun getVibrator(itemView: View): Animation {
-            return AnimationUtils.loadAnimation(itemView.context, R.anim.vibrate)
+            return AnimationUtils.loadAnimation(itemView.context,
+                0)
         }
     }
 }

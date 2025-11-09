@@ -29,7 +29,6 @@ import com.google.ar.sceneform.Node
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.ux.ArFragment
 import com.hyunki.aryoulearning2.BaseApplication
-import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.animation.Animations
 import com.hyunki.aryoulearning2.animation.LottieHelper
 import com.hyunki.aryoulearning2.data.ArState
@@ -46,6 +45,7 @@ import io.reactivex.Single
 import java.util.*
 import javax.inject.Inject
 import kotlin.math.roundToInt
+import com.hyunki.aryoulearning2.R
 
 class ArHostFragment @Inject
 constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), GameCommandListener {
@@ -393,57 +393,57 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private fun processModelData(state: ArState) {
         when (state) {
             is ArState.Loading -> showProgressBar(true)
-            is ArState.Error -> showProgressBar(false)
             is ArState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
                 modelList = state.models
                 arViewModel.loadListofMapsOfFutureModels(Single.just(state.models))
             }
+            else -> showProgressBar(false)
         }
     }
 
     private fun processFutureModelMapList(state: ArState) {
         when (state) {
             is ArState.Loading -> showProgressBar(true)
-            is ArState.Error -> showProgressBar(false)
             is ArState.Success.OnFutureModelMapListLoaded -> {
                 showProgressBar(false)
                 arViewModel.loadMapOfFutureLetters(Observable.just(state.futureModelMapList))
                 arViewModel.loadModelRenderables(Observable.just(state.futureModelMapList))
             }
+            else -> showProgressBar(false)
         }
     }
 
     private fun processFutureLetterMap(state: ArState) {
         when (state) {
             is ArState.Loading -> showProgressBar(true)
-            is ArState.Error -> showProgressBar(false)
             is ArState.Success.OnFutureLetterMapLoaded -> {
                 showProgressBar(false)
                 arViewModel.loadLetterRenderables(Observable.just(state.futureLetterMap))
             }
+            else -> showProgressBar(false)
         }
     }
 
     private fun processModelMapList(state: ArState) {
         when (state) {
             is ArState.Loading -> showProgressBar(true)
-            is ArState.Error -> showProgressBar(false)
             is ArState.Success.OnModelMapListLoaded -> {
                 showProgressBar(false)
                 modelMapList = state.modelMap
             }
+            else -> showProgressBar(false)
         }
     }
 
     private fun processLetterMap(state: ArState) {
         when (state) {
             is ArState.Loading -> showProgressBar(true)
-            is ArState.Error -> showProgressBar(false)
             is ArState.Success.OnLetterMapLoaded -> {
                 showProgressBar(false)
                 letterMap = state.letterMap
             }
+            else -> showProgressBar(false)
         }
     }
 
@@ -571,7 +571,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
             frameLayout.addView(lav, 300, 300)
             lav.addAnimatorListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     frameLayout.removeView(lav)
                 }
             })
@@ -596,7 +596,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private fun onFragmentResult(requestKey: String, result: Bundle) {
         if (REQUEST_KEY == requestKey) {
-            category = result.getString(KEY_ID)
+            category = result.getString(KEY_ID) ?: "Animals"
             arViewModel.fetchModelsFromRepository(category)
         }
     }

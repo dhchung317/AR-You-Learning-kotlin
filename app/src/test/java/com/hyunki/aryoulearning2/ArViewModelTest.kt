@@ -11,7 +11,7 @@ import com.google.ar.sceneform.rendering.ModelRenderable
 import com.hyunki.aryoulearning2.data.ArState
 import com.hyunki.aryoulearning2.data.MainRepository
 import com.hyunki.aryoulearning2.data.db.model.Model
-import com.hyunki.aryoulearning2.rules.RxImmediateSchedulerRule
+import com.hyunki.aryoulearning2.com.Rules.RxImmediateSchedulerRule
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArViewModel
 import com.nhaarman.mockitokotlin2.*
 import io.reactivex.Observable
