@@ -22,8 +22,8 @@ import com.squareup.picasso.Picasso
 class ResultsAdapter(
     private val wordHistory: List<CurrentWord>,
     private val modelMap: Map<String, Model>,
-    private val pronunUtil: PronunciationUtil,
-    private val TTS: TextToSpeech
+//    private val pronunUtil: PronunciationUtil,
+//    private val TTS: TextToSpeech
 ) : RecyclerView.Adapter<ResultsAdapter.ResultsViewHolder>() {
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, position: Int): ResultsViewHolder {
@@ -40,8 +40,8 @@ class ResultsAdapter(
         resultsViewHolder.onBind(
             wordHistory[position],
             modelMap[wordHistory[position].answer]!!,
-            pronunUtil,
-            TTS
+//            pronunUtil,
+//            TTS
         )
     }
 
@@ -60,8 +60,8 @@ class ResultsAdapter(
         fun onBind(
             currentWord: CurrentWord,
             model: Model,
-            pronunUtil: PronunciationUtil,
-            TTS: TextToSpeech
+//            pronunUtil: PronunciationUtil,
+//            TTS: TextToSpeech
         ) {
             val correct = "Correct"
 

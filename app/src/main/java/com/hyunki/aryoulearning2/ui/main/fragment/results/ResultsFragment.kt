@@ -108,7 +108,10 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     private fun setResultRV() {
         resultRV.adapter =
-            ResultsAdapter(viewModel.getWordHistory(), modelMap, pronunciationUtil, textToSpeech)
+            ResultsAdapter(
+                viewModel.getWordHistory(), modelMap,
+//                pronunciationUtil, textToSpeech
+            )
         resultRV.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 

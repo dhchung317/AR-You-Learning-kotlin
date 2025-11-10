@@ -7,7 +7,7 @@ import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import java.util.*
 
 class GameManager(modelList: List<Model>, private val gameCommands: GameCommandListener, private val navListener: NavListener) {
-    private val roundLimit = 3
+    private val roundLimit = 1
     val keyStack = Stack<Model>()
     var modelUtil: ModelUtil = ModelUtil()
 

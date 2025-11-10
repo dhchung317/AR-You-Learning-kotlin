@@ -11,6 +11,7 @@ import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.QuaternionEvaluator
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.math.Vector3Evaluator
+import com.hyunki.aryoulearning2.R
 
 class Animations {
     class AR {
@@ -69,7 +70,7 @@ class Animations {
 
         fun getVibrator(itemView: View): Animation {
             return AnimationUtils.loadAnimation(itemView.context,
-                0)
+                R.anim.vibrate)
         }
     }
 }
