@@ -7,12 +7,16 @@ import android.animation.ObjectAnimator
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.widget.*
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -144,9 +148,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (!checkPermission()) {
-            requestCameraPermission(requireActivity(), RC_PERMISSIONS)
-        }
+//        if (!checkPermission()) {
+//            requestCameraPermission(requireActivity(), RC_PERMISSIONS)
+//        }
         progressBar = requireActivity().findViewById(R.id.progress_bar)
         frameLayout = view.findViewById(R.id.frame_layout)
 
@@ -175,10 +179,44 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         //        playBalloonPop.release();
     }
 
-    private fun checkPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            requireContext(), Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED
+    private val cameraPermissionRequestLauncher: ActivityResultLauncher<String> =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                startDefaultCamera()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Go to settings and enable camera permission to use this feature",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+    fun checkPermission() {
+
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                startDefaultCamera()
+            }
+
+            else -> {
+                cameraPermissionRequestLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+//        return ContextCompat.checkSelfPermission(
+//            requireContext(), Manifest.permission.CAMERA
+//        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun startDefaultCamera() {
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+            takePictureIntent.resolveActivity(requireContext().packageManager)
+        }
     }
 
     override fun startNextGame(modelKey: String) {
