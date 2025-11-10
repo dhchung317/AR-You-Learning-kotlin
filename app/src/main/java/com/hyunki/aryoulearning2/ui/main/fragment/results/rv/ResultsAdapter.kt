@@ -19,16 +19,30 @@ import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.squareup.picasso.Picasso
 
 //TODO refactor results adapter
-class ResultsAdapter(private val wordHistory: List<CurrentWord>, private val modelMap: Map<String, Model>, private val pronunUtil: PronunciationUtil, private val TTS: TextToSpeech) : RecyclerView.Adapter<ResultsAdapter.ResultsViewHolder>() {
+class ResultsAdapter(
+    private val wordHistory: List<CurrentWord>,
+    private val modelMap: Map<String, Model>,
+    private val pronunUtil: PronunciationUtil,
+    private val TTS: TextToSpeech
+) : RecyclerView.Adapter<ResultsAdapter.ResultsViewHolder>() {
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, position: Int): ResultsViewHolder {
-        return ResultsViewHolder(LayoutInflater.from(viewGroup.context)
-                .inflate(R.layout.resultmodel_item,
-                        viewGroup, false))
+        return ResultsViewHolder(
+            LayoutInflater.from(viewGroup.context)
+                .inflate(
+                    R.layout.resultmodel_item,
+                    viewGroup, false
+                )
+        )
     }
 
     override fun onBindViewHolder(resultsViewHolder: ResultsViewHolder, position: Int) {
-        resultsViewHolder.onBind(wordHistory[position], modelMap[wordHistory[position].answer]!!, pronunUtil, TTS)
+        resultsViewHolder.onBind(
+            wordHistory[position],
+            modelMap[wordHistory[position].answer]!!,
+            pronunUtil,
+            TTS
+        )
     }
 
     override fun getItemCount(): Int {
@@ -43,11 +57,14 @@ class ResultsAdapter(private val wordHistory: List<CurrentWord>, private val mod
         private val promptText: TextView = itemView.findViewById(R.id.result_prompt_textView)
 
         @SuppressLint("ResourceAsColor")
-        fun onBind(currentWord: CurrentWord, model: Model, pronunUtil: PronunciationUtil, TTS: TextToSpeech) {
+        fun onBind(
+            currentWord: CurrentWord,
+            model: Model,
+            pronunUtil: PronunciationUtil,
+            TTS: TextToSpeech
+        ) {
             val correct = "Correct"
 
-            Log.d("resultsadapter", "onBind currentword: " + currentWord.answer)
-            Log.d("resultsadapter", "onBind model: " + model.name)
             var wrong = ""
             for (s in currentWord.attempts) {
                 wrong += "$s, "

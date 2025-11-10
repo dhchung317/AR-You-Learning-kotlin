@@ -131,15 +131,20 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         //        playBalloonPop = MediaPlayer.create(getContext(), R.raw.pop_effect);
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val rootView = inflater.inflate(R.layout.activity_arfragment_host, container, false)
-        arFragment = childFragmentManager.findFragmentById(R.id.ux_fragment).let { it as ArGameFragment }
+        arFragment =
+            childFragmentManager.findFragmentById(R.id.ux_fragment).let { it as ArGameFragment }
         return rootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if(!checkPermission()){
+        if (!checkPermission()) {
             requestCameraPermission(requireActivity(), RC_PERMISSIONS)
         }
         progressBar = requireActivity().findViewById(R.id.progress_bar)
@@ -172,11 +177,11 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private fun checkPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+            requireContext(), Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     override fun startNextGame(modelKey: String) {
-        Log.d("startnextgame:arhostfragment", "startNextGame: condition hit")
         refreshModelResources()
 
         mainAnchor = mainHit.createAnchor()
@@ -265,18 +270,18 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private fun getGestureDetector(): GestureDetector {
         return GestureDetector(
-                activity,
-                object : GestureDetector.SimpleOnGestureListener() {
-                    override fun onSingleTapUp(e: MotionEvent): Boolean {
-                        onSingleTap(e)
-                        return true
-                    }
+            activity,
+            object : GestureDetector.SimpleOnGestureListener() {
+                override fun onSingleTapUp(e: MotionEvent): Boolean {
+                    onSingleTap(e)
+                    return true
+                }
 
-                    override fun onDown(e: MotionEvent): Boolean {
-                        onSingleTap(e)
-                        return true
-                    }
-                })
+                override fun onDown(e: MotionEvent): Boolean {
+                    onSingleTap(e)
+                    return true
+                }
+            })
     }
 
     private fun setUpARScene(arFragment: ArFragment) {
@@ -306,11 +311,15 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 for (plane in frame.getUpdatedTrackables(Plane::class.java)) {
                     if (!placedAnimation && plane.trackingState == TrackingState.TRACKING) {
                         placedAnimation = true
-                        tapAnimation = lottieHelper.getAnimationView(application, LottieHelper.AnimationType.TAP)
+                        tapAnimation = lottieHelper.getAnimationView(
+                            application,
+                            LottieHelper.AnimationType.TAP
+                        )
                         val lav = lottieHelper.getTapAnimationToScreen(
-                                tapAnimation,
-                                requireActivity().window.decorView.width,
-                                requireActivity().window.decorView.height)
+                            tapAnimation,
+                            requireActivity().window.decorView.width,
+                            requireActivity().window.decorView.height
+                        )
                         frameLayout.addView(lav, 500, 500)
                     }
                 }
@@ -370,16 +379,21 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     private fun runViewModel(arViewModel: ArViewModel) {
-        arViewModel.getModelLiveData().observe(viewLifecycleOwner,
-                Observer { models -> processModelData(models) })
-        arViewModel.getFutureModelMapListLiveData().observe(viewLifecycleOwner,
-                Observer { mapList -> processFutureModelMapList(mapList) })
-        arViewModel.getFutureLetterMapLiveData().observe(viewLifecycleOwner,
-                Observer { map -> processFutureLetterMap(map) })
-        arViewModel.getModelMapListLiveData().observe(viewLifecycleOwner,
-                Observer { mapList -> processModelMapList(mapList) })
-        arViewModel.getLetterMapLiveData().observe(viewLifecycleOwner,
-                Observer { map -> processLetterMap(map) })
+        arViewModel.getModelLiveData().observe(
+            viewLifecycleOwner,
+            Observer { models -> processModelData(models) })
+        arViewModel.getFutureModelMapListLiveData().observe(
+            viewLifecycleOwner,
+            Observer { mapList -> processFutureModelMapList(mapList) })
+        arViewModel.getFutureLetterMapLiveData().observe(
+            viewLifecycleOwner,
+            Observer { map -> processFutureLetterMap(map) })
+        arViewModel.getModelMapListLiveData().observe(
+            viewLifecycleOwner,
+            Observer { mapList -> processModelMapList(mapList) })
+        arViewModel.getLetterMapLiveData().observe(
+            viewLifecycleOwner,
+            Observer { map -> processLetterMap(map) })
     }
 
     private fun showProgressBar(isVisible: Boolean) {
@@ -398,6 +412,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 modelList = state.models
                 arViewModel.loadListofMapsOfFutureModels(Single.just(state.models))
             }
+
             else -> showProgressBar(false)
         }
     }
@@ -410,6 +425,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 arViewModel.loadMapOfFutureLetters(Observable.just(state.futureModelMapList))
                 arViewModel.loadModelRenderables(Observable.just(state.futureModelMapList))
             }
+
             else -> showProgressBar(false)
         }
     }
@@ -421,6 +437,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 showProgressBar(false)
                 arViewModel.loadLetterRenderables(Observable.just(state.futureLetterMap))
             }
+
             else -> showProgressBar(false)
         }
     }
@@ -432,6 +449,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 showProgressBar(false)
                 modelMapList = state.modelMap
             }
+
             else -> showProgressBar(false)
         }
     }
@@ -443,6 +461,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 showProgressBar(false)
                 letterMap = state.letterMap
             }
+
             else -> showProgressBar(false)
         }
     }
@@ -503,7 +522,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private fun addLetterToWordContainer(letter: String) {
         val ballonTF = ResourcesCompat.getFont(requireActivity(), R.font.balloon)
         val t = TextView(activity)
-        t.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        t.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
         t.typeface = ballonTF
         t.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorWhite))
         t.textSize = 100f
@@ -514,14 +536,20 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private fun placeSingleLetter(letter: String) {
         val letterAnchorNode = modelUtil.getLetter(base, letterMap[letter], arFragment)
-        letterAnchorNode.children[0].setOnTapListener(getNodeOnTapListener(letter, letterAnchorNode))
+        letterAnchorNode.children[0].setOnTapListener(
+            getNodeOnTapListener(
+                letter,
+                letterAnchorNode
+            )
+        )
         connectAnchorToBase(letterAnchorNode)
     }
 
     private fun placeLetters(word: String) {
         for (letter in word) {
             placeSingleLetter(
-                    letter.toString())
+                letter.toString()
+            )
         }
     }
 
@@ -532,12 +560,17 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private fun getLetterTapAnimation(isCorrect: Boolean): LottieAnimationView {
         return when (isCorrect) {
             true -> {
-                lottieHelper.getAnimationView(activity,
-                        LottieHelper.AnimationType.SPARKLES)
+                lottieHelper.getAnimationView(
+                    activity,
+                    LottieHelper.AnimationType.SPARKLES
+                )
             }
+
             else -> {
-                lottieHelper.getAnimationView(activity,
-                        LottieHelper.AnimationType.ERROR)
+                lottieHelper.getAnimationView(
+                    activity,
+                    LottieHelper.AnimationType.ERROR
+                )
             }
         }
     }
@@ -556,7 +589,10 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         }
     }
 
-    private fun getNodeOnTapListener(letterString: String, letterAnchorNode: AnchorNode): Node.OnTapListener {
+    private fun getNodeOnTapListener(
+        letterString: String,
+        letterAnchorNode: AnchorNode
+    ): Node.OnTapListener {
         return Node.OnTapListener { _, motionEvent ->
             addLetterToWordBox(letterString)
             letterAnchorNode.anchor?.detach()
@@ -564,10 +600,11 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
             val isCorrect = gameManager.addTappedLetterToCurrentWordAttempt(letterString)
 
             val lav =
-                    lottieHelper.getAnimationViewOnTopOfLetter(
-                            getLetterTapAnimation(isCorrect),
-                            (motionEvent.x - 7).roundToInt(),
-                            (motionEvent.y + 7).roundToInt())
+                lottieHelper.getAnimationViewOnTopOfLetter(
+                    getLetterTapAnimation(isCorrect),
+                    (motionEvent.x - 7).roundToInt(),
+                    (motionEvent.y + 7).roundToInt()
+                )
 
             frameLayout.addView(lav, 300, 300)
             lav.addAnimatorListener(object : AnimatorListenerAdapter() {
@@ -587,11 +624,11 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private fun setUpResultListener() {
         parentFragmentManager.setFragmentResultListener(
-                REQUEST_KEY,
-                this,
-                FragmentResultListener { requestKey, result ->
-                    onFragmentResult(requestKey, result)
-                })
+            REQUEST_KEY,
+            this,
+            FragmentResultListener { requestKey, result ->
+                onFragmentResult(requestKey, result)
+            })
     }
 
     private fun onFragmentResult(requestKey: String, result: Bundle) {
@@ -606,7 +643,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         fun requestCameraPermission(activity: Activity?, requestCode: Int) {
             activity?.let {
                 ActivityCompat.requestPermissions(
-                        it, arrayOf(Manifest.permission.CAMERA), requestCode)
+                    it, arrayOf(Manifest.permission.CAMERA), requestCode
+                )
             }
         }
 

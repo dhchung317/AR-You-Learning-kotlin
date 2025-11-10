@@ -80,14 +80,17 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         categoryTextView = view.findViewById(R.id.results_category)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_results, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProviders.of(requireActivity(), viewModelProviderFactory).get(MainViewModel::class.java)
+        viewModel = ViewModelProviders.of(requireActivity(), viewModelProviderFactory)
+            .get(MainViewModel::class.java)
         progressBar = requireActivity().findViewById(R.id.progress_bar)
         initializeViews(view)
         setViews()
@@ -97,22 +100,37 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     private fun setViews() {
         displayRatingBarAttempts()
         //        categoryTextView.setText(MainActivityX.currentCategory);
-        shareFAB.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.share_button_color))
+        shareFAB.backgroundTintList =
+            ColorStateList.valueOf(resources.getColor(R.color.share_button_color))
         backFABClick()
         shareFABClick()
     }
 
     private fun setResultRV() {
-        resultRV.adapter = ResultsAdapter(viewModel.getWordHistory(), modelMap, pronunciationUtil, textToSpeech)
-        resultRV.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        resultRV.adapter =
+            ResultsAdapter(viewModel.getWordHistory(), modelMap, pronunciationUtil, textToSpeech)
+        resultRV.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
     }
 
     private fun shareFABClick() {
         shareFAB.setOnClickListener { v ->
-            if (ContextCompat.checkSelfPermission(v.context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(v.context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this@ResultsFragment.requireActivity(),
-                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CODE)
+            if (ContextCompat.checkSelfPermission(
+                    v.context,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                    v.context,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this@ResultsFragment.requireActivity(),
+                    arrayOf(
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    ), REQUEST_CODE
+                )
                 this@ResultsFragment.takeScreenshotAndShare(v)
             } else {
                 this@ResultsFragment.takeScreenshotAndShare(v)
@@ -130,7 +148,11 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         StrictMode.setVmPolicy(builder.build())
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == REQUEST_CODE) {
@@ -193,7 +215,6 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     }
 
     private fun renderModelList(state: MainState) {
-        Log.d("results", "renderModelList: " + state.javaClass)
         when (state) {
 
             is MainState.Loading -> showProgressBar(true)
@@ -204,9 +225,9 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
                 for (i in models.indices) {
                     modelMap[models[i].name] = models[i]
                 }
-                Log.d("resultsAdapter", "renderModelList: " + models.size)
                 setResultRV()
             }
+
             else -> showProgressBar(false)
         }
     }
