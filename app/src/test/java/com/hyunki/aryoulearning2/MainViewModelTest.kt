@@ -6,9 +6,9 @@ import com.hyunki.aryoulearning2.data.MainState
 import com.hyunki.aryoulearning2.data.db.model.Category
 import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.data.db.model.ModelResponse
-import com.hyunki.aryoulearning2.com.Rules.RxImmediateSchedulerRule
+import com.hyunki.aryoulearning2.rules.RxImmediateSchedulerRule
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.*
 import io.reactivex.Observable
 import io.reactivex.Single
 import org.junit.Assert.*

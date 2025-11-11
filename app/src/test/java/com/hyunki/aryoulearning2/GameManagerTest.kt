@@ -4,10 +4,7 @@ import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameCommandListener
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.controller.GameManager
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
-import com.nhaarman.mockitokotlin2.argThat
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Before

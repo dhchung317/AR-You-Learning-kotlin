@@ -1,4 +1,4 @@
-package com.hyunki.aryoulearning2.com.Rules
+package com.hyunki.aryoulearning2.rules
 
 import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.plugins.RxJavaPlugins

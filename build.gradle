@@ -44,4 +44,5 @@ compileTestKotlin {
     kotlinOptions {
         jvmTarget = "21"
     }
+    kotlinOptions.freeCompilerArgs += ['-Xsam-conversions=class']
 }
