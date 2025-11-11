@@ -4,21 +4,18 @@ import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
-import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.MediaPlayer
+//import android.media.MediaPlayer
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -49,10 +46,16 @@ import io.reactivex.Single
 import java.util.*
 import javax.inject.Inject
 import kotlin.math.roundToInt
+import com.hyunki.aryoulearning2.databinding.ActivityArfragmentHostBinding
 import com.hyunki.aryoulearning2.R
+import com.hyunki.aryoulearning2.ui.main.MainActivity
+import androidx.core.view.isNotEmpty
 
 class ArHostFragment @Inject
 constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), GameCommandListener {
+    private var _binding: ActivityArfragmentHostBinding? = null
+    private val binding get() = _binding!!
+
     @Inject
     lateinit var viewModelProviderFactory: ViewModelProviderFactory
 
@@ -61,21 +64,15 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     @Inject
     lateinit var application: Application
-
     private lateinit var modelUtil: ModelUtil
     private lateinit var modelList: List<Model>
-
-    private lateinit var progressBar: ProgressBar
-
     private lateinit var arViewModel: ArViewModel
     private lateinit var arFragment: ArGameFragment
     private lateinit var gameManager: GameManager
     private lateinit var listener: NavListener
-
-    private lateinit var playBalloonPop: MediaPlayer
-
+    //TODO: media player
+    //    private lateinit var playBalloonPop: MediaPlayer
     private lateinit var frameLayout: FrameLayout
-
     private lateinit var wordContainer: LinearLayout
     private lateinit var wordValidatorLayout: View
     private lateinit var wordCardView: CardView
@@ -88,27 +85,21 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private lateinit var validatorBackgroundImage: ImageView
     private lateinit var validatorOkButton: Button
     private lateinit var undo: ImageButton
-
     private lateinit var exitMenu: View
     private lateinit var exit: ImageButton
     private lateinit var exitYes: Button
     private lateinit var exitNo: Button
-
     private lateinit var tapAnimation: LottieAnimationView
     private lateinit var fadeIn: ObjectAnimator
     private lateinit var fadeOut: ObjectAnimator
-
     private lateinit var gestureDetector: GestureDetector
     private lateinit var base: Node
     private var mainAnchor: Anchor? = null
     private var mainAnchorNode: AnchorNode? = null
     private lateinit var mainHit: HitResult
-
     private lateinit var category: String
-
     private var hasPlacedGame = false
     private var placedAnimation = false
-
     private var modelMapList: List<MutableMap<String, ModelRenderable>> = ArrayList()
     private var letterMap = mutableMapOf<String, ModelRenderable>()
 
@@ -139,20 +130,16 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val rootView = inflater.inflate(R.layout.activity_arfragment_host, container, false)
+    ): View {
+        _binding = ActivityArfragmentHostBinding.inflate(inflater, container, false)
         arFragment =
             childFragmentManager.findFragmentById(R.id.ux_fragment).let { it as ArGameFragment }
-        return rootView
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        if (!checkPermission()) {
-//            requestCameraPermission(requireActivity(), RC_PERMISSIONS)
-//        }
-        progressBar = requireActivity().findViewById(R.id.progress_bar)
-        frameLayout = view.findViewById(R.id.frame_layout)
+        frameLayout = binding.frameLayout
 
 
         setUpViews(view)
@@ -278,23 +265,23 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     //TODO fix/refactor validator cards that show results for every round
     private fun initViews(view: View) {
-        wordCardView = view.findViewById(R.id.card_wordContainer)
-        wordContainer = view.findViewById(R.id.word_container)
-        wordValidatorLayout = layoutInflater.inflate(R.layout.validator_card, frameLayout, false)
-        wordValidatorCv = wordValidatorLayout.findViewById(R.id.word_validator_cv);
-        wordValidator = wordValidatorLayout.findViewById(R.id.word_validator)
-        validatorImage = wordValidatorLayout.findViewById(R.id.validator_imageView)
-        validatorBackgroundImage = wordValidatorLayout.findViewById(R.id.correct_star_imageView)
-        validatorWord = wordValidatorLayout.findViewById(R.id.validator_word)
-        validatorWrongPrompt = wordValidatorLayout.findViewById(R.id.validator_incorrect_prompt)
-        validatorWrongWord = wordValidatorLayout.findViewById(R.id.validator_wrong_word)
-        validatorOkButton = wordValidatorLayout.findViewById(R.id.button_validator_ok)
+        exit = binding.exitImageButton
+        undo = binding.buttonUndo
+        wordCardView = binding.cardWordContainer
+        wordContainer = binding.wordContainer
+//        wordValidatorLayout = layoutInflater.inflate(R.layout.validator_card, frameLayout, false)
+        wordValidatorCv = binding.validatorCard.wordValidatorCv
+        wordValidator = binding.validatorCard.wordValidator
+        validatorImage = binding.validatorCard.validatorImageView
+        validatorBackgroundImage = binding.validatorCard.correctStarImageView
+        validatorWord = binding.validatorCard.validatorWord
+        validatorWrongPrompt = binding.validatorCard.validatorIncorrectPrompt
+        validatorWrongWord = binding.validatorCard.validatorWrongWord
+        validatorOkButton = binding.validatorCard.buttonValidatorOk
 
-        exitMenu = layoutInflater.inflate(R.layout.exit_menu_card, frameLayout, false)
-        exit = view.findViewById(R.id.exit_imageButton)
-        exitYes = exitMenu.findViewById(R.id.exit_button_yes)
-        exitNo = exitMenu.findViewById(R.id.exit_button_no)
-        undo = view.findViewById(R.id.button_undo)
+        exitMenu = binding.exitLayout.exitCard
+        exitYes = binding.exitLayout.exitButtonYes
+        exitNo = binding.exitLayout.exitButtonNo
 
         wordValidatorCv.visibility = View.INVISIBLE;
     }
@@ -436,9 +423,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
 
     private fun showProgressBar(isVisible: Boolean) {
         if (isVisible) {
-            progressBar.visibility = View.VISIBLE
+            (requireActivity() as MainActivity).showProgressBar(true)
         } else {
-            progressBar.visibility = View.GONE
+            (requireActivity() as MainActivity).showProgressBar(false)
         }
     }
 
@@ -504,18 +491,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
         }
     }
 
-    private fun getKeysFromModelMapList(mapList: List<MutableMap<String, ModelRenderable>>): List<String> {
-        val keys = ArrayList<String>()
-        for (i in mapList.indices) {
-            for ((key) in mapList[i]) {
-                keys.add(key)
-            }
-        }
-        return keys
-    }
-
 //TODO - refactor animations to separate class
-
     private fun setAnimations() {
         fadeIn = Animations.Normal().setCardFadeInAnimator(wordValidatorCv)
 
@@ -537,11 +513,11 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
                 super.onAnimationEnd(animation)
                 frameLayout.removeView(wordValidatorLayout)
 
-//                                if (roundCounter < roundLimit && roundCounter < modelMapListLiveData.size()) {
-//                                    createNextGame(modelMapListLiveData.get(roundCounter));
-//                                } else {
-//                                    moveToReplayFragment();
-//                                }
+//                if (roundCounter < roundLimit && roundCounter < modelMapListLiveData.size()) {
+//                    createNextGame(modelMapListLiveData.get(roundCounter));
+//                } else {
+//                    moveToReplayFragment();
+//                }
             }
         })
     }
@@ -616,7 +592,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     private fun undoLastLetter() {
         val erasedLetter = gameManager.subtractLetterFromAttempt()
         recreateErasedLetter(erasedLetter)
-        if (wordContainer.childCount > 0) {
+        if (wordContainer.isNotEmpty()) {
             wordContainer.removeViewAt(wordContainer.childCount - 1)
         }
     }
@@ -677,15 +653,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment(), Gam
     }
 
     companion object {
-        private const val RC_PERMISSIONS = 0x123
-        fun requestCameraPermission(activity: Activity?, requestCode: Int) {
-            activity?.let {
-                ActivityCompat.requestPermissions(
-                    it, arrayOf(Manifest.permission.CAMERA), requestCode
-                )
-            }
-        }
-
         const val REQUEST_KEY = "get-current-category"
         const val KEY_ID = "current-category"
     }

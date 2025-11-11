@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frame_layout"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
-    android:id="@+id/frame_layout"
     tools:context=".ui.main.fragment.ar.ArHostFragment">
 
     <fragment
@@ -14,7 +13,7 @@
         android:name="com.hyunki.aryoulearning2.ui.main.fragment.ar.ArGameFragment"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/card_wordContainer"
@@ -76,4 +75,12 @@
         android:layout_marginRight="8dp"
         android:background="?android:selectableItemBackgroundBorderless"
         android:src="@android:drawable/ic_delete" />
+
+    <include
+        android:id="@+id/validator_card"
+        layout="@layout/validator_card" />
+
+    <include
+        android:id="@+id/exit_layout"
+        layout="@layout/exit_menu_card" />
 </FrameLayout>

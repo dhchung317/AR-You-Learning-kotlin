@@ -31,6 +31,7 @@ import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.data.MainState
 import com.hyunki.aryoulearning2.data.db.model.Model
+import com.hyunki.aryoulearning2.databinding.FragmentResultsBinding
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
@@ -45,12 +46,16 @@ import javax.inject.Inject
 //TODO- refactor resultsfragment
 class ResultsFragment @Inject
 constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fragment() {
+    private var _binding: FragmentResultsBinding? = null
+    private val binding get() = _binding!!
     private lateinit var rainbowRatingBar: RatingBar
     private lateinit var categoryTextView: TextView
     private val modelMap = HashMap<String, Model>()
     private lateinit var shareFAB: FloatingActionButton
     private lateinit var backFAB: FloatingActionButton
     private lateinit var resultRV: RecyclerView
+
+    // TODO: implement pronunciation
     private lateinit var pronunciationUtil: PronunciationUtil
     private lateinit var textToSpeech: TextToSpeech
     private lateinit var viewModel: MainViewModel
@@ -73,25 +78,25 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     }
 
     private fun initializeViews(view: View) {
-        rainbowRatingBar = view.findViewById(R.id.rainbow_correctword_ratingbar)
-        shareFAB = view.findViewById(R.id.share_info)
-        backFAB = view.findViewById(R.id.back_btn)
-        resultRV = view.findViewById(R.id.result_recyclerview)
-        categoryTextView = view.findViewById(R.id.results_category)
+        rainbowRatingBar = binding.rainbowCorrectwordRatingbar
+        shareFAB = binding.shareInfo
+        backFAB = binding.backBtn
+        resultRV = binding.resultRecyclerview
+        categoryTextView = binding.resultsCategory
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_results, container, false)
+    ): View {
+        _binding = FragmentResultsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProviders.of(requireActivity(), viewModelProviderFactory)
             .get(MainViewModel::class.java)
-        progressBar = requireActivity().findViewById(R.id.progress_bar)
         initializeViews(view)
         setViews()
         renderModelList(viewModel.getModelLiveData().value!!)
@@ -99,9 +104,8 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     private fun setViews() {
         displayRatingBarAttempts()
-        //        categoryTextView.setText(MainActivityX.currentCategory);
         shareFAB.backgroundTintList =
-            ColorStateList.valueOf(resources.getColor(R.color.share_button_color))
+            ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.share_button_color))
         backFABClick()
         shareFABClick()
     }
@@ -243,9 +247,9 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        textToSpeech.shutdown();
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null // prevent memory leak
     }
 
     private fun getCorrectAnswerCount(wordHistory: List<CurrentWord>): Int {

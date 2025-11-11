@@ -3,18 +3,17 @@ package com.hyunki.aryoulearning2.ui.main
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 
 import com.hyunki.aryoulearning2.BaseApplication
-import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.data.MainState
+import com.hyunki.aryoulearning2.databinding.ActivityMainBinding
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArHostFragment
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
@@ -29,27 +28,36 @@ import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), NavListener {
+    private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
     private lateinit var progressBar: ProgressBar
     private lateinit var prefs: SharedPreferences
 
     @Inject
     lateinit var pronunciationUtil: PronunciationUtil
+
     @Inject
     lateinit var arHostFragment: ArHostFragment
+
     @Inject
     lateinit var categoryFragment: CategoryFragment
+
     @Inject
     lateinit var hintFragment: HintFragment
+
     @Inject
     lateinit var replayFragment: ReplayFragment
+
     @Inject
     lateinit var resultsFragment: ResultsFragment
+
     @Inject
     lateinit var tutorialFragment: TutorialFragment
+
     @JvmField
     @Inject
     var resId: Int = 0
+
     @Inject
     lateinit var providerFactory: ViewModelProviderFactory
 
@@ -68,16 +76,20 @@ class MainActivity : AppCompatActivity(), NavListener {
         setTheme(resId)
         (application as BaseApplication).appComponent.inject(this)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        progressBar = binding.progressBar
+
         prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         viewModel = ViewModelProvider(this, providerFactory).get(MainViewModel::class.java)
-        progressBar = findViewById(R.id.progress_bar)
 
         if (prefs.contains(NETWORK_CALL_COMPLETED)) {
             moveToListFragment()
         } else {
             viewModel.loadModelResponses()
-            viewModel.getModelResponsesData().observe(this, Observer<MainState> { this.renderModelResponses(it) })
+            viewModel.getModelResponsesData()
+                .observe(this, Observer<MainState> { this.renderModelResponses(it) })
         }
     }
 
@@ -89,11 +101,12 @@ class MainActivity : AppCompatActivity(), NavListener {
                 prefs.edit().putString(NETWORK_CALL_COMPLETED, "success").apply()
                 moveToListFragment()
             }
-            else -> 0;
+
+            else -> showProgressBar(false)
         }
     }
 
-    private fun showProgressBar(isVisible: Boolean) {
+    public fun showProgressBar(isVisible: Boolean) {
         if (isVisible) {
             progressBar.visibility = View.VISIBLE
         } else {
@@ -101,49 +114,40 @@ class MainActivity : AppCompatActivity(), NavListener {
         }
     }
 
+    private fun changeFragment(f: Fragment, backstack: Boolean = false) {
+        val mgr = supportFragmentManager
+            .beginTransaction()
+            .replace(binding.fragmentContainer.id, f);
+        if (backstack) {
+            mgr.addToBackStack(null)
+        }
+        mgr.commit()
+    }
+
     override fun moveToListFragment() {
-        supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, categoryFragment)
-                .commit()
+        changeFragment(categoryFragment)
     }
 
     override fun moveToGameFragment() {
-        supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, arHostFragment)
-                .commit()
+        changeFragment(arHostFragment)
     }
 
     override fun moveToResultsFragment() {
-        supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, resultsFragment)
-                .commit()
+        changeFragment(resultsFragment)
     }
 
     override fun moveToHintFragment() {
-        supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, hintFragment)
-                .addToBackStack(null)
-                .commit()
+        changeFragment(hintFragment, true)
     }
 
     override fun moveToReplayFragment() {
-        supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, replayFragment)
-                .commit()
+        changeFragment(replayFragment)
     }
 
     override fun moveToTutorialFragment() {
-        supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, tutorialFragment)
-                .addToBackStack(null)
-                .commit()
+        changeFragment(tutorialFragment, true)
     }
+
     override fun saveWordHistoryFromGameFragment(wordHistory: List<CurrentWord>) {
         viewModel.setWordHistory(wordHistory)
     }

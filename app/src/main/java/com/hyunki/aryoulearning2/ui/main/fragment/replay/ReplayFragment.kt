@@ -3,7 +3,6 @@ package com.hyunki.aryoulearning2.ui.main.fragment.replay
 import android.content.Context
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.speech.tts.TextToSpeech
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,12 +10,8 @@ import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 
 import com.hyunki.aryoulearning2.BaseApplication
-import com.hyunki.aryoulearning2.R
-import com.hyunki.aryoulearning2.data.db.model.Model
+import com.hyunki.aryoulearning2.databinding.FragmentReplayBinding
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
-import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
-
-import java.util.ArrayList
 
 import javax.inject.Inject
 
@@ -26,18 +21,23 @@ import javax.inject.Inject
 //TODO results not working at all
 class ReplayFragment @Inject
 constructor() : Fragment() {
+    private var _binding: FragmentReplayBinding? = null
+    private val binding get() = _binding!!
     private lateinit var listener: NavListener
-
     private lateinit var resultsButtonCard: CardView
     private lateinit var homeButtonCard: CardView
     private lateinit var playAgainButtonCard: CardView
 
-    private lateinit var textToSpeech: TextToSpeech
-    private lateinit var pronunciationUtil: PronunciationUtil
+    // TODO: implement pronunciation
+    // private lateinit var textToSpeech: TextToSpeech
+    // private lateinit var pronunciationUtil: PronunciationUtil
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_replay, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentReplayBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onAttach(context: Context) {
@@ -52,18 +52,18 @@ constructor() : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initializeViews(view)
-        viewClickListeners()
+        initializeViews()
+        setClickListeners()
         //        textToSpeech = pronunciationUtil.getTTS(requireContext());
     }
 
-    private fun initializeViews(view: View) {
-        playAgainButtonCard = view.findViewById(R.id.cardView_playagain)
-        homeButtonCard = view.findViewById(R.id.cardView_home)
-        resultsButtonCard = view.findViewById(R.id.cardView_results)
+    private fun initializeViews() {
+        playAgainButtonCard = binding.cardViewPlayagain
+        homeButtonCard = binding.cardViewHome
+        resultsButtonCard = binding.cardViewResults
     }
 
-    fun viewClickListeners() {
+    fun setClickListeners() {
         resultsButtonCard.setOnClickListener { v ->
             //            pronunciationUtil.textToSpeechAnnouncer("Showing progress", textToSpeech);
             listener.moveToResultsFragment()
@@ -90,13 +90,15 @@ constructor() : Fragment() {
     override fun onResume() {
         super.onResume()
         if (fragmentManager?.findFragmentByTag("result_fragment") != null) {
-            fragmentManager?.beginTransaction()?.remove(requireFragmentManager().findFragmentByTag("result_fragment")!!)?.commit()
+            fragmentManager?.beginTransaction()
+                ?.remove(requireFragmentManager().findFragmentByTag("result_fragment")!!)?.commit()
         }
         //        getActivity().getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        _binding = null // prevent memory leak
         PreferenceManager.getDefaultSharedPreferences(context).edit().clear().apply()
     }
 }
