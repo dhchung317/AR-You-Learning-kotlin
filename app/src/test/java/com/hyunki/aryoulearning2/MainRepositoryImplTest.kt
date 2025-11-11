@@ -20,7 +20,6 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
@@ -28,9 +27,6 @@ class MainRepositoryImplTest {
 
     @get:Rule
     val testRule = InstantTaskExecutorRule()
-
-    @get:Rule
-    val expectedExceptionRule: ExpectedException = ExpectedException.none()
 
     private lateinit var db: ModelDatabase
 

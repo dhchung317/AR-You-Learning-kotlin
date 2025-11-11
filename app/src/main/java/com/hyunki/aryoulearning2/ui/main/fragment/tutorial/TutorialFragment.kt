@@ -47,8 +47,10 @@ constructor() : Fragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_tutorial_screen, container, false)
     }
 
@@ -70,7 +72,7 @@ constructor() : Fragment() {
             if (isVideoViewPlaying) {
                 tutorialVideoView.pause()
             }
-            requireActivity().onBackPressed()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
         playVideoButton.setOnClickListener { v ->
             if (isVideoViewPlaying) {
@@ -86,7 +88,8 @@ constructor() : Fragment() {
     private fun playTutorial() {
         val mediaController = MediaController(requireContext())
         tutorialVideoView.setMediaController(mediaController)
-        val pathToTutorial = "android.resource://" + requireActivity().packageName + "/" + R.raw.ar_tutorial
+        val pathToTutorial =
+            "android.resource://" + requireActivity().packageName + "/" + R.raw.ar_tutorial
         val tutorialUri = Uri.parse(pathToTutorial)
         tutorialVideoView.setVideoURI(tutorialUri)
     }

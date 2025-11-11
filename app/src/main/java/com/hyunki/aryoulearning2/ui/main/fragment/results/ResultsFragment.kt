@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -23,7 +24,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -95,8 +96,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProviders.of(requireActivity(), viewModelProviderFactory)
-            .get(MainViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
         initializeViews(view)
         setViews()
         renderModelList(viewModel.getModelLiveData().value!!)
@@ -105,7 +105,12 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     private fun setViews() {
         displayRatingBarAttempts()
         shareFAB.backgroundTintList =
-            ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.share_button_color))
+            ColorStateList.valueOf(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.share_button_color
+                )
+            )
         backFABClick()
         shareFABClick()
     }
@@ -155,27 +160,12 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         StrictMode.setVmPolicy(builder.build())
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        if (requestCode == REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                return
-            }
-        }
-    }
-
     private fun takeScreenshotAndShare(view: View) {
         allowOnFileUriExposed()
-        view.isDrawingCacheEnabled = true
-        view.buildDrawingCache(true)
-        val b = Bitmap.createBitmap(view.drawingCache)
-        view.isDrawingCacheEnabled = true
-        saveBitmap(b)
+        val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        view.draw(canvas)
+        saveBitmap(bitmap)
     }
 
     private fun shareIt(imagePath: File) {
@@ -183,12 +173,13 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         val intent = Intent()
         intent.action = Intent.ACTION_SEND
         intent.type = "image/*"
-        intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "")
-        intent.putExtra(android.content.Intent.EXTRA_TEXT, "")
+        intent.putExtra(Intent.EXTRA_SUBJECT, "")
+        intent.putExtra(Intent.EXTRA_TEXT, "")
         intent.putExtra(Intent.EXTRA_STREAM, uri)
         try {
             startActivity(Intent.createChooser(intent, "Share Screenshot"))
         } catch (e: ActivityNotFoundException) {
+            Log.e("error in results fragment:", e.message.toString())
             Toast.makeText(context, "No App Available", Toast.LENGTH_SHORT).show()
         }
     }

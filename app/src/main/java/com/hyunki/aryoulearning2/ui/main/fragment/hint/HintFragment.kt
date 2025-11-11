@@ -126,7 +126,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         }
 
         tutorialButton.setOnClickListener { listener.moveToTutorialFragment() }
-        backFAB.setOnClickListener { activity?.onBackPressed() }
+        backFAB.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
     }
 
     private fun initializeViews() {
@@ -156,11 +156,13 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
             is MainState.Loading -> {
                 showProgressBar(true)
             }
+
             is MainState.Error -> showProgressBar(false)
             is MainState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
                 hintAdapter.modelList = state.models
             }
+
             else -> showProgressBar(false)
         }
     }

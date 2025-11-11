@@ -2,7 +2,7 @@ package com.hyunki.aryoulearning2.ui.main.fragment.replay
 
 import android.content.Context
 import android.os.Bundle
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +14,7 @@ import com.hyunki.aryoulearning2.databinding.FragmentReplayBinding
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 
 import javax.inject.Inject
+import androidx.core.content.edit
 
 //TODO refactor replay fragment
 //TODO play again loads, but game does not start, debug arfragment on replay (going home works).
@@ -89,16 +90,15 @@ constructor() : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (fragmentManager?.findFragmentByTag("result_fragment") != null) {
-            fragmentManager?.beginTransaction()
-                ?.remove(requireFragmentManager().findFragmentByTag("result_fragment")!!)?.commit()
+        if (parentFragmentManager.findFragmentByTag("results")?.isAdded != false) {
+            parentFragmentManager.beginTransaction()
+                .remove(parentFragmentManager.findFragmentByTag("results")!!).commit()
         }
-        //        getActivity().getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         _binding = null // prevent memory leak
-        PreferenceManager.getDefaultSharedPreferences(context).edit().clear().apply()
+        PreferenceManager.getDefaultSharedPreferences(requireContext()).edit { clear() }
+        super.onDestroy()
     }
 }

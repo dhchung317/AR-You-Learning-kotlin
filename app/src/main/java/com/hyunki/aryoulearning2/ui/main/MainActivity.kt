@@ -2,14 +2,17 @@ package com.hyunki.aryoulearning2.ui.main
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.widget.ProgressBar
 
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.PreferenceManager
 
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.data.MainState
@@ -26,6 +29,7 @@ import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 
 import javax.inject.Inject
+import androidx.core.content.edit
 
 class MainActivity : AppCompatActivity(), NavListener {
     private lateinit var binding: ActivityMainBinding
@@ -63,12 +67,17 @@ class MainActivity : AppCompatActivity(), NavListener {
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        val decorView = window.decorView
-
         if (hasFocus) {
-            decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE)
+            // Enable edge-to-edge display
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            // Hide system bars with transient behavior
+            window.insetsController?.apply {
+                hide(WindowInsets.Type.systemBars())
+                systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            WindowCompat.setDecorFitsSystemWindows(window, true)
+            window.insetsController?.show(WindowInsets.Type.systemBars())
         }
     }
 
@@ -98,7 +107,7 @@ class MainActivity : AppCompatActivity(), NavListener {
             is MainState.Loading -> showProgressBar(true)
             is MainState.Error -> showProgressBar(false)
             is MainState.Success.OnModelResponsesLoaded -> {
-                prefs.edit().putString(NETWORK_CALL_COMPLETED, "success").apply()
+                prefs.edit { putString(NETWORK_CALL_COMPLETED, "success") }
                 moveToListFragment()
             }
 
@@ -114,10 +123,10 @@ class MainActivity : AppCompatActivity(), NavListener {
         }
     }
 
-    private fun changeFragment(f: Fragment, backstack: Boolean = false) {
+    private fun changeFragment(f: Fragment, backstack: Boolean = false, tag: String?) {
         val mgr = supportFragmentManager
             .beginTransaction()
-            .replace(binding.fragmentContainer.id, f);
+            .replace(binding.fragmentContainer.id, f, tag);
         if (backstack) {
             mgr.addToBackStack(null)
         }
@@ -125,27 +134,27 @@ class MainActivity : AppCompatActivity(), NavListener {
     }
 
     override fun moveToListFragment() {
-        changeFragment(categoryFragment)
+        changeFragment(categoryFragment, false, null)
     }
 
     override fun moveToGameFragment() {
-        changeFragment(arHostFragment)
+        changeFragment(arHostFragment, false, null)
     }
 
     override fun moveToResultsFragment() {
-        changeFragment(resultsFragment)
+        changeFragment(resultsFragment, false, "results")
     }
 
     override fun moveToHintFragment() {
-        changeFragment(hintFragment, true)
+        changeFragment(hintFragment, true, null)
     }
 
     override fun moveToReplayFragment() {
-        changeFragment(replayFragment)
+        changeFragment(replayFragment, false, null)
     }
 
     override fun moveToTutorialFragment() {
-        changeFragment(tutorialFragment, true)
+        changeFragment(tutorialFragment, true, null)
     }
 
     override fun saveWordHistoryFromGameFragment(wordHistory: List<CurrentWord>) {
@@ -153,7 +162,6 @@ class MainActivity : AppCompatActivity(), NavListener {
     }
 
     companion object {
-        const val TAG = "MainActivity"
         const val NETWORK_CALL_COMPLETED = "network_call_completed"
     }
 }

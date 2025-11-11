@@ -7,7 +7,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.12.0'
+        classpath 'com.android.tools.build:gradle:8.13.1'
         classpath 'com.google.ar.sceneform:plugin:1.17.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
@@ -18,6 +18,7 @@ buildscript {
 
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '2.2.21'
+    id 'com.google.devtools.ksp' version '2.2.21-2.0.4' apply false
 }
 
 
@@ -28,8 +29,10 @@ allprojects {
         mavenCentral()
     }
     gradle.projectsEvaluated {
-        tasks.withType(JavaCompile) {
-            options.compilerArgs << "-Xlint:deprecation"
+        tasks.withType(JavaCompile).tap {
+            configureEach {
+                options.compilerArgs << "-Xlint:deprecation"
+            }
         }
     }
 }

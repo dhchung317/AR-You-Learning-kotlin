@@ -25,7 +25,6 @@ class LottieHelper {
         val lav = LottieAnimationView(context)
         lav.id = type.ordinal
         lav.visibility = View.VISIBLE
-        lav.loop(false)
         lav.setAnimation(getType(type))
         lav.speed = .8f
         lav.scaleX = 1f

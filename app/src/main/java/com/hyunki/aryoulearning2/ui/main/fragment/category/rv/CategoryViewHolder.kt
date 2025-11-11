@@ -1,12 +1,8 @@
 package com.hyunki.aryoulearning2.ui.main.fragment.category.rv
 
-import android.content.Context
-import android.os.Vibrator
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.data.db.model.Category
@@ -30,17 +26,11 @@ class CategoryViewHolder(itemView: View, private val categoryList: List<Category
                 .into(categoryImage)
     }
 
-    private fun makeVibration() {
-        val categoryVibrate = itemView.context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        categoryVibrate.vibrate(100)
-    }
-
     override fun onClick(v: View?) {
-        val category = categoryList[adapterPosition]
+        val category = categoryList[bindingAdapterPosition]
         if (!category.name.isEmpty()) {
             fListener.setCurrentCategoryFromFragment(category.name)
             nlistener.moveToHintFragment()
         }
-        makeVibration()
     }
 }
