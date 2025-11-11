@@ -23,7 +23,7 @@ class Animations {
 
             val orbitAnimation = ObjectAnimator()
             orbitAnimation.setObjectValues(orientation1, orientation2, orientation3, orientation4)
-            orbitAnimation.propertyName = "localRotation"
+            orbitAnimation.setPropertyName( "localRotation")
             orbitAnimation.setEvaluator(QuaternionEvaluator())
 
             orbitAnimation.repeatCount = ObjectAnimator.INFINITE
@@ -69,7 +69,8 @@ class Animations {
         }
 
         fun getVibrator(itemView: View): Animation {
-            return AnimationUtils.loadAnimation(itemView.context, R.anim.vibrate)
+            return AnimationUtils.loadAnimation(itemView.context,
+                R.anim.vibrate)
         }
     }
 }

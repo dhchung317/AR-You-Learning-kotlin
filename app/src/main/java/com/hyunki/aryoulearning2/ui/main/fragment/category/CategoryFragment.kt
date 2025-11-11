@@ -73,11 +73,11 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) :
             is MainState.Loading -> {
                 showProgressBar(true)
             }
-            is MainState.Error -> showProgressBar(false)
             is MainState.Success.OnCategoriesLoaded -> {
                 showProgressBar(false)
                 categoryAdapter.setLists(state.categories)
             }
+            else -> showProgressBar(false)
         }
     }
 

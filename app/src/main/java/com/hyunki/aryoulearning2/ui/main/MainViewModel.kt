@@ -1,5 +1,6 @@
 package com.hyunki.aryoulearning2.ui.main
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -28,15 +29,17 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
     fun loadModelResponses() {
         modelResponsesData.value = MainState.Loading
         val modelResDisposable = mainRepositoryImpl.getModelResponses()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                        onNext = { onModelResponsesLoaded(it) },
-                        onError = { error ->
-                            modelResponsesData.value = MainState.Error
-                            onError(error)
-                        }
-                )
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onNext = {
+                    onModelResponsesLoaded(it)
+                },
+                onError = { error ->
+                    modelResponsesData.value = MainState.Error
+                    onError(error)
+                }
+            )
         compositeDisposable.add(modelResDisposable)
     }
 
@@ -44,41 +47,45 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
         for (i in categories.indices) {
             mainRepositoryImpl.insertCat(categories[i])
         }
+        mainRepositoryImpl.getModelsByCat("Animals")
     }
 
     private fun saveModelResponseDataModels(models: ArrayList<Model>) {
-        for (i in models.indices) {
-            mainRepositoryImpl.insertModel(models[i])
+        models.forEach {
+            mainRepositoryImpl.insertModel(it)
         }
     }
 
     fun loadModelsByCat(cat: String) {
         modelLiveData.value = MainState.Loading
         val modelDisposable = mainRepositoryImpl.getModelsByCat(cat)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                        onSuccess = { onModelsFetched(it) },
-                        onError = { error ->
-                            modelLiveData.value = MainState.Error
-                            onError(error)
-                        }
-                )
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onSuccess = {
+                    onModelsFetched(it)
+
+                },
+                onError = { error ->
+                    modelLiveData.value = MainState.Error
+                    onError(error)
+                }
+            )
         compositeDisposable.add(modelDisposable)
     }
 
     fun loadCategories() {
         catLiveData.value = MainState.Loading
         val catDisposable = mainRepositoryImpl.getAllCats()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                        onSuccess = { this.onCatsFetched(it) },
-                        onError = { error ->
-                            catLiveData.value = MainState.Error
-                            onError(error)
-                        }
-                )
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onSuccess = { this.onCatsFetched(it) },
+                onError = { error ->
+                    catLiveData.value = MainState.Error
+                    onError(error)
+                }
+            )
         compositeDisposable.add(catDisposable)
     }
 
@@ -117,16 +124,19 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
     private fun onModelResponsesLoaded(modelResponses: ArrayList<ModelResponse>) {
         modelResponsesData.value = MainState.Success.OnModelResponsesLoaded(modelResponses)
         saveModelResponseDataCategories(getCategoriesToSaveFromModelResponseData(modelResponses))
+
         saveModelResponseDataModels(getModelsToSaveFromModelResponseData(modelResponses))
     }
 
     private fun getCategoriesToSaveFromModelResponseData(modelResponses: ArrayList<ModelResponse>): ArrayList<Category> {
         val categories = arrayListOf<Category>()
         for (i in modelResponses.indices) {
-            categories.add(Category(
+            categories.add(
+                Category(
                     modelResponses[i].category,
                     modelResponses[i].background
-            ))
+                )
+            )
         }
         return categories
     }
@@ -134,8 +144,12 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
     private fun getModelsToSaveFromModelResponseData(modelResponses: ArrayList<ModelResponse>): ArrayList<Model> {
         val models = arrayListOf<Model>()
 
-        for (i in modelResponses.indices) {
-            models.addAll(modelResponses[i].list)
+        modelResponses.forEach {
+            it.list.map { item ->
+                item.category = it.category
+                models.add(item)
+            }
+
         }
         return models
     }

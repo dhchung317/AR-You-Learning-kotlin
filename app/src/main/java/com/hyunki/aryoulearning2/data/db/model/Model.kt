@@ -5,8 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "models")
 data class Model(
-        val category: String,
-        @field:PrimaryKey
+    var category: String,
+    @field:PrimaryKey
         val name: String,
-        val image: String
+    val image: String
 )

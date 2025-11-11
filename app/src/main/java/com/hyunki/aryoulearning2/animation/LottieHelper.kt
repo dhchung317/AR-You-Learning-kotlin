@@ -27,8 +27,9 @@ class LottieHelper {
         lav.visibility = View.VISIBLE
         lav.loop(false)
         lav.setAnimation(getType(type))
-        lav.scale = 1f
         lav.speed = .8f
+        lav.scaleX = 1f
+        lav.scaleY = 1f
 
         return lav
     }

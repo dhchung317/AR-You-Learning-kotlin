@@ -13,9 +13,8 @@ import com.hyunki.aryoulearning2.data.db.model.Category
 import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.data.db.model.ModelResponse
 import com.hyunki.aryoulearning2.data.network.main.MainApi
-import com.nhaarman.mockitokotlin2.*
+import org.mockito.kotlin.*
 import io.reactivex.Observable
-import org.apache.tools.ant.Main
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -23,7 +22,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @RunWith(AndroidJUnit4::class)
 class MainRepositoryImplTest {

@@ -4,7 +4,6 @@ import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.animation.LottieHelper
 import com.hyunki.aryoulearning2.ui.main.fragment.hint.rv.HintAdapter
 import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
-
 import dagger.Module
 import dagger.Provides
 
