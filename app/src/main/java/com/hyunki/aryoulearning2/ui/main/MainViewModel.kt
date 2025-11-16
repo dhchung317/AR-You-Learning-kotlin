@@ -20,7 +20,6 @@ import javax.inject.Inject
 class MainViewModel @Inject
 internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
-
     private val modelResponsesData = MutableLiveData<MainState>()
     private val modelLiveData = MutableLiveData<MainState>()
     private val catLiveData = MutableLiveData<MainState>()
@@ -110,7 +109,7 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
     }
 
     private fun onError(throwable: Throwable) {
-//        Log.d("MainViewModel", throwable.message)
+        Log.d("MainViewModel", throwable.message.toString())
     }
 
     private fun onModelsFetched(models: List<Model>) {

@@ -77,7 +77,7 @@ constructor() :
 
             is MainState.Success.OnCategoriesLoaded -> {
                 showProgressBar(false)
-                categoryAdapter.setLists(state.categories)
+                categoryAdapter.submitList(state.categories)
             }
 
             else -> showProgressBar(false)

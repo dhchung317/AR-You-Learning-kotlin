@@ -12,7 +12,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.StrictMode
-import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -37,16 +36,13 @@ import com.hyunki.aryoulearning2.ui.main.MainViewModel
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.hyunki.aryoulearning2.ui.main.fragment.results.rv.ResultsAdapter
-import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
-import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
 import javax.inject.Inject
 
-//TODO- refactor resultsfragment
 class ResultsFragment @Inject
-constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fragment() {
+constructor() : Fragment() {
     private var _binding: FragmentResultsBinding? = null
     private val binding get() = _binding!!
     private lateinit var rainbowRatingBar: RatingBar
@@ -57,8 +53,8 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     private lateinit var resultRV: RecyclerView
 
     // TODO: implement pronunciation
-    private lateinit var pronunciationUtil: PronunciationUtil
-    private lateinit var textToSpeech: TextToSpeech
+    // private lateinit var pronunciationUtil: PronunciationUtil
+    // private lateinit var textToSpeech: TextToSpeech
     private lateinit var viewModel: MainViewModel
     private lateinit var progressBar: ProgressBar
     private lateinit var navListener: NavListener
@@ -72,13 +68,14 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        //        pronunciationUtil = new PronunciationUtil();
-        //        textToSpeech = pronunciationUtil.getTTS(getContext());
-    }
+// TODO: pronunciation
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        pronunciationUtil = new PronunciationUtil ();
+//        textToSpeech = pronunciationUtil.getTTS(getContext());
+//    }
 
-    private fun initializeViews(view: View) {
+    private fun initializeViews() {
         rainbowRatingBar = binding.rainbowCorrectwordRatingbar
         shareFAB = binding.shareInfo
         backFAB = binding.backBtn
@@ -96,8 +93,8 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
-        initializeViews(view)
+        viewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
+        initializeViews()
         setViews()
         renderModelList(viewModel.getModelLiveData().value!!)
     }
@@ -119,11 +116,11 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
         resultRV.adapter =
             ResultsAdapter(
                 viewModel.getWordHistory(), modelMap,
-//                pronunciationUtil, textToSpeech
+                // TODO: pronunciation
+                // pronunciationUtil, textToSpeech
             )
         resultRV.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-
     }
 
     private fun shareFABClick() {
@@ -240,14 +237,14 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null // prevent memory leak
+        _binding = null
     }
 
     private fun getCorrectAnswerCount(wordHistory: List<CurrentWord>): Int {
         var count = 0
 
         for (i in wordHistory.indices) {
-            if (wordHistory[i].attempts.size < 1) {
+            if (wordHistory[i].attempts.isEmpty()) {
                 count++
             }
         }

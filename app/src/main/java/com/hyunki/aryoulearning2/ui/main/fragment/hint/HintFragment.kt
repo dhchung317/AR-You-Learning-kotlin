@@ -33,7 +33,7 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
     private var _binding: FragmentHintBinding? = null
     private val binding get() = _binding!!
     private lateinit var hintRecyclerView: RecyclerView
-    val hintAdapter = HintAdapter()
+    private val hintAdapter = HintAdapter()
     private lateinit var constraintLayout: ConstraintLayout
     private lateinit var listener: NavListener
     private lateinit var startGameButton: Button
@@ -160,9 +160,8 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
             is MainState.Error -> showProgressBar(false)
             is MainState.Success.OnModelsLoaded -> {
                 showProgressBar(false)
-                hintAdapter.modelList = state.models
+                hintAdapter.submitList(state.models)
             }
-
             else -> showProgressBar(false)
         }
     }
