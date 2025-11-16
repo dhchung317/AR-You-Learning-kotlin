@@ -11,12 +11,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.animation.Animations
 import com.hyunki.aryoulearning2.data.db.model.Model
-import com.hyunki.aryoulearning2.util.audio.PronunciationUtil
+import com.hyunki.aryoulearning2.databinding.HintItemViewBinding
 import com.squareup.picasso.Picasso
 
-class HintViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
-    private val imageView: ImageView = itemView.findViewById(R.id.hint_fragment_image_view)
-    private val textView: TextView = itemView.findViewById(R.id.hint_fragment_textview)
+class HintViewHolder(binding: HintItemViewBinding) : RecyclerView.ViewHolder(binding.root),
+    View.OnClickListener {
+    private val imageView: ImageView = binding.hintFragmentImageView
+    private val textView: TextView = binding.hintFragmentTextview
 
     init {
         itemView.setOnClickListener(this)
@@ -29,9 +30,11 @@ class HintViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.O
     }
 
     override fun onClick(v: View?) {
-        toggleViews(v,false)
-//        val model = modelList[adapterPosition]
-//        pronunciationUtil.textToSpeechAnnouncer(model.name, pronunciationUtil.textToSpeech)
+        toggleViews(v, false)
+
+        //TODO: pronunciation
+        // val model = modelList[adapterPosition]
+        // pronunciationUtil.textToSpeechAnnouncer(model.name, pronunciationUtil.textToSpeech)
         itemView.startAnimation(Animations.Normal().getVibrator(itemView))
         textView.setTextColor(Color.LTGRAY)
         val timer = object : CountDownTimer(1000, 1000) {
@@ -39,14 +42,14 @@ class HintViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.O
             override fun onFinish() {
                 textView.setTextColor(Color.DKGRAY)
                 itemView.clearAnimation()
-                toggleViews(v,true)
+                toggleViews(v, true)
             }
         }
         timer.start()
     }
 
-    private fun toggleViews(v:View?, isClickable: Boolean){
-        for (v in v?.parent as ViewGroup){
+    private fun toggleViews(v: View?, isClickable: Boolean) {
+        for (v in v?.parent as ViewGroup) {
             v.isClickable = isClickable
         }
     }
