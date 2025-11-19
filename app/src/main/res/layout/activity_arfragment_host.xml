@@ -8,7 +8,18 @@
     android:orientation="horizontal"
     tools:context=".ui.main.fragment.ar.ArHostFragment">
 
-    <fragment
+
+    <!--    <com.hyunki.aryoulearning2.ui.main.fragment.ar.ValidatorCardView-->
+    <!--        android:id="@+id/validator_card"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:layout_margin="20dp"-->
+    <!--        android:visibility="visible"-->
+    <!--        android:elevation="100dp"-->
+    <!--        android:animateLayoutChanges="true"-->
+    <!--        app:cardBackgroundColor="@android:color/transparent"/>-->
+
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/ux_fragment"
         android:name="com.hyunki.aryoulearning2.ui.main.fragment.ar.ArGameFragment"
         android:layout_width="fill_parent"
@@ -45,7 +56,30 @@
                 app:layout_constraintEnd_toStartOf="@+id/button_undo"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/word_container_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="140dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:elevation="100dp"
+                    android:fontFamily="@font/balloon"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="100sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="DOG" />
+
+            </LinearLayout>
 
             <ImageButton
                 android:id="@+id/button_undo"
@@ -74,6 +108,8 @@
         android:layout_marginTop="8dp"
         android:layout_marginRight="8dp"
         android:background="?android:selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:elevation="100dp"
         android:src="@android:drawable/ic_delete" />
 
     <include

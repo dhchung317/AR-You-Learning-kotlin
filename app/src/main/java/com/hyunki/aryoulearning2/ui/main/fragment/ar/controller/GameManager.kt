@@ -6,9 +6,20 @@ import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ModelUtil
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import java.util.*
 
-class GameManager(modelList: List<Model>, private val gameCommands: GameCommandListener, private val navListener: NavListener, roundLimit: Int = 3) {
+class GameManager(
+    modelList: List<Model>,
+    private val gameCommands: GameCommandListener,
+    private val navListener: NavListener,
+    roundLimit: Int = 3
+) {
     val keyStack = Stack<Model>()
+    fun popKeyStack(): Model {
+        return keyStack.pop()
+    }
+
     var modelUtil: ModelUtil = ModelUtil()
+    var currentWord: CurrentWord
+        private set
 
     var wordHistoryList = ArrayList<CurrentWord>()
         private set
@@ -16,8 +27,6 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
     var attempt: String = ""
         private set
 
-    var currentWord: CurrentWord
-        private set
 
     init {
         while (keyStack.size < roundLimit && keyStack.size < modelList.size) {
@@ -45,6 +54,7 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
                     showCard(isCorrect = true)
                     //showCard() with correct validators
                 }
+
                 else -> {
 //                    onAnswerIncorrect()
                     showCard(isCorrect = false)
@@ -61,10 +71,9 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
 
     private fun isCorrectAnswer(): Boolean {
         return attempt == getCurrentWordAnswer()
-
     }
 
-    fun onHidingCard(wasAnswerCorrect: Boolean){
+    fun onHidingCard(wasAnswerCorrect: Boolean) {
         when (wasAnswerCorrect) {
             //listener from fragment will inform manager which course of action to take
             true -> onAnswerWasCorrect()
@@ -72,6 +81,7 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
             else -> onAnswerWasIncorrect()
         }
     }
+
     private fun onAnswerWasIncorrect() {
         recordWrongAnswer(attempt)
         startNextGame(currentWord.answerModel)
@@ -101,7 +111,7 @@ class GameManager(modelList: List<Model>, private val gameCommands: GameCommandL
 
     private fun checkIfTappedLetterIsCorrect(tappedLetter: String): Boolean {
         val correctLetter =
-                getCurrentWordAnswer()[attempt.length - 1].toString()
+            getCurrentWordAnswer()[attempt.length - 1].toString()
         return tappedLetter == correctLetter
     }
 

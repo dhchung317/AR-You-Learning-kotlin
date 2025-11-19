@@ -8,7 +8,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.iterator
 import androidx.recyclerview.widget.RecyclerView
-import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.animation.Animations
 import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.databinding.HintItemViewBinding

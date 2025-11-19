@@ -2,11 +2,9 @@ package com.hyunki.aryoulearning2.ui.main.fragment.category
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -16,25 +14,28 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
 import com.hyunki.aryoulearning2.data.MainState
+import com.hyunki.aryoulearning2.data.db.model.Category
 import com.hyunki.aryoulearning2.databinding.FragmentListBinding
 import com.hyunki.aryoulearning2.ui.main.MainActivity
-import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArHostFragment
-import com.hyunki.aryoulearning2.ui.main.fragment.controller.FragmentListener
 import com.hyunki.aryoulearning2.ui.main.fragment.category.rv.CategoryAdapter
+import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 
 import javax.inject.Inject
 
 class CategoryFragment @Inject
-constructor() :
-    Fragment(), FragmentListener {
+constructor() : Fragment() {
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
     private lateinit var mainViewModel: MainViewModel
     private lateinit var recyclerView: RecyclerView
     private lateinit var categoryAdapter: CategoryAdapter
+    private lateinit var listener: NavListener
 
     override fun onAttach(context: Context) {
         (activity?.application as BaseApplication).appComponent.inject(this)
+        if (context is NavListener) {
+            listener = context
+        }
         super.onAttach(context)
     }
 
@@ -55,18 +56,21 @@ constructor() :
         mainViewModel.getCatLiveData().observe(viewLifecycleOwner, Observer { categories ->
             renderCategories(categories)
         })
-        initRecyclerView()
     }
 
 
-    private fun initRecyclerView() {
+    private fun initRecyclerView(cats: List<Category>) {
         recyclerView.layoutManager = LinearLayoutManager(
             requireContext(),
             RecyclerView.HORIZONTAL,
             false
         )
-        categoryAdapter = CategoryAdapter(this)
+        categoryAdapter = CategoryAdapter({ item ->
+            mainViewModel.setCurrentCategory(item.name)
+            listener.moveToHintFragment()
+        })
         recyclerView.adapter = categoryAdapter
+        categoryAdapter.submitList(cats)
     }
 
     private fun renderCategories(state: MainState) {
@@ -77,7 +81,8 @@ constructor() :
 
             is MainState.Success.OnCategoriesLoaded -> {
                 showProgressBar(false)
-                categoryAdapter.submitList(state.categories)
+                val cats = state.categories
+                initRecyclerView(cats)
             }
 
             else -> showProgressBar(false)
@@ -90,13 +95,6 @@ constructor() :
         } else {
             (requireActivity() as MainActivity).showProgressBar(false)
         }
-    }
-
-    override fun setCurrentCategoryFromFragment(category: String) {
-        parentFragmentManager.setFragmentResult(
-            ArHostFragment.REQUEST_KEY,
-            bundleOf(ArHostFragment.KEY_ID to category)
-        )
     }
 
     override fun onDestroyView() {

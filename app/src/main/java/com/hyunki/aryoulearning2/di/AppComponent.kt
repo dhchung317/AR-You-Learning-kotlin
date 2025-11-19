@@ -1,7 +1,6 @@
 package com.hyunki.aryoulearning2.di
 
 import android.app.Application
-
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.data.db.ModelDatabaseModule
 import com.hyunki.aryoulearning2.di.main.MainModule
@@ -43,7 +42,6 @@ interface AppComponent {
     fun inject(baseApplication: BaseApplication)
 
     fun inject(mainActivity: MainActivity)
-
     fun inject(categoryFragment: CategoryFragment)
     fun inject(arHostFragment: ArHostFragment)
     fun inject(replayFragment: ReplayFragment)

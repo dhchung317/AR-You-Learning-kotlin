@@ -25,6 +25,12 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
     private val catLiveData = MutableLiveData<MainState>()
     private var wordHistory: List<CurrentWord> = ArrayList()
 
+    private var _currentCategory: MutableLiveData<String?> = MutableLiveData(null)
+    val currentCategory: String? get() = _currentCategory.value
+    fun setCurrentCategory(cat: String) {
+        _currentCategory.value = cat
+    }
+
     fun loadModelResponses() {
         modelResponsesData.value = MainState.Loading
         val modelResDisposable = mainRepositoryImpl.getModelResponses()
@@ -55,7 +61,8 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
         }
     }
 
-    fun loadModelsByCat(cat: String) {
+    fun loadModelsByCat() {
+        val cat = this.currentCategory ?: return
         modelLiveData.value = MainState.Loading
         val modelDisposable = mainRepositoryImpl.getModelsByCat(cat)
             .subscribeOn(Schedulers.io())
@@ -63,7 +70,6 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
             .subscribeBy(
                 onSuccess = {
                     onModelsFetched(it)
-
                 },
                 onError = { error ->
                     modelLiveData.value = MainState.Error
@@ -161,9 +167,5 @@ internal constructor(private val mainRepositoryImpl: MainRepository) : ViewModel
         super.onCleared()
         compositeDisposable.clear()
         //        clearEntireDatabase();
-    }
-
-    companion object {
-        const val TAG = "mainviewmodel"
     }
 }

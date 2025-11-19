@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 
 import com.hyunki.aryoulearning2.di.ViewModelKey
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
+import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArGameCoordinatorViewModel
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.ArViewModel
+import com.hyunki.aryoulearning2.ui.main.fragment.ar.GameViewModel
 
 import dagger.Binds
 import dagger.Module
@@ -22,4 +24,9 @@ abstract class MainViewModelsModule {
     @IntoMap
     @ViewModelKey(ArViewModel::class)
     abstract fun bindArViewModel(viewModel: ArViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(GameViewModel::class)
+    abstract fun bindGameViewModel(viewModel: GameViewModel): ViewModel
 }
