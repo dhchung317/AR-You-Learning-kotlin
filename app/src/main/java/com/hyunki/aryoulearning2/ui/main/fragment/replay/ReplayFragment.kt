@@ -65,17 +65,17 @@ constructor() : Fragment() {
     }
 
     fun setClickListeners() {
-        resultsButtonCard.setOnClickListener { v ->
+        resultsButtonCard.setOnClickListener {
             //            pronunciationUtil.textToSpeechAnnouncer("Showing progress", textToSpeech);
             listener.moveToResultsFragment()
         }
 
-        homeButtonCard.setOnClickListener { v ->
+        homeButtonCard.setOnClickListener {
             //            pronunciationUtil.textToSpeechAnnouncer("Lets go home", textToSpeech);
             listener.moveToListFragment()
         }
 
-        playAgainButtonCard.setOnClickListener { v ->
+        playAgainButtonCard.setOnClickListener {
             //            pronunciationUtil.textToSpeechAnnouncer("Lets play again!", textToSpeech);
             listener.moveToGameFragment()
         }
@@ -90,9 +90,12 @@ constructor() : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (parentFragmentManager.findFragmentByTag("results")?.isAdded != false) {
+
+        val resultsFragment = parentFragmentManager.findFragmentByTag("results")
+        if (resultsFragment?.isAdded == true) {
             parentFragmentManager.beginTransaction()
-                .remove(parentFragmentManager.findFragmentByTag("results")!!).commit()
+                .remove(resultsFragment)
+                .commitAllowingStateLoss()
         }
     }
 

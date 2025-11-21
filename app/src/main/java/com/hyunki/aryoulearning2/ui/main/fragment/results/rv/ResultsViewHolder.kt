@@ -7,7 +7,6 @@ import androidx.cardview.widget.CardView
 import androidx.core.graphics.toColorInt
 import androidx.recyclerview.widget.RecyclerView
 import com.hyunki.aryoulearning2.R
-import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.databinding.ResultmodelItemBinding
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import com.squareup.picasso.Picasso
@@ -22,8 +21,7 @@ class ResultsViewHolder(
     private val promptText: TextView = binding.resultPromptTextView
 
     fun onBind(
-        currentWord: CurrentWord,
-        model: Model,
+        word: CurrentWord,
 // TODO: pronunciation
 //            pronunUtil: PronunciationUtil,
 //            TTS: TextToSpeech
@@ -31,18 +29,18 @@ class ResultsViewHolder(
         val correct = "Correct"
 
         var wrong = ""
-        for (s in currentWord.attempts) {
+        for (s in word.attempts) {
             wrong += "$s, "
         }
 
-        val name = model.name.uppercase()[0] + model.name.lowercase().substring(1)
+        val name = word.answer.uppercase()[0] + word.answer.lowercase().substring(1)
         val cardView = itemView.findViewById<CardView>(R.id.cardView4)
 
         modelTextView.text = name
 
-        Picasso.get().load(model.image).into(modelImageView)
+        Picasso.get().load(word.image).into(modelImageView)
 
-        if (currentWord.attempts.isEmpty()) {
+        if (word.attempts.isEmpty()) {
             resultImage.setImageResource(R.drawable.star)
             modelAnswer.text = correct
             promptText.visibility = View.INVISIBLE

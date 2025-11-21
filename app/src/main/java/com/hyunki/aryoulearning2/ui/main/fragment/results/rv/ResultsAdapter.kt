@@ -2,15 +2,12 @@ package com.hyunki.aryoulearning2.ui.main.fragment.results.rv
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.hyunki.aryoulearning2.data.db.model.Model
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.hyunki.aryoulearning2.databinding.ResultmodelItemBinding
 
 class ResultsAdapter(
-    private val wordHistory: List<CurrentWord>,
-    private val modelMap: Map<String, Model>
 // TODO: pronunciation
 //    private val pronunUtil: PronunciationUtil,
 //    private val TTS: TextToSpeech
@@ -26,8 +23,7 @@ class ResultsAdapter(
 
     override fun onBindViewHolder(resultsViewHolder: ResultsViewHolder, position: Int) {
         resultsViewHolder.onBind(
-            wordHistory[position],
-            modelMap[wordHistory[position].answer]!!,
+            getItem(position),
 // TODO: pronunciation
 //            pronunUtil,
 //            TTS
