@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.ar.core.Anchor
@@ -31,15 +32,18 @@ import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 import javax.inject.Inject
 import com.hyunki.aryoulearning2.databinding.ActivityArfragmentHostBinding
 import com.hyunki.aryoulearning2.R
-import com.hyunki.aryoulearning2.ui.main.MainActivity
 import com.hyunki.aryoulearning2.ui.main.MainViewModel
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.ModelUtil
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.google.ar.sceneform.Scene
+import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.handleAutoPlacementFrame
 
 class ArHostFragment @Inject
 constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
+
+    private lateinit var autoPlacementListener: Scene.OnUpdateListener
     val modelUtil = ModelUtil()
 
     @Inject
@@ -54,15 +58,13 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
 
     // ViewModels
     private val mainViewModel: MainViewModel by activityViewModels { viewModelProviderFactory }
-    private lateinit var arViewModel: ArViewModel
-    private lateinit var gameViewModel: GameViewModel
+    private val gameViewModel: GameViewModel by activityViewModels { viewModelProviderFactory }
+    private val arViewModel: ArViewModel by viewModels { viewModelProviderFactory }
     private lateinit var coordinator: ArGameCoordinatorViewModel
 
     // AR
-    private lateinit var frameLayout: FrameLayout
     private lateinit var arFragment: ArGameFragment
     private lateinit var base: Node
-    private lateinit var mainHit: HitResult
     private lateinit var mainAnchor: Anchor
     private lateinit var mainAnchorNode: AnchorNode
 
@@ -72,8 +74,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
     // ViewBinding
     private var _binding: ActivityArfragmentHostBinding? = null
     private val binding get() = _binding!!
-
-    // TODO: navigation to replay fragment
 
     override fun onAttach(context: Context) {
         (requireActivity().application as BaseApplication).appComponent.inject(this)
@@ -96,23 +96,23 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        arViewModel = ViewModelProvider(this, viewModelProviderFactory).get(ArViewModel::class.java)
-        gameViewModel =
-            ViewModelProvider(this, viewModelProviderFactory).get(GameViewModel::class.java)
         coordinator = ViewModelProvider(
             this,
             ArGameCoordinatorFactory(arViewModel, gameViewModel, mainViewModel)
-        ).get(
-            ArGameCoordinatorViewModel::class.java
-        )
-
-        frameLayout = binding.frameLayout
+        )[ArGameCoordinatorViewModel::class.java]
+        gameViewModel.restartGameSession()
         checkAndOpenCamera()
         initViews()
-        setListeners()
+        setClickListeners()
         setOnTouchListener(arFragment)
-//        runArPipeline()
+// Auto place
+//        val child = childFragmentManager.findFragmentById(R.id.ux_fragment)
+//        child?.viewLifecycleOwnerLiveData?.observe(viewLifecycleOwner) { owner ->
+//            if (owner != null) {
+//                setupAutoPlacement()
+//            }
+//        }
+
         coordinator.uiState.observe(viewLifecycleOwner) { ui ->
             binding.wordContainerText.text = ui.attemptText
             binding.buttonUndo.isVisible = ui.isUndoVisible
@@ -126,8 +126,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
                 }
             }
 
-            Log.d("hyunki asdf coordinator state", ui.toString())
-
             if (ui.shouldStartNewRound &&
                 ui.nextRenderable != null &&
                 ui.nextModelKey != null
@@ -139,14 +137,31 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
+//        // 1. Remove AR scene update listener if it was set
+//        if (this::autoPlacementListener.isInitialized) {
+//            try {
+//                arFragment.arSceneView.scene.removeOnUpdateListener(autoPlacementListener)
+//            } catch (e: Exception) {
+//                // scene may already be torn down; ignore
+//            }
+//        }
         _binding = null
+        if (this::mainAnchorNode.isInitialized) {
+            mainAnchorNode.anchor?.detach()
+        }
+        super.onDestroyView()
     }
 
     // TODO implement audio effects shutdown
     override fun onDestroy() {
         super.onDestroy()
     }
+
+// TODO: look into utilizing on resume, and preserving fragment
+//    override fun onResume() {
+//        super.onResume()
+//        gameViewModel.restartGameSession()
+//    }
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -230,6 +245,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
 
     private fun createSingleGame(mainModel: ModelRenderable, name: String) {
         if (this::base.isInitialized) {
+            modelUtil.refreshCollisionSet()
             mainAnchorNode.removeChild(base)
         }
         base = modelUtil.getGameAnchor(mainModel)
@@ -244,7 +260,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
         if (trackable is Plane && trackable.isPoseInPolygon(pose)) {
             // Create the Anchor.
             if (trackable.trackingState == TrackingState.TRACKING) {
-                mainAnchor = mainHit.createAnchor()
+                mainAnchor = hit.createAnchor()
             }
 
             mainAnchorNode = AnchorNode(mainAnchor)
@@ -255,6 +271,8 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
 
             if (entry != null) {
                 gameViewModel.setHasPlacedGame(true)
+                arFragment.arSceneView.planeRenderer.isEnabled = false
+                arFragment.planeDiscoveryController.hide()
             }
             return true
         }
@@ -263,16 +281,17 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
 
     fun setHitAndTryPlaceGame(tap: MotionEvent?, frame: Frame): Boolean {
         if (tap != null && frame.camera.trackingState == TrackingState.TRACKING) {
-            mainHit = (frame.hitTest(tap)[0])
-            return checkHit(mainHit)
+            val hit = (frame.hitTest(tap)[0])
+            return checkHit(hit)
         }
         return false
     }
 
     private fun onSingleTap(tap: MotionEvent) {
+        if (gameViewModel.hasPlacedGame.value == true) return
         if (!arViewModel.isLettersLoaded() ||
             !arViewModel.isModelsLoaded() ||
-            gameViewModel.keyStack.isEmpty()
+            gameViewModel.currentWord == null
         ) {
             // Still loading assets or no words available yet
             return
@@ -280,27 +299,18 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
         if (gameViewModel.hasPlacedGame.value != true) {
             val frame = arFragment.arSceneView.arFrame
             if (frame != null) {
-                if (setHitAndTryPlaceGame(tap, frame)) {
-                    gameViewModel.setHasPlacedGame(true)
-                }
+                setHitAndTryPlaceGame(tap, frame)
             }
         }
     }
 
-// TODO: check if necessary
-//    private fun refreshModelResources() {
-//        mainAnchorNode?.anchor?.detach()
-//        mainAnchor = null
-//        mainAnchorNode = null
+//    private fun showProgressBar(isVisible: Boolean) {
+//        if (isVisible) {
+//            (requireActivity() as MainActivity).showProgressBar(true)
+//        } else {
+//            (requireActivity() as MainActivity).showProgressBar(false)
+//        }
 //    }
-
-    private fun showProgressBar(isVisible: Boolean) {
-        if (isVisible) {
-            (requireActivity() as MainActivity).showProgressBar(true)
-        } else {
-            (requireActivity() as MainActivity).showProgressBar(false)
-        }
-    }
 
     private fun setUpCardWithCorrectValidators() {
         //setup views to validate that the user is correct
@@ -311,6 +321,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
         //setup views to inform the user they were incorrect
         binding.validatorCard.correctStarImageView.setImageResource(R.drawable.error)
         binding.validatorCard.validatorWrongWord.visibility = View.VISIBLE
+        binding.validatorCard.validatorWrongWord.text = gameViewModel.attempt.value
         binding.validatorCard.validatorIncorrectPrompt.visibility = View.VISIBLE
     }
 
@@ -325,21 +336,39 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
         )
 
         when (isCorrect) {
-            true -> setUpCardWithCorrectValidators()
-            else -> setUpCardWithIncorrectValidators()
+            true -> {
+                gameViewModel.updateWordHistory()
+                setUpCardWithCorrectValidators()
+            }
+
+            else -> {
+                gameViewModel.addWrongCurrentWordAttempt()
+                setUpCardWithIncorrectValidators()
+            }
         }
 
         binding.validatorCard.root.visibility = View.VISIBLE
 
         binding.validatorCard.buttonValidatorOk.setOnClickListener {
-            gameViewModel.setNextWord()
+
             binding.validatorCard.root.visibility = View.INVISIBLE
 
-            // 👇 after consuming this round, check if we're done
-            if (gameViewModel.keyStack.isEmpty()) {
-                // use your existing NavListener / NavController
-                listener.moveToListFragment()
-                // or findNavController().navigate(R.id.action_arHost_to_replayFragment)
+            when (isCorrect) {
+                true -> {
+                    gameViewModel.setNextWord()
+                }
+
+                else -> {
+                    val sameWord = gameViewModel.currentWord
+                    if (sameWord != null) {
+                        gameViewModel.clearAttempt()
+                        placeLetters(sameWord.answer)
+                    }
+                }
+            }
+
+            if (gameViewModel.keyStack.isEmpty() && isCorrect) {
+                listener.moveToReplayFragment()
             }
 // TODO: track data for correct/incorrect answers (word history)
 //            onHidingCard(isCorrect)
@@ -356,7 +385,7 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
         binding.validatorCard.root.visibility = View.INVISIBLE;
     }
 
-    private fun setListeners() {
+    private fun setClickListeners() {
         binding.exitImageButton.setOnClickListener {
             showExitMenu()
         }
@@ -376,5 +405,19 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
             isClickable = true
             isFocusable = true
         }
+    }
+
+    private fun setupAutoPlacement() {
+        val sceneView = arFragment.arSceneView
+        val scene = sceneView.scene
+
+        autoPlacementListener = Scene.OnUpdateListener {
+            handleAutoPlacementFrame(
+                sceneView, arFragment, gameViewModel, arViewModel, autoPlacementListener,
+                ::checkHit
+            )
+        }
+
+        scene.addOnUpdateListener(autoPlacementListener)
     }
 }
