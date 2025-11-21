@@ -1,15 +1,9 @@
 package com.hyunki.aryoulearning2.ui.main.fragment.ar
 
-import android.Manifest
 import android.app.Application
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import android.widget.*
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -101,7 +95,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
             ArGameCoordinatorFactory(arViewModel, gameViewModel, mainViewModel)
         )[ArGameCoordinatorViewModel::class.java]
         gameViewModel.restartGameSession()
-        checkAndOpenCamera()
         initViews()
         setClickListeners()
         setOnTouchListener(arFragment)
@@ -162,26 +155,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
 //        super.onResume()
 //        gameViewModel.restartGameSession()
 //    }
-
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (!isGranted) {
-
-            Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    private fun checkAndOpenCamera() {
-        if (checkSelfPermission(
-                requireContext(),
-                Manifest.permission.CAMERA
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
-        }
-    }
-
     private fun setOnTouchListener(arFragment: ArFragment) {
         arFragment.setOnTapArPlaneListener { _, _, motionEvent ->
             onSingleTap(motionEvent)
@@ -355,6 +328,9 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
 
             when (isCorrect) {
                 true -> {
+                    if (gameViewModel.keyStack.isEmpty()) {
+                        listener.moveToReplayFragment()
+                    }
                     gameViewModel.setNextWord()
                 }
 
@@ -367,9 +343,6 @@ constructor(private var pronunciationUtil: PronunciationUtil?) : Fragment() {
                 }
             }
 
-            if (gameViewModel.keyStack.isEmpty() && isCorrect) {
-                listener.moveToReplayFragment()
-            }
 // TODO: track data for correct/incorrect answers (word history)
 //            onHidingCard(isCorrect)
 // TODO: animations
