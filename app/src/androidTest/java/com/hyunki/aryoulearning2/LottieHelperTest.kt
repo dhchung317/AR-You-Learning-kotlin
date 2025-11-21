@@ -22,29 +22,23 @@ class LottieHelperTest {
     }
 
     @Test
-    fun `assert that getType() with params SPARKLES returns view with sparkles animation`() {
+    fun getAnimationView_withSparkles_returnsSparklesView() {
         val expected = LottieHelper.AnimationType.SPARKLES.ordinal
-
-        val actual = lottieHelper.getAnimationView(context,LottieHelper.AnimationType.SPARKLES).id
-
+        val actual = lottieHelper.getAnimationView(context, LottieHelper.AnimationType.SPARKLES).id
         assertEquals(expected, actual)
     }
 
     @Test
-    fun `assert that getType() with params TAP returns view with tap animation`() {
+    fun getAnimationView_withTap_returnsTapView() {
         val expected = LottieHelper.AnimationType.TAP.ordinal
-
-        val actual = lottieHelper.getAnimationView(context,LottieHelper.AnimationType.TAP).id
-
+        val actual = lottieHelper.getAnimationView(context, LottieHelper.AnimationType.TAP).id
         assertEquals(expected, actual)
     }
 
     @Test
-    fun `assert that getType() with params ERROR returns view with error animation`() {
+    fun getAnimationView_withError_returnsErrorView() {
         val expected = LottieHelper.AnimationType.ERROR.ordinal
-
-        val actual = lottieHelper.getAnimationView(context,LottieHelper.AnimationType.ERROR).id
-
+        val actual = lottieHelper.getAnimationView(context, LottieHelper.AnimationType.ERROR).id
         assertEquals(expected, actual)
     }
 }
