@@ -16,7 +16,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RatingBar
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -28,19 +27,18 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.databinding.FragmentResultsBinding
-import com.hyunki.aryoulearning2.ui.main.MainActivity
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.GameViewModel
 import com.hyunki.aryoulearning2.ui.main.fragment.ar.util.CurrentWord
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
 import com.hyunki.aryoulearning2.ui.main.fragment.results.rv.ResultsAdapter
 import com.hyunki.aryoulearning2.ui.main.fragment.results.util.captureLayout
-import com.hyunki.aryoulearning2.ui.main.fragment.results.util.captureRecyclerView
 import com.hyunki.aryoulearning2.ui.main.fragment.results.util.combineBitmaps
 import com.hyunki.aryoulearning2.viewmodel.ViewModelProviderFactory
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 import androidx.core.graphics.createBitmap
+import com.hyunki.aryoulearning2.ui.main.fragment.results.util.captureRv
 
 // TODO: fix results: utilize wordhistory from gameviewmodel
 class ResultsFragment @Inject
@@ -164,7 +162,7 @@ constructor() : Fragment() {
         }
 
         val headerBmp = captureLayout(header)
-        val listBmp = captureRecyclerView(list)
+        val listBmp = captureRv(list)
 
         val finalBmp = combineBitmaps(headerBmp, listBmp)
 
