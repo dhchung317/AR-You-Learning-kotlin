@@ -7,6 +7,6 @@ import androidx.room.PrimaryKey
 data class Model(
     var category: String,
     @field:PrimaryKey
-        val name: String,
+    val name: String,
     val image: String
 )

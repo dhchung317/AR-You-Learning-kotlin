@@ -23,9 +23,5 @@ sealed class MainState {
         data class OnCategoriesLoaded(
                 val categories: List<Category>
         ) : Success()
-
-        data class OnCurrentCategoryStringLoaded(
-                val currentCategoryString: String
-        ) : Success()
     }
 }

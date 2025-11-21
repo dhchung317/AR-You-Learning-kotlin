@@ -16,7 +16,7 @@ constructor(context: Context) : TextToSpeech.OnInitListener {
     fun textToSpeechAnnouncer(textView: TextView, textToSpeech: TextToSpeech) {
         val letter = textView.text.toString().lowercase()
         val speakText = textToSpeech.speak(pronounceSingleLetter(letter),
-                TextToSpeech.QUEUE_ADD, null)
+                TextToSpeech.QUEUE_ADD, null, letter)
         if (speakText == TextToSpeech.ERROR) {
             Log.e("TTS", "Error in converting Text to Speech!")
         }
@@ -24,7 +24,7 @@ constructor(context: Context) : TextToSpeech.OnInitListener {
 
     fun textToSpeechAnnouncer(message: String, textToSpeech: TextToSpeech) {
         val speakText = textToSpeech.speak(message,
-                TextToSpeech.QUEUE_ADD, null)
+                TextToSpeech.QUEUE_ADD, null, message)
         if (speakText == TextToSpeech.ERROR) {
             Log.e("TTS", "Error in converting Text to Speech!")
         }

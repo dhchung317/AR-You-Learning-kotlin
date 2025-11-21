@@ -1,6 +1,5 @@
 package com.hyunki.aryoulearning2.ui.main.fragment.tutorial
 
-
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
@@ -11,12 +10,10 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.MediaController
 import android.widget.VideoView
-import androidx.fragment.app.FragmentActivity
 
 import com.hyunki.aryoulearning2.BaseApplication
 import com.hyunki.aryoulearning2.R
 import com.hyunki.aryoulearning2.ui.main.fragment.controller.NavListener
-import java.util.Objects
 
 import javax.inject.Inject
 
@@ -40,15 +37,10 @@ constructor() : Fragment() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (arguments != null) {
-            //            modelList = getArguments().getParcelableArrayList(MODEL_LIST);
-        }
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_tutorial_screen, container, false)
     }
 
@@ -70,7 +62,7 @@ constructor() : Fragment() {
             if (isVideoViewPlaying) {
                 tutorialVideoView.pause()
             }
-            requireActivity().onBackPressed()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
         playVideoButton.setOnClickListener { v ->
             if (isVideoViewPlaying) {
@@ -86,7 +78,8 @@ constructor() : Fragment() {
     private fun playTutorial() {
         val mediaController = MediaController(requireContext())
         tutorialVideoView.setMediaController(mediaController)
-        val pathToTutorial = "android.resource://" + requireActivity().packageName + "/" + R.raw.ar_tutorial
+        val pathToTutorial =
+            "android.resource://" + requireActivity().packageName + "/" + R.raw.ar_tutorial
         val tutorialUri = Uri.parse(pathToTutorial)
         tutorialVideoView.setVideoURI(tutorialUri)
     }
@@ -96,9 +89,5 @@ constructor() : Fragment() {
         backButton = view.findViewById(R.id.tutorial_frag_back_to_hint_button)
         startGameButton = view.findViewById(R.id.tutorial_frag_start_game_button)
         playVideoButton = view.findViewById(R.id.tutorial_frag_play_video_button)
-    }
-
-    companion object {
-        const val MODEL_LIST = "MODEL_LIST"
     }
 }

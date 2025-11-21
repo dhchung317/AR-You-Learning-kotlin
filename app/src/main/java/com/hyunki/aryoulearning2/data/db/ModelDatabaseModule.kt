@@ -16,11 +16,12 @@ class ModelDatabaseModule {
     @Provides
     fun provideModelDatabase(application: Application): ModelDatabase {
         return Room.databaseBuilder(
-                application.applicationContext,
-                ModelDatabase::class.java, ModelDatabase.DATABASE_NAME)
-                .fallbackToDestructiveMigration()
-                .allowMainThreadQueries()
-                .build()
+            application.applicationContext,
+            ModelDatabase::class.java, ModelDatabase.DATABASE_NAME
+        )
+            .fallbackToDestructiveMigration(false)
+            .allowMainThreadQueries()
+            .build()
     }
 
     @Provides
