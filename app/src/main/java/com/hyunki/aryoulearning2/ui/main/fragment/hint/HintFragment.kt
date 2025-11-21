@@ -64,12 +64,16 @@ constructor(private val viewModelProviderFactory: ViewModelProviderFactory) : Fr
             viewModelProviderFactory
         )[MainViewModel::class.java]
 
-        mainViewModel.getModelLiveData().observe(
+
+
+        mainViewModel.modelLiveData.observe(
             viewLifecycleOwner,
             Observer { state ->
                 renderModelsByCategory(state)
             })
+
         //        textToSpeech = pronunciationUtil.getTTS(requireContext());
+
         mainViewModel.loadModelsByCat()
         initializeViews()
         viewClickListeners()

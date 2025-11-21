@@ -36,7 +36,7 @@ class ArGameCoordinatorViewModel(
 
     init {
         // 1) If MainViewModel ever emits models, also feed pipeline from there
-        _uiState.addSource(mainViewModel.getModelLiveData()) { state ->
+        _uiState.addSource(mainViewModel.modelLiveData) { state ->
             when (state) {
                 is MainState.Success.OnModelsLoaded -> {
                     val models = state.models
@@ -52,7 +52,7 @@ class ArGameCoordinatorViewModel(
         }
 
         // 2) AR: future model maps -> build renderables & letter futures
-        _uiState.addSource(arViewModel.getFutureModelMapListLiveData()) { state ->
+        _uiState.addSource(arViewModel.futureModelMapListLiveData) { state ->
             when (state) {
                 is ArState.Success.OnFutureModelMapListLoaded -> {
                     val futureList = state.futureModelMapList
@@ -65,7 +65,7 @@ class ArGameCoordinatorViewModel(
         }
 
         // 3) AR: future letter map -> build letter renderables
-        _uiState.addSource(arViewModel.getFutureLetterMapLiveData()) { state ->
+        _uiState.addSource(arViewModel.futureLetterMapLiveData) { state ->
             when (state) {
                 is ArState.Success.OnFutureLetterMapLoaded -> {
                     arViewModel.loadLetterRenderables(
@@ -78,7 +78,7 @@ class ArGameCoordinatorViewModel(
         }
 
         // 4) AR: final model renderables -> push into gameViewModel
-        _uiState.addSource(arViewModel.getModelMapListLiveData()) { state ->
+        _uiState.addSource(arViewModel.modelMapListLiveData) { state ->
             when (state) {
                 is ArState.Success.OnModelMapListLoaded -> {
                     gameViewModel.setModMap(state.modelMap)
@@ -89,7 +89,7 @@ class ArGameCoordinatorViewModel(
         }
 
         // 5) AR: final letter renderables -> push into gameViewModel
-        _uiState.addSource(arViewModel.getLetterMapLiveData()) { state ->
+        _uiState.addSource(arViewModel.letterMapLiveData) { state ->
             when (state) {
                 is ArState.Success.OnLetterMapLoaded -> {
                     gameViewModel.setLetMap(state.letterMap)
@@ -126,11 +126,12 @@ class ArGameCoordinatorViewModel(
         _uiState.addSource(gameViewModel.combined) { (modelMapList, _, currentWord) ->
             // modelMapList is there, but we use the helper for consistency
             val entry = gameViewModel.getModelEntryFromModelKey(currentWord.answer)
+            val hasPlacedGame = gameViewModel.hasPlacedGame.value
 
 
             val old = _uiState.value ?: ArGameUiState()
 
-            if (entry != null) {
+            if (entry != null && hasPlacedGame == true) {
                 _uiState.value = old.copy(
                     shouldStartNewRound = true,
                     nextModelKey = entry.first,

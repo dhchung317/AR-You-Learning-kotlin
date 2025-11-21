@@ -1,5 +1,6 @@
 package com.hyunki.aryoulearning2.ui.main.fragment.ar
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -22,30 +23,53 @@ data class GamePlacement(
 
 class GameViewModel @Inject
 constructor() : ViewModel() {
+    private var modelList: List<Model>? = null
     private val _gamePlacement = MutableLiveData<GamePlacement>()
     private val roundLimit = 3
     private var _attempt: MutableLiveData<String> = MutableLiveData<String>("");
     val attempt: LiveData<String>
         get() = _attempt
+
+    fun clearAttempt() {
+        _attempt.value = ""
+    }
+
     private val _modelMapList = MutableLiveData<List<MutableMap<String, ModelRenderable>>?>()
     val modelMapList: List<MutableMap<String, ModelRenderable>>?
         get() = _modelMapList.value
+
     fun setModMap(modMap: List<MutableMap<String, ModelRenderable>>) {
         _modelMapList.value = modMap
     }
+
     private val _letterMap = MutableLiveData<MutableMap<String, ModelRenderable>?>()
     val letterMap: MutableMap<String, ModelRenderable>?
         get() = _letterMap.value
+
     fun setLetMap(letMap: MutableMap<String, ModelRenderable>) {
         _letterMap.value = letMap
     }
+
     private val _keyStack = Stack<Model>()
     val keyStack: Stack<Model> get() = _keyStack
     private val _currentWord: MutableLiveData<CurrentWord> = MutableLiveData()
     val currentWord: CurrentWord? get() = _currentWord.value
+    fun addWrongCurrentWordAttempt() {
+        val tried = attempt.value
+        if (tried != null) {
+            _currentWord.value?.addWrongAnswerToSet(tried)
+        }
+    }
 
-    var wordHistoryList = ArrayList<CurrentWord>()
-        private set
+    private val _wordHistory = ArrayList<CurrentWord>()
+    val wordHistory: List<CurrentWord> get() = _wordHistory
+    fun updateWordHistory() {
+        currentWord?.let { _wordHistory.add(it) }
+    }
+
+    fun clearWordHistory() {
+        _wordHistory.clear()
+    }
 
     private val _hasPlacedGame = MutableLiveData<Boolean>()
     val hasPlacedGame: LiveData<Boolean> get() = _hasPlacedGame
@@ -63,6 +87,7 @@ constructor() : ViewModel() {
             )
         }
     }
+
     private val r = Random()
     private fun getRandom(max: Int): Int {
         val min = 0
@@ -88,6 +113,13 @@ constructor() : ViewModel() {
     }
 
     fun ingest(modelList: List<Model>) {
+        if (this.modelList == null) this.modelList = modelList
+        populateStack(modelList)
+        setNextWord()
+    }
+
+    fun populateStack(modelList: List<Model>) {
+        if (keyStack.isNotEmpty()) keyStack.clear()
         while (keyStack.size < roundLimit && keyStack.size < modelList.size) {
             val ran = getRandom(modelList.size)
 
@@ -95,7 +127,6 @@ constructor() : ViewModel() {
                 _keyStack.add(modelList[ran])
             }
         }
-        setNextWord()
     }
 
     fun setNextWord() {
@@ -129,5 +160,12 @@ constructor() : ViewModel() {
         }
         val model = map[modelKey] ?: return null
         return modelKey to model
+    }
+
+    // TODO: change stack implementation into array and tracked index
+    fun restartGameSession() {
+        setHasPlacedGame(false)
+        clearAttempt()
+        clearWordHistory()
     }
 }

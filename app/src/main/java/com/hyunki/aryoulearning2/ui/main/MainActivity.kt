@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity(), NavListener {
             moveToListFragment()
         } else {
             viewModel.loadModelResponses()
-            viewModel.getModelResponsesData()
+            viewModel.modelResponsesData
                 .observe(this, Observer<MainState> { this.renderModelResponses(it) })
         }
     }
@@ -155,10 +155,6 @@ class MainActivity : AppCompatActivity(), NavListener {
 
     override fun moveToTutorialFragment() {
         changeFragment(tutorialFragment, true, null)
-    }
-
-    override fun saveWordHistoryFromGameFragment(wordHistory: List<CurrentWord>) {
-        viewModel.setWordHistory(wordHistory)
     }
 
     companion object {

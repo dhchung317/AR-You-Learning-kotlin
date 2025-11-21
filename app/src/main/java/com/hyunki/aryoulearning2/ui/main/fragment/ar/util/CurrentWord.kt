@@ -4,7 +4,7 @@ import com.hyunki.aryoulearning2.data.db.model.Model
 import java.util.HashSet
 
 class CurrentWord(answerModel: Model) {
-    private val _attempts = HashSet<String>();
+    private val _attempts = HashSet<String>()
     val attempts: HashSet<String> get() = _attempts
 
     val image = answerModel.image

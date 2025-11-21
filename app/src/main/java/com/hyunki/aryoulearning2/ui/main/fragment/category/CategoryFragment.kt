@@ -53,7 +53,7 @@ constructor() : Fragment() {
         mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
         mainViewModel.loadCategories()
 
-        mainViewModel.getCatLiveData().observe(viewLifecycleOwner, Observer { categories ->
+        mainViewModel.catLiveData.observe(viewLifecycleOwner, Observer { categories ->
             renderCategories(categories)
         })
     }
@@ -99,6 +99,6 @@ constructor() : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null // prevent memory leak
+        _binding = null
     }
 }
